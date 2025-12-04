@@ -1,0 +1,34 @@
+/* Responsive Styles */
+@media (max-width: 760px) {
+  #price-table table,
+  #price-table thead,
+  #price-table tbody,
+  #price-table th,
+  #price-table td,
+  #price-table tr {
+    display: block;
+    width: 100%;
+  }
+
+  #price-table tr {
+    margin-bottom: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  #price-table td {
+    padding: 8px;
+    border: none;
+    text-align: left;
+  }
+
+  #price-table th {
+    display: none;
+  }
+
+  #price-table .amount-cell {
+    text-align: left;
+    font-weight: 500;
+  }
+}

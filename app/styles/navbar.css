@@ -1,0 +1,21 @@
+/* Navbar Styles */
+.navbar-nav .nav-link {
+  color: #333333 !important;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.navbar-nav .nav-link:hover {
+  background-color: #FCE9EC;
+  border-radius: 20px;
+  color: #E60028 !important;
+  font-weight: 500;
+}
+
+.navbar-nav .nav-link.active {
+  background-color: #E60028;
+  color: #FFFFFF !important;
+  border-radius: 20px;
+  font-weight: 600;
+}

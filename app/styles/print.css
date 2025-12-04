@@ -1,0 +1,10 @@
+/* Print Styles */
+tr,
+td,
+th {
+  page-break-inside: avoid;
+}
+
+.section {
+  page-break-before: always;
+}

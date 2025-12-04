@@ -3698,8 +3698,6 @@ function checkAllocationCoefficients() {
 
 function buildAllocatedRecords(items = [], startFC = (closedDate || expectedCloseDate), startAC = (facDate || "")) {
   if (!Array.isArray(items)) return [];
-  items.forEach((item, idx) => {
-  });
 
   // helper: check valid Date object
   const isValidDate = d => d instanceof Date && !isNaN(d.getTime());
@@ -3727,7 +3725,7 @@ function buildAllocatedRecords(items = [], startFC = (closedDate || expectedClos
       coef = Number(coef);
       if (isNaN(coef)) coef = 0;
     }
-    const value = (item.allocationValue || 0);
+    const value = item.allocationValue || 0;
     const duration = item.allocationDuration || 1;
     return value * duration * coef / 100;
   }).reduce((a, b) => a + b, 0);
@@ -3747,7 +3745,7 @@ function buildAllocatedRecords(items = [], startFC = (closedDate || expectedClos
     const category = item.category;
     const territory = item.region || "";
     const duration = Number(item.allocationDuration) || 1;
-    const AllocValue = (Number(item.allocationValue) || 0); 
+    const AllocValue = Number(item.allocationValue) || 0;
 
     // hệ số
     let coef = item.coefficient;
@@ -3836,7 +3834,6 @@ function buildAllocatedRecords(items = [], startFC = (closedDate || expectedClos
     });
 
     return compact;
-    
   });
 
   return compactRecords;

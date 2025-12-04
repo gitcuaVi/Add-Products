@@ -1,0 +1,64 @@
+/* Filters Container */
+#filters-container {
+  display: grid;
+  grid-template-columns: 2fr 2fr;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+#filters-container select,
+#filters-container input {
+  height: 24px;
+  padding: 0 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+#type-subtype-container.full-width {
+  grid-template-columns: 1fr;
+}
+
+/* Form Controls */
+#market select,
+#filters-container select,
+#filters-container input {
+  height: 24px;
+  padding: 0 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+/* Market Container */
+.market-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+#market-select {
+  min-width: 180px;
+}
+
+.market-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.market-icon:hover {
+  transform: scale(1.1);
+}
+
+.market-icon img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}

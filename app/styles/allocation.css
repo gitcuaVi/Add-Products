@@ -1,0 +1,6 @@
+/* Product Allocation Table */
+#product-allocated table td,
+#product-allocated table th {
+  text-align: center;
+  vertical-align: middle;
+}
