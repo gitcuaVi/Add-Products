@@ -1,822 +1,1648 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <title>Products</title>
+    <meta charset="UTF-8" />
+    <script defer src="{{{appclient}}}"></script>
+    <script
+      type="module"
+      src="https://cdn.jsdelivr.net/npm/@freshworks/crayons@v3/dist/crayons/crayons.esm.js"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles/base.css" />
+    <link rel="stylesheet" href="styles/navbar.css" />
+    <link rel="stylesheet" href="styles/filters.css" />
+    <link rel="stylesheet" href="styles/price-table.css" />
+    <link rel="stylesheet" href="styles/allocation.css" />
+    <link rel="stylesheet" href="styles/quotation.css" />
+    <link rel="stylesheet" href="styles/print.css" />
+    <link rel="stylesheet" href="styles/responsive.css" />
+  </head>
 
-<head>
-  <title>Products</title>
-  <meta charset="UTF-8" />
-  <script defer src="{{{appclient}}}"></script>
-  <script type="module" src="https://cdn.jsdelivr.net/npm/@freshworks/crayons@v3/dist/crayons/crayons.esm.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="styles/base.css" />
-  <link rel="stylesheet" href="styles/navbar.css" />
-  <link rel="stylesheet" href="styles/filters.css" />
-  <link rel="stylesheet" href="styles/price-table.css" />
-  <link rel="stylesheet" href="styles/allocation.css" />
-  <link rel="stylesheet" href="styles/quotation.css" />
-  <link rel="stylesheet" href="styles/print.css" />
-  <link rel="stylesheet" href="styles/responsive.css" />
-</head>
-
-<body>
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-sm bg-light">
-    <div class="container-fluid">
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link active" href="#" data-target="section-1">Product List</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#" data-target="section-2">Find Product</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#" data-target="section-3">Revenue Allocation</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#" data-target="section-4">Quotation List</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#" data-target="section-5">Quotation Template</a>
-        </li>
-      </ul>
-    </div>
-  </nav>
-
-  <!-- Content -->
-  <div class="modal-container">
-
-    <!-- SECTION 1: Product List -->
-    <section id="section-1" style="padding: 20px;">
-      <div class="products-header d-flex justify-content-end align-items-center">
-        <button id="btn-edit-products" class="btn btn-success">
-          Edit
-        </button>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-sm bg-light">
+      <div class="container-fluid">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link active" href="#" data-target="section-1"
+              >Product List</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" data-target="section-2"
+              >Find Product</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" data-target="section-3"
+              >Revenue Allocation</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" data-target="section-4"
+              >Quotation List</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" data-target="section-5"
+              >Quotation Template</a
+            >
+          </li>
+        </ul>
       </div>
-      <div id="product-list"></div>
-      <div id="edit-actions-footer" class="d-flex gap-2 justify-content-end mt-3"></div>
-    </section>
+    </nav>
 
-    <!-- SECTION 2: Add Product Form -->
-    <section id="section-2" style="display:none; padding: 20px">
-      <div class="modal-container">
-        <!-- Market -->
-        <div class="market-container">
-          <div id="market">
-            <label for="market-select">Market:</label>
-            <select id="market-select">
-              <option value="">--- Select Market ---</option>
-            </select>
-          </div>
-          <div id="market-icons"></div>
+    <!-- Content -->
+    <div class="modal-container">
+      <!-- SECTION 1: Product List -->
+      <section id="section-1" style="padding: 20px">
+        <div
+          class="products-header d-flex justify-content-end align-items-center"
+        >
+          <button id="btn-edit-products" class="btn btn-success">Edit</button>
         </div>
+        <div id="product-list"></div>
+        <div
+          id="edit-actions-footer"
+          class="d-flex gap-2 justify-content-end mt-3"
+        ></div>
+      </section>
 
-        <div id="filters-container" class="hidden">
-          <!-- Cột TRÁI: Category/Version + Type/Subtype -->
-          <div id="left-filter-column">
-            <!-- HÀNG 1: Category + Version -->
-            <div id="category-version-container" class="grid-2">
-              <div id="category" class="hidden">
-                <label for="category-select">Category:</label>
-                <select id="category-select" class="full-width">
-                  <option value="">--- Select Category ---</option>
-                </select>
-              </div>
-              <div id="version" class="hidden">
-                <label for="version-select">Version:</label>
-                <select id="version-select" class="full-width">
-                  <option value="">--- Select Version ---</option>
-                </select>
-              </div>
+      <!-- SECTION 2: Add Product Form -->
+      <section id="section-2" style="display: none; padding: 20px">
+        <div class="modal-container">
+          <!-- Market -->
+          <div class="market-container">
+            <div id="market">
+              <label for="market-select">Market:</label>
+              <select id="market-select">
+                <option value="">--- Select Market ---</option>
+              </select>
             </div>
-
-            <!-- HÀNG 2: Type + Subtype -->
-            <div id="type-subtype-container" class="grid-2" style="margin-top:10px;">
-              <div id="type" class="hidden">
-                <label for="type-select" id="type-label" class="hidden">Type:</label>
-                <select id="type-select" class="full-width hidden">
-                  <option value="">--- Select Type ---</option>
-                </select>
-              </div>
-              <div id="subtype" class="hidden">
-                <label for="subtype-select" id="subtype-label" class="hidden">Subtype:</label>
-                <select id="subtype-select" class="full-width hidden">
-                  <option value="">--- Select Subtype ---</option>
-                </select>
-              </div>
-            </div>
+            <div id="market-icons"></div>
           </div>
 
-          <!-- Cột PHẢI: License/Price Type + Quantitative/Package -->
-          <div id="right-filter-column">
-            <!-- HÀNG 1: License + Price Type -->
-            <div id="license-price-container" class="grid-2">
-              <div id="license" class="hidden">
-                <label for="license-select" id="license-label">License:</label>
-                <select id="license-select" class="full-width">
-                  <option value="">--- Select License ---</option>
-                </select>
+          <div id="filters-container" class="hidden">
+            <!-- Cột TRÁI: Category/Version + Type/Subtype -->
+            <div id="left-filter-column">
+              <!-- HÀNG 1: Category + Version -->
+              <div id="category-version-container" class="grid-2">
+                <div id="category" class="hidden">
+                  <label for="category-select">Category:</label>
+                  <select id="category-select" class="full-width">
+                    <option value="">--- Select Category ---</option>
+                  </select>
+                </div>
+                <div id="version" class="hidden">
+                  <label for="version-select">Version:</label>
+                  <select id="version-select" class="full-width">
+                    <option value="">--- Select Version ---</option>
+                  </select>
+                </div>
               </div>
-              <div id="price-type" class="hidden">
-                <label for="price-type-select" id="price-type-label">Price Type:</label>
-                <select id="price-type-select" class="full-width">
-                  <option value="">--- Select Price Type ---</option>
-                </select>
+
+              <!-- HÀNG 2: Type + Subtype -->
+              <div
+                id="type-subtype-container"
+                class="grid-2"
+                style="margin-top: 10px"
+              >
+                <div id="type" class="hidden">
+                  <label for="type-select" id="type-label" class="hidden"
+                    >Type:</label
+                  >
+                  <select id="type-select" class="full-width hidden">
+                    <option value="">--- Select Type ---</option>
+                  </select>
+                </div>
+                <div id="subtype" class="hidden">
+                  <label for="subtype-select" id="subtype-label" class="hidden"
+                    >Subtype:</label
+                  >
+                  <select id="subtype-select" class="full-width hidden">
+                    <option value="">--- Select Subtype ---</option>
+                  </select>
+                </div>
               </div>
             </div>
 
-            <!-- HÀNG 2: Quantitative + package (Duration + Unit) -->
-            <div id="duration-package-container" class="grid-3" style="margin-top:10px">
-              <!-- Quantitative -->
-              <div id="quantitative" class="hidden">
-                <label for="quantitative-input" id="quantitative-label">Quantitative:</label>
-                <input type="number" id="quantitative-input" class="full-width" />
+            <!-- Cột PHẢI: License/Price Type + Quantitative/Package -->
+            <div id="right-filter-column">
+              <!-- HÀNG 1: License + Price Type -->
+              <div id="license-price-container" class="grid-2">
+                <div id="license" class="hidden">
+                  <label for="license-select" id="license-label"
+                    >License:</label
+                  >
+                  <select id="license-select" class="full-width">
+                    <option value="">--- Select License ---</option>
+                  </select>
+                </div>
+                <div id="price-type" class="hidden">
+                  <label for="price-type-select" id="price-type-label"
+                    >Price Type:</label
+                  >
+                  <select id="price-type-select" class="full-width">
+                    <option value="">--- Select Price Type ---</option>
+                  </select>
+                </div>
               </div>
-              <!-- Package Unit Label -->
-              <div id="package-duration-wrapper" class="hidden">
-                <label for="package-duration" id="package-duration-label">Duration</label>
-                <input type="number" id="package-duration-input" class="full-width" min="1" value="1" />
-              </div>
-              <!-- Package Unit Select -->
-              <div id="package-unit" class="hidden">
-                <label for="package-select" id="package-label">Package Unit</label>
-                <select id="package-select" class="full-width">
-                  <option value="">--- Select Unit ---</option>
-                </select>
+
+              <!-- HÀNG 2: Quantitative + package (Duration + Unit) -->
+              <div
+                id="duration-package-container"
+                class="grid-3"
+                style="margin-top: 10px"
+              >
+                <!-- Quantitative -->
+                <div id="quantitative" class="hidden">
+                  <label for="quantitative-input" id="quantitative-label"
+                    >Quantitative:</label
+                  >
+                  <input
+                    type="number"
+                    id="quantitative-input"
+                    class="full-width"
+                  />
+                </div>
+                <!-- Package Unit Label -->
+                <div id="package-duration-wrapper" class="hidden">
+                  <label for="package-duration" id="package-duration-label"
+                    >Duration</label
+                  >
+                  <input
+                    type="number"
+                    id="package-duration-input"
+                    class="full-width"
+                    min="1"
+                    value="1"
+                  />
+                </div>
+                <!-- Package Unit Select -->
+                <div id="package-unit" class="hidden">
+                  <label for="package-select" id="package-label"
+                    >Package Unit</label
+                  >
+                  <select id="package-select" class="full-width">
+                    <option value="">--- Select Unit ---</option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>
+
+          <!-- Product Table -->
+          <div id="product-table" style="display: none; margin-top: 20px"></div>
+
+          <!-- Price Table -->
+          <div id="price-table" style="display: none; margin-top: 20px"></div>
+
+          <div id="section2-footer" style="margin-top: 16px; text-align: right">
+            <button id="btn-save-section2" class="btn btn-primary">Save</button>
+          </div>
         </div>
+      </section>
 
-        <!-- Product Table -->
-        <div id="product-table" style="display: none; margin-top: 20px;"></div>
-
-        <!-- Price Table -->
-        <div id="price-table" style="display: none; margin-top: 20px;"></div>
-
-        <div id="section2-footer" style="margin-top:16px; text-align:right;">
-          <button id="btn-save-section2" class="btn btn-primary">Save</button>
+      <!-- SECTION 3: Product Allocation -->
+      <section id="section-3" style="display: none; padding: 20px">
+        <div
+          class="products-header d-flex justify-content-end align-items-center"
+        >
+          <button
+            id="btn-view-allocation"
+            class="btn btn-outline-info ms-2"
+            style="margin-right: 8px"
+          >
+            Review
+          </button>
+          <button id="btn-allocate" class="btn btn-success">Apply</button>
         </div>
-      </div>
-    </section>
+        <div id="product-allocated"></div>
+      </section>
 
-    <!-- SECTION 3: Product Allocation -->
-    <section id="section-3" style="display:none; padding: 20px;">
-      <div class="products-header d-flex justify-content-end align-items-center">
-        <button id="btn-view-allocation" class="btn btn-outline-info ms-2" style="margin-right: 8px;">
-          Review
-        </button>
-        <button id="btn-allocate" class="btn btn-success">
-          Apply
-        </button>
-      </div>
-      <div id="product-allocated"></div>
-    </section>
+      <!-- SECTION 4: Quotation List -->
+      <section id="section-4" style="display: none; padding: 20px">
+        <div
+          class="d-flex justify-content-between align-items-center mb-3"
+        ></div>
+        <div id="quotation-list"></div>
+      </section>
 
-    <!-- SECTION 4: Quotation List -->
-    <section id="section-4" style="display:none; padding:20px;">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-      </div>
-      <div id="quotation-list"></div>
-    </section>
-
-    <!-- SECTION 5: Quotation Template -->
-    <section id="section-5" style="display: none; padding: 20px; margin-top: 35px;">
-      <div class="row">
-        <!-- Option English -->
-        <div id="card-en" class="col-md-6 mb-4">
-          <div class="card shadow-sm h-100">
-            <div class="card-body">
-              <div class="d-flex align-items-center mb-2">
-                <span class="me-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
-                    class="bi bi-file-earmark-text" viewBox="0 0 16 16">
-                    <path d="M5 7h6v1H5V7zm0 2h6v1H5V9zm0 2h6v1H5v-1z" />
-                    <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 
+      <!-- SECTION 5: Quotation Template -->
+      <section
+        id="section-5"
+        style="display: none; padding: 20px; margin-top: 35px"
+      >
+        <div class="row">
+          <!-- Option English -->
+          <div id="card-en" class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+              <div class="card-body">
+                <div class="d-flex align-items-center mb-2">
+                  <span class="me-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="22"
+                      height="22"
+                      fill="currentColor"
+                      class="bi bi-file-earmark-text"
+                      viewBox="0 0 16 16"
+                    >
+                      <path d="M5 7h6v1H5V7zm0 2h6v1H5V9zm0 2h6v1H5v-1z" />
+                      <path
+                        d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 
                 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 
                 4.5zm-3 .5a1 1 0 0 1-1-1V1H4a1 1 
                 0 0 0-1 1v12a1 1 0 0 0 1 
-                1h8a1 1 0 0 0 1-1V5h-2z" />
-                  </svg>
-                </span>
-                <h5 class="card-title mb-0">Viettel Security Quote Template (English)</h5>
+                1h8a1 1 0 0 0 1-1V5h-2z"
+                      />
+                    </svg>
+                  </span>
+                  <h5 class="card-title mb-0">
+                    Viettel Security Quote Template (English)
+                  </h5>
+                </div>
+                <br />
+                <span class="badge bg-primary">EN</span>
               </div>
-              <br>
-              <span class="badge bg-primary">EN</span>
-            </div>
-            <div class="card-footer bg-white border-0 d-flex gap-2">
-              <button class="btn btn-outline-secondary btn-sm" onclick="previewQuote('en')">Preview</button>
-              <button class="btn btn-success btn-sm" onclick="createQuote('en')">Create</button>
+              <div class="card-footer bg-white border-0 d-flex gap-2">
+                <button
+                  class="btn btn-outline-secondary btn-sm"
+                  onclick="previewQuote('en')"
+                >
+                  Preview
+                </button>
+                <button
+                  class="btn btn-success btn-sm"
+                  onclick="createQuote('en')"
+                >
+                  Create
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-        <!-- Option Vietnamese -->
-        <div id="card-vi" class="col-md-6 mb-4">
-          <div class="card shadow-sm h-100">
-            <div class="card-body">
-              <div class="d-flex align-items-center mb-2">
-                <span class="me-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
-                    class="bi bi-file-earmark-text" viewBox="0 0 16 16">
-                    <path d="M5 7h6v1H5V7zm0 2h6v1H5V9zm0 2h6v1H5v-1z" />
-                    <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 
+          <!-- Option Vietnamese -->
+          <div id="card-vi" class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+              <div class="card-body">
+                <div class="d-flex align-items-center mb-2">
+                  <span class="me-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="22"
+                      height="22"
+                      fill="currentColor"
+                      class="bi bi-file-earmark-text"
+                      viewBox="0 0 16 16"
+                    >
+                      <path d="M5 7h6v1H5V7zm0 2h6v1H5V9zm0 2h6v1H5v-1z" />
+                      <path
+                        d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 
                 2 0 0 1 2-2h5.5L14 4.5zm-3 .5a1 1 0 0 
                 1-1-1V1H4a1 1 0 0 0-1 1v12a1 1 0 0 
-                0 1 1h8a1 1 0 0 0 1-1V5h-2z" />
-                  </svg>
-                </span>
-                <h5 class="card-title mb-0">Viettel Security Quote Template (Vietnamese)</h5>
+                0 1 1h8a1 1 0 0 0 1-1V5h-2z"
+                      />
+                    </svg>
+                  </span>
+                  <h5 class="card-title mb-0">
+                    Viettel Security Quote Template (Vietnamese)
+                  </h5>
+                </div>
+                <br />
+                <span class="badge bg-success">VI</span>
               </div>
-              <br>
-              <span class="badge bg-success">VI</span>
+              <div class="card-footer bg-white border-0 d-flex gap-2">
+                <button
+                  class="btn btn-outline-secondary btn-sm"
+                  onclick="previewQuote('vi')"
+                >
+                  Preview
+                </button>
+                <button
+                  class="btn btn-success btn-sm"
+                  onclick="createQuote('vi')"
+                >
+                  Create
+                </button>
+              </div>
             </div>
-            <div class="card-footer bg-white border-0 d-flex gap-2">
-              <button class="btn btn-outline-secondary btn-sm" onclick="previewQuote('vi')">Preview</button>
-              <button class="btn btn-success btn-sm" onclick="createQuote('vi')">Create</button>
+          </div>
+          <div
+            class="modal fade"
+            id="quoteModal"
+            tabindex="-1"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-xl">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Quotation Preview</h5>
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
+                </div>
+                <div class="modal-body" id="quoteModalBody">
+                  <!-- Template English -->
+                  <div id="quoteContent-en" style="display: none">
+                    <div class="page-section">
+                      <!-- Header -->
+                      <table width="100%" style="color: black">
+                        <tr>
+                          <td width="35%" align="center" valign="middle">
+                            <svg
+                              width="216"
+                              height="80"
+                              viewBox="0 0 108 40"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <g clip-path="url(#clip0_181_41)">
+                                <path
+                                  d="M26.0383 5.46355V18.1175C26.0383 18.4438 25.9034 18.7569 25.6631 18.9882C25.4229 19.2195 25.0968 19.3502 24.7562 19.3517H22.9837C22.814 19.3525 22.6459 19.3211 22.4889 19.2594C22.332 19.1977 22.1893 19.1069 22.0691 18.9922C21.9488 18.8776 21.8534 18.7412 21.7883 18.5911C21.7232 18.441 21.6897 18.28 21.6897 18.1175V5.46355C21.6889 5.30174 21.7215 5.14137 21.7856 4.99165C21.8497 4.84194 21.944 4.70583 22.0632 4.59114C22.1823 4.47646 22.3239 4.38545 22.4798 4.32336C22.6358 4.26126 22.803 4.2293 22.9718 4.2293H24.7444C24.9142 4.2278 25.0827 4.25865 25.24 4.32008C25.3973 4.3815 25.5403 4.47227 25.6607 4.58711C25.7811 4.70194 25.8765 4.83856 25.9413 4.98902C26.0061 5.13948 26.0391 5.30078 26.0383 5.46355ZM18.3574 4.2293C17.8246 4.23306 17.304 4.38269 16.857 4.66055C16.4101 4.93841 16.0553 5.33292 15.8345 5.79759L11.1078 15.4225C10.9955 15.649 10.7769 16.017 10.5878 16.017C10.3988 16.017 10.1802 15.649 10.0679 15.4225L5.29983 5.79759C5.07739 5.32943 4.71894 4.93257 4.26735 4.65445C3.81576 4.37633 3.29013 4.22873 2.75331 4.2293H0L7.51548 18.1741C8.25994 19.5442 9.7843 19.5159 10.5642 19.5159C11.6454 19.5159 12.9276 19.4593 13.5775 18.1741L21.093 4.2293H18.3574ZM101.37 1.91366C101.37 1.58729 101.235 1.27421 100.995 1.04291C100.755 0.8116 100.429 0.680903 100.088 0.679405H98.3157C97.9751 0.680903 97.649 0.8116 97.4088 1.04291C97.1685 1.27421 97.0336 1.58729 97.0336 1.91366V14.4091C97.0336 16.3227 97.7367 17.4324 99.0011 18.2307C100.265 19.029 101.642 19.3631 104.283 19.3631H105.719C106.06 19.3586 106.384 19.225 106.622 18.9916C106.861 18.7581 106.992 18.4439 106.989 18.1175V16.7757H105.908C105.128 16.7757 103.491 16.7473 102.528 16.1189C101.258 15.3206 101.347 13.8995 101.347 12.8691L101.37 1.91366ZM73.5064 16.7757C72.7264 16.7757 71.0898 16.7473 70.1208 16.1189C68.8564 15.3206 68.9392 13.8995 68.9392 12.8691V6.79405H73.1637C73.5037 6.79405 73.8298 6.66461 74.0703 6.43421C74.3107 6.2038 74.4458 5.89131 74.4458 5.56546V4.2293H68.9392V1.91366C68.9392 1.58729 68.8043 1.27421 68.564 1.04291C68.3237 0.8116 67.9976 0.680903 67.657 0.679405H65.8845C65.5439 0.680903 65.2178 0.8116 64.9776 1.04291C64.7373 1.27421 64.6024 1.58729 64.6024 1.91366V4.2293H55.5389V1.91366C55.5389 1.58729 55.404 1.27421 55.1638 1.04291C54.9235 0.8116 54.5974 0.680903 54.2568 0.679405H52.4843C52.1437 0.680903 51.8176 0.8116 51.5773 1.04291C51.337 1.27421 51.2022 1.58729 51.2022 1.91366V4.2293H48.4488V5.56546C48.4488 5.72921 48.4829 5.89132 48.5492 6.04226C48.6155 6.19319 48.7126 6.32991 48.8348 6.44437C48.957 6.55884 49.1018 6.64873 49.2608 6.70879C49.4198 6.76884 49.5897 6.79783 49.7605 6.79405H51.1903V14.4091C51.1903 16.3227 51.8934 17.4324 53.1578 18.2307C54.4222 19.029 55.7989 19.3631 58.4754 19.3631H59.9052C60.2427 19.3542 60.5631 19.2187 60.7973 18.9857C61.0316 18.7528 61.161 18.441 61.1578 18.1175V16.7757H60.0825C59.2967 16.7757 57.66 16.7473 56.697 16.1189C55.4326 15.3206 55.5153 13.8995 55.5153 12.8691V6.79405H64.5965V14.4091C64.5965 16.3227 65.2996 17.4324 66.564 18.2307C67.8284 19.029 69.205 19.3631 71.8461 19.3631H73.2818C73.4535 19.3653 73.6238 19.3347 73.7829 19.273C73.942 19.2113 74.0867 19.1197 74.2083 19.0036C74.33 18.8876 74.4262 18.7494 74.4913 18.5973C74.5564 18.4451 74.5892 18.282 74.5876 18.1175V16.7757H73.5064ZM24.7562 0H22.9837C22.6436 0 22.3175 0.129441 22.0771 0.359846C21.8366 0.590252 21.7015 0.902749 21.7015 1.22859V4.2293C21.8424 3.79533 22.1333 3.42032 22.5264 3.16609C22.9195 2.91187 23.3913 2.79362 23.864 2.83086H24.7562C24.9246 2.83086 25.0913 2.79908 25.2468 2.73733C25.4024 2.67559 25.5437 2.5851 25.6628 2.47101C25.7818 2.35692 25.8763 2.22149 25.9407 2.07243C26.0051 1.92337 26.0383 1.76361 26.0383 1.60226V1.22859C26.0383 0.902749 25.9032 0.590252 25.6628 0.359846C25.4223 0.129441 25.0962 0 24.7562 0ZM46.8713 18.1175V16.7757H37.2229C35.6217 16.7757 33.796 16.6058 33.2406 14.9809C33.0689 14.2986 32.9817 13.5993 32.9807 12.8974H44.4548C45.2086 12.9472 45.9575 12.7473 46.5759 12.3312C46.9042 12.0493 47.1592 11.6976 47.3202 11.3044C47.4813 10.9111 47.5441 10.4872 47.5035 10.0665C47.5035 8.15287 47.019 6.27318 44.7147 5.15782C42.895 4.27459 40.5139 4.18967 38.2155 4.18967C36.3544 4.18967 33.0102 4.18967 30.8536 5.61642C28.6971 7.04317 28.4903 9.12102 28.4903 11.9462C28.4903 13.9448 28.6025 16.0226 29.9024 17.4494C31.539 19.2158 33.9201 19.3631 35.929 19.3631H45.5892C45.7588 19.3623 45.9267 19.3295 46.083 19.2664C46.2394 19.2033 46.3812 19.1113 46.5003 18.9956C46.6195 18.8798 46.7136 18.7427 46.7772 18.592C46.8409 18.4413 46.8729 18.28 46.8713 18.1175ZM43.0072 9.45506C43.0072 9.85138 42.895 10.3383 42.0382 10.3383H35.8462C34.2746 10.3383 32.9984 11.029 32.9984 11.8783V10.3326C33.0338 9.33616 32.9984 8.50955 33.8906 7.73956C35.0722 6.70913 36.8448 6.73744 38.0264 6.73744C39.2081 6.73744 40.6675 6.79405 41.7428 7.4225C42.115 7.63062 42.4261 7.92563 42.6472 8.28004C42.8683 8.63446 42.9921 9.03674 43.0072 9.4494V9.45506ZM93.9435 18.1175V16.7757H84.2951C82.6998 16.7757 80.8741 16.6058 80.3187 14.9809C80.1441 14.2991 80.0568 13.5994 80.0588 12.8974H91.5152C92.269 12.9472 93.0178 12.7473 93.6363 12.3312C93.9646 12.0493 94.2195 11.6976 94.3806 11.3044C94.5417 10.9111 94.6045 10.4872 94.5639 10.0665C94.5639 8.15287 94.0794 6.27318 91.7751 5.15782C89.9494 4.27459 87.5683 4.18967 85.2759 4.18967C83.4147 4.18967 80.0706 4.18967 77.9081 5.61642C75.7456 7.04317 75.5448 9.12102 75.5448 11.9462C75.5448 13.9448 75.657 16.0226 76.9569 17.4494C78.5935 19.2158 80.9746 19.3631 82.9834 19.3631H92.6377C92.8094 19.3653 92.9798 19.3347 93.1389 19.273C93.298 19.2113 93.4426 19.1197 93.5642 19.0036C93.6859 18.8876 93.7821 18.7494 93.8472 18.5973C93.9124 18.4451 93.9451 18.282 93.9435 18.1175ZM90.0735 9.45506C90.0735 9.85138 89.9612 10.3383 89.1104 10.3383H82.9066C81.3291 10.3383 80.0588 11.029 80.0588 11.8783V10.3326C80.0942 9.33616 80.0588 8.50955 80.9509 7.73956C82.1326 6.70913 83.9051 6.73744 85.0868 6.73744C86.2685 6.73744 87.7279 6.79405 88.8032 7.4225C89.1746 7.63091 89.4849 7.92612 89.7049 8.28058C89.925 8.63504 90.0478 9.03716 90.0617 9.4494L90.0735 9.45506Z"
+                                  fill="#EE0033"
+                                />
+                                <path
+                                  d="M43.8108 37.5258V36.235H48.9688C49.1793 36.2384 49.3858 36.179 49.5596 36.0651C49.6426 36.0046 49.7087 35.9254 49.752 35.8345C49.7953 35.7437 49.8145 35.6439 49.8078 35.5442C49.8121 35.4051 49.7753 35.2677 49.7014 35.1479C49.62 35.0236 49.5002 34.9267 49.3587 34.8705C49.225 34.8083 49.0868 34.7554 48.9452 34.712C48.827 34.678 48.6438 34.6327 48.3898 34.5817L47.8876 34.4742L46.115 34.0665C45.405 33.963 44.7374 33.6774 44.183 33.2399C43.8438 32.8453 43.6785 32.3396 43.7221 31.8301C43.6915 31.5532 43.729 31.2733 43.8316 31.0127C43.9342 30.7522 44.0991 30.5183 44.313 30.3298C44.914 29.9742 45.6177 29.8116 46.3218 29.8655H51.4917V31.1677H46.6291C46.3741 31.1508 46.1191 31.1997 45.8905 31.3093C45.8044 31.3766 45.7379 31.4641 45.6975 31.5633C45.6572 31.6625 45.6443 31.77 45.6601 31.8754C45.6602 31.974 45.683 32.0712 45.7269 32.1603C45.7708 32.2494 45.8348 32.328 45.9141 32.3907C46.0546 32.5147 46.2192 32.6109 46.3986 32.6737L47.0958 32.8606L49.0692 33.3248C49.471 33.4211 49.7842 33.5004 50.0028 33.5626C50.2587 33.6376 50.5094 33.7284 50.7531 33.8344C50.9919 33.9291 51.2102 34.0654 51.3971 34.2364C51.5551 34.4026 51.6811 34.5943 51.7694 34.8025C51.8745 35.0545 51.9267 35.3239 51.923 35.5952C51.9522 36.1195 51.7655 36.6338 51.4031 37.0276C51.1576 37.2204 50.8742 37.3639 50.5697 37.4495C50.2652 37.5351 49.9458 37.5611 49.6305 37.5258H43.8108Z"
+                                  fill="black"
+                                />
+                                <path
+                                  d="M61.4473 37.5258H56.3484C55.7473 37.5433 55.1476 37.4609 54.5759 37.2824C54.1426 37.1419 53.7691 36.8695 53.5124 36.5067C53.2689 36.1493 53.1022 35.7489 53.022 35.3291C52.9252 34.785 52.8817 34.2334 52.892 33.6815C52.892 32.1982 53.2288 31.1772 53.9023 30.6185C54.5759 30.0599 55.7122 29.7806 57.3115 29.7806C58.4459 29.7177 59.5774 29.9443 60.5906 30.4374C61.3469 30.879 61.725 31.6716 61.725 32.8153C61.725 33.7778 61.2524 34.259 60.307 34.259H54.9895C54.948 34.7809 55.0849 35.3016 55.3794 35.7424C55.5877 35.9316 55.8373 36.074 56.1102 36.1592C56.3831 36.2444 56.6723 36.2703 56.9569 36.235H61.4473V37.5258ZM54.9835 32.9568H59.1844C59.2474 32.9636 59.3112 32.9564 59.3709 32.9357C59.4305 32.9151 59.4844 32.8816 59.5284 32.8378C59.5724 32.794 59.6052 32.7411 59.6245 32.6832C59.6437 32.6253 59.6488 32.564 59.6394 32.5039C59.6451 32.2833 59.5854 32.0656 59.4673 31.8762C59.3491 31.6868 59.1772 31.5334 58.9717 31.4338C58.4591 31.1817 57.8872 31.0608 57.3115 31.0828C56.6736 31.0253 56.0348 31.1814 55.5035 31.5244C55.3143 31.7132 55.1699 31.9389 55.0801 32.1862C54.9904 32.4334 54.9574 32.6963 54.9835 32.9568Z"
+                                  fill="black"
+                                />
+                                <path
+                                  d="M70.5344 31.1677H67.1962C66.8389 31.1609 66.4825 31.2048 66.1386 31.2979C65.8894 31.3649 65.6565 31.4784 65.4532 31.632C65.2751 31.7847 65.1425 31.9801 65.0692 32.1982C64.9784 32.4159 64.9188 32.6445 64.8919 32.8776C64.8919 33.0984 64.8919 33.3701 64.8919 33.6985C64.885 34.0393 64.9068 34.3801 64.9569 34.7176C65.0084 34.9922 65.1083 35.2565 65.2523 35.4989C65.4116 35.7641 65.6655 35.9652 65.9673 36.0651C66.3716 36.199 66.7982 36.2604 67.2257 36.2463H70.7708V37.5485H66.7235C65.2583 37.5485 64.2381 37.2239 63.663 36.5747C63.0263 35.7473 62.7183 34.7295 62.7945 33.7042C62.7231 32.6916 63.0311 31.6878 63.663 30.8733C64.2341 30.2279 65.2543 29.9052 66.7235 29.9052H70.564L70.5344 31.1677Z"
+                                  fill="black"
+                                />
+                                <path
+                                  d="M80.4251 29.8655V36.235C80.4251 37.1069 79.9052 37.5372 78.8653 37.5372H75.5152C74.6 37.5969 73.6865 37.4002 72.886 36.971C72.5601 36.7412 72.3025 36.4338 72.1388 36.0793C71.975 35.7248 71.9108 35.3354 71.9525 34.9497V29.8655H73.9731V34.4628C73.9519 34.7021 73.9807 34.943 74.0578 35.1714C74.1349 35.3999 74.2588 35.6113 74.4222 35.7933C74.8342 36.117 75.3629 36.2717 75.8934 36.2236H77.8845C78.2272 36.2236 78.3985 36.0821 78.3985 35.7933V29.8655H80.4251Z"
+                                  fill="black"
+                                />
+                                <path
+                                  d="M82.0145 37.5258V32.7587C81.9791 32.3512 82.0435 31.9415 82.2025 31.5621C82.3615 31.1827 82.6107 30.8441 82.9303 30.5732C83.7538 30.057 84.7316 29.8143 85.7131 29.8825H87.0839V31.1847H86.2626C85.6516 31.1277 85.042 31.3048 84.5669 31.6773C84.1985 32.1113 84.0206 32.6655 84.0706 33.2229V37.5428L82.0145 37.5258Z"
+                                  fill="black"
+                                />
+                                <path
+                                  d="M89.9022 28.8747H87.8756V27.2951H89.9022V28.8747ZM87.8756 37.5428V29.8655H89.9022V37.5258L87.8756 37.5428Z"
+                                  fill="black"
+                                />
+                                <path
+                                  d="M96.5964 37.5258H95.332C94.4564 37.584 93.583 37.3866 92.8268 36.9597C92.5249 36.7359 92.2869 36.4426 92.135 36.107C91.9832 35.7714 91.9224 35.4045 91.9583 35.0403V31.1677H90.6939V29.8655H91.9583V27.414H93.9849V29.8712H96.5964V31.1677H93.9849V34.678C93.9619 34.9022 93.9968 35.1284 94.0864 35.3367C94.176 35.545 94.3177 35.729 94.4989 35.8726C94.9808 36.1432 95.537 36.2675 96.0941 36.2293H96.5964V37.5258Z"
+                                  fill="black"
+                                />
+                                <path
+                                  d="M107.143 29.8712L101.678 40H99.6215L101.034 37.4975L96.9509 29.8712H99.0424L101.997 35.7481L105.11 29.8712H107.143Z"
+                                  fill="black"
+                                />
+                              </g>
+                              <defs>
+                                <clipPath id="clip0_181_41">
+                                  <rect
+                                    width="107.143"
+                                    height="40"
+                                    fill="white"
+                                  />
+                                </clipPath>
+                              </defs>
+                            </svg>
+                          </td>
+                          <td width="65%" align="left" valign="middle">
+                            <h2
+                              style="
+                                margin-top: 0;
+                                font-size: 20px;
+                                text-align: center;
+                              "
+                            >
+                              VIETTEL CYBER SECURITY
+                            </h2>
+                            <div
+                              style="
+                                display: grid;
+                                grid-template-columns: 20px auto;
+                                gap: 6px;
+                                font-size: 14px;
+                                line-height: 1.5;
+                                margin-bottom: 2px;
+                              "
+                            >
+                              <div>
+                                <svg
+                                  width="20"
+                                  height="20"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke-width="1.5"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                                  />
+                                  <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"
+                                  />
+                                </svg>
+                              </div>
+                              <div style="text-align: left">
+                                <span style="font-size: 12px">Address:</span>
+                                <span style="font-size: 12px; margin-left: 4px">
+                                  41st & 43rd Floor, Keangnam Landmark 72, Pham
+                                  Hung Rd, Nam Tu Liem Dist, Hanoi, Vietnam.
+                                </span>
+                              </div>
+                            </div>
+                            <div
+                              style="
+                                display: grid;
+                                grid-template-columns: 20px auto;
+                                gap: 6px;
+                                font-size: 14px;
+                                line-height: 1.5;
+                                margin-bottom: 2px;
+                              "
+                            >
+                              <div>
+                                <svg
+                                  width="20"
+                                  height="20"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke-width="1.5"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z"
+                                  />
+                                </svg>
+                              </div>
+                              <div style="text-align: left">
+                                <span style="font-size: 12px">Hotline:</span>
+                                <span style="font-size: 12px; margin-left: 4px"
+                                  >(+84) 971 360 360</span
+                                >
+                              </div>
+                            </div>
+                            <div
+                              style="
+                                display: grid;
+                                grid-template-columns: 20px auto;
+                                gap: 6px;
+                                font-size: 14px;
+                                line-height: 1.5;
+                                margin-bottom: 2px;
+                              "
+                            >
+                              <div>
+                                <svg
+                                  width="20"
+                                  height="20"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke-width="1.5"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418"
+                                  />
+                                </svg>
+                              </div>
+                              <div style="text-align: left; font-size: 12px">
+                                Website:
+                                <a
+                                  href="https://viettelsecurity.com/"
+                                  target="_blank"
+                                  style="
+                                    text-decoration: none;
+                                    color: black;
+                                    font-size: 12px;
+                                  "
+                                >
+                                  viettelsecurity.com
+                                </a>
+                              </div>
+                            </div>
+                            <div
+                              style="
+                                display: grid;
+                                grid-template-columns: 20px auto;
+                                gap: 6px;
+                                font-size: 14px;
+                                line-height: 1.5;
+                                margin-bottom: 2px;
+                              "
+                            >
+                              <div>
+                                <svg
+                                  width="20"
+                                  height="20"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke-width="1.5"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
+                                  />
+                                </svg>
+                              </div>
+                              <div style="text-align: left; font-size: 12px">
+                                Email:
+                                <a
+                                  href="mailto:vcs.sales@viettel.com.vn"
+                                  target="_blank"
+                                  style="
+                                    text-decoration: none;
+                                    color: black;
+                                    font-size: 12px;
+                                  "
+                                >
+                                  vcs.sales@viettel.com.vn
+                                </a>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </table>
+                      <br />
+                      <!-- Title -->
+                      <div
+                        style="text-align: center; font-size: 14px; color: #555"
+                      >
+                        <h3
+                          style="
+                            text-align: center;
+                            margin-bottom: 0;
+                            font-size: 20px;
+                          "
+                        >
+                          INFORMATION SECURITY SERVICE QUOTATION
+                        </h3>
+                        <p
+                          style="font-style: italic; margin-top: 4px"
+                          id="quote-date"
+                        ></p>
+                      </div>
+                      <!-- Customer Info -->
+                      <h4 style="margin-bottom: 8px; font-size: 16px">
+                        Customer:
+                        <span id="company-name-en" style="font-size: 16px"
+                          >...</span
+                        >
+                      </h4>
+                      <div
+                        style="
+                          line-height: 1.6;
+                          font-size: 14px;
+                          padding-left: 20px;
+                          color: black;
+                        "
+                      >
+                        <div
+                          style="
+                            display: grid;
+                            grid-template-columns: 20px auto;
+                            gap: 6px;
+                            font-size: 14px;
+                            line-height: 1.5;
+                            margin-bottom: 3px;
+                          "
+                        >
+                          <div>
+                            <svg
+                              width="20"
+                              height="20"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke-width="1.5"
+                              stroke="currentColor"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                              />
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"
+                              />
+                            </svg>
+                          </div>
+                          <div style="text-align: left; font-size: 12px">
+                            Address:
+                            <span
+                              id="company-address-en"
+                              style="font-size: 12px"
+                              >...</span
+                            >
+                          </div>
+                        </div>
+                        <div
+                          style="
+                            display: grid;
+                            grid-template-columns: 20px auto;
+                            gap: 6px;
+                            font-size: 14px;
+                            line-height: 1.5;
+                            margin-bottom: 3px;
+                          "
+                        >
+                          <div>
+                            <svg
+                              width="20"
+                              height="20"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke-width="1.5"
+                              stroke="currentColor"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+                              />
+                            </svg>
+                          </div>
+                          <div style="text-align: left; font-size: 12px">
+                            Contact:
+                            <span id="contact-name-en" style="font-size: 12px"
+                              >...</span
+                            >
+                          </div>
+                        </div>
+                        <div
+                          style="
+                            display: grid;
+                            grid-template-columns: 20px auto;
+                            gap: 6px;
+                            font-size: 14px;
+                            line-height: 1.5;
+                            margin-bottom: 3px;
+                          "
+                        >
+                          <div>
+                            <svg
+                              width="20"
+                              height="20"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke-width="1.5"
+                              stroke="currentColor"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z"
+                              />
+                            </svg>
+                          </div>
+                          <div style="text-align: left; font-size: 12px">
+                            Phone:
+                            <span id="contact-phone-en" style="font-size: 12px"
+                              >...</span
+                            >
+                          </div>
+                        </div>
+                        <div
+                          style="
+                            display: grid;
+                            grid-template-columns: 20px auto;
+                            gap: 6px;
+                            font-size: 14px;
+                            line-height: 1.5;
+                            margin-bottom: 3px;
+                          "
+                        >
+                          <div>
+                            <svg
+                              width="20"
+                              height="20"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke-width="1.5"
+                              stroke="currentColor"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
+                              />
+                            </svg>
+                          </div>
+                          <div style="text-align: left; font-size: 12px">
+                            Email:
+                            <span id="contact-email-en" style="font-size: 12px"
+                              >...</span
+                            >
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="page-section">
+                      <p
+                        style="color: #666; margin-bottom: 2px; font-size: 14px"
+                      >
+                        Receiving your interest, we would like to send you the
+                        following quote:
+                      </p>
+                      <!-- Product Table Section-->
+                      <table
+                        class="quoteContent-table"
+                        width="100%"
+                        cellspacing="0"
+                        cellpadding="8"
+                        style="
+                          border-collapse: collapse;
+                          border: 0.5px solid black;
+                          width: 100%;
+                          text-align: center;
+                          margin-bottom: 10px;
+                          font-family: 'Segoe UI', sans-serif;
+                          font-size: 12px;
+                          word-break: break-word;
+                          color: black;
+                          page-break-inside: auto;
+                        "
+                      >
+                        <thead style="background-color: yellow">
+                          <tr>
+                            <th style="width: 20%; font-size: 12px">
+                              Product / Service
+                            </th>
+                            <th style="width: 15%; font-size: 12px">
+                              Unit Price
+                            </th>
+                            <th style="width: 11%; font-size: 12px">
+                              Quantity
+                            </th>
+                            <th style="width: 11%; font-size: 12px">
+                              Duration
+                            </th>
+                            <th style="width: 15%; font-size: 12px">
+                              Total Price
+                            </th>
+                            <th style="width: 13%; font-size: 12px">
+                              Item<br />Discount
+                            </th>
+                            <th style="width: 15%; font-size: 12px">
+                              Total Price<br />(After Discount)
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody id="productTable-en" style="font-size: 10px">
+                          <!-- Inject rows -->
+                        </tbody>
+                        <tfoot>
+                          <tr>
+                            <td
+                              colspan="6"
+                              style="text-align: center; font-size: 12px"
+                            >
+                              Total :
+                            </td>
+                            <td id="subtotalCell-en" style="font-size: 10px">
+                              0
+                            </td>
+                          </tr>
+                          <tr>
+                            <td
+                              colspan="6"
+                              style="text-align: center; font-size: 12px"
+                            >
+                              Discount :
+                            </td>
+                            <td
+                              id="globalDiscountCell-en"
+                              style="font-size: 10px"
+                            >
+                              0
+                            </td>
+                          </tr>
+                          <tr>
+                            <td
+                              colspan="6"
+                              style="text-align: center; font-size: 12px"
+                            >
+                              <strong>Total (After Discount) :</strong>
+                            </td>
+                            <td id="totalCell-en" style="font-size: 10px">
+                              <strong>0</strong>
+                            </td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                    <!-- Terms and Conditions -->
+                    <div id="noteContainer">
+                      <h3 style="margin-bottom: 2px; font-size: 16px">Note</h3>
+                      <input
+                        type="text"
+                        class="note-line"
+                        value="- The prices above do not include value-added tax (VAT)."
+                        style="
+                          width: 100%;
+                          border: none;
+                          padding-bottom: 2px;
+                          font-style: italic;
+                          font-size: 12px;
+                        "
+                      />
+                      <br />
+                      <input
+                        type="text"
+                        class="note-line"
+                        value="- The estimated implementation time is 2 months from the contract signing date."
+                        style="
+                          width: 100%;
+                          border: none;
+                          padding-bottom: 2px;
+                          font-style: italic;
+                          font-size: 12px;
+                        "
+                      />
+                      <br />
+                      <input
+                        type="text"
+                        class="note-line"
+                        value="- Fixed discounts are applied to each service as specified in the table."
+                        style="
+                          width: 100%;
+                          border: none;
+                          padding-bottom: 2px;
+                          font-style: italic;
+                          font-size: 12px;
+                        "
+                      />
+                    </div>
+                    <!-- Representation -->
+                    <div
+                      style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: flex-start;
+                        margin-top: 20px;
+                        margin-bottom: 40px;
+                      "
+                    >
+                      <!-- Column trái (có thể để trống hoặc thêm nội dung khác) -->
+                      <div style="flex: 1">
+                        <!-- Nội dung column trái nếu có -->
+                      </div>
+                      <!-- Column phải -->
+                      <div style="flex: 1; text-align: center">
+                        <p
+                          style="
+                            font-weight: bold;
+                            margin: 0 0 10px 0;
+                            font-size: 20px;
+                          "
+                        >
+                          REPRESENTATIVE'S SIGNATURE
+                        </p>
+                        <p
+                          style="font-weight: bold; margin: 0; font-size: 16px"
+                        >
+                          VIETTEL CYBER SECURITY
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Template Vietnamese -->
+                  <div id="quoteContent-vi" style="display: none">
+                    <div class="page-section">
+                      <!-- Header -->
+                      <table width="100%" style="color: black">
+                        <tr>
+                          <td width="35%" align="center" valign="middle">
+                            <svg
+                              width="216"
+                              height="80"
+                              viewBox="0 0 108 40"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <g clip-path="url(#clip0_181_41)">
+                                <path
+                                  d="M26.0383 5.46355V18.1175C26.0383 18.4438 25.9034 18.7569 25.6631 18.9882C25.4229 19.2195 25.0968 19.3502 24.7562 19.3517H22.9837C22.814 19.3525 22.6459 19.3211 22.4889 19.2594C22.332 19.1977 22.1893 19.1069 22.0691 18.9922C21.9488 18.8776 21.8534 18.7412 21.7883 18.5911C21.7232 18.441 21.6897 18.28 21.6897 18.1175V5.46355C21.6889 5.30174 21.7215 5.14137 21.7856 4.99165C21.8497 4.84194 21.944 4.70583 22.0632 4.59114C22.1823 4.47646 22.3239 4.38545 22.4798 4.32336C22.6358 4.26126 22.803 4.2293 22.9718 4.2293H24.7444C24.9142 4.2278 25.0827 4.25865 25.24 4.32008C25.3973 4.3815 25.5403 4.47227 25.6607 4.58711C25.7811 4.70194 25.8765 4.83856 25.9413 4.98902C26.0061 5.13948 26.0391 5.30078 26.0383 5.46355ZM18.3574 4.2293C17.8246 4.23306 17.304 4.38269 16.857 4.66055C16.4101 4.93841 16.0553 5.33292 15.8345 5.79759L11.1078 15.4225C10.9955 15.649 10.7769 16.017 10.5878 16.017C10.3988 16.017 10.1802 15.649 10.0679 15.4225L5.29983 5.79759C5.07739 5.32943 4.71894 4.93257 4.26735 4.65445C3.81576 4.37633 3.29013 4.22873 2.75331 4.2293H0L7.51548 18.1741C8.25994 19.5442 9.7843 19.5159 10.5642 19.5159C11.6454 19.5159 12.9276 19.4593 13.5775 18.1741L21.093 4.2293H18.3574ZM101.37 1.91366C101.37 1.58729 101.235 1.27421 100.995 1.04291C100.755 0.8116 100.429 0.680903 100.088 0.679405H98.3157C97.9751 0.680903 97.649 0.8116 97.4088 1.04291C97.1685 1.27421 97.0336 1.58729 97.0336 1.91366V14.4091C97.0336 16.3227 97.7367 17.4324 99.0011 18.2307C100.265 19.029 101.642 19.3631 104.283 19.3631H105.719C106.06 19.3586 106.384 19.225 106.622 18.9916C106.861 18.7581 106.992 18.4439 106.989 18.1175V16.7757H105.908C105.128 16.7757 103.491 16.7473 102.528 16.1189C101.258 15.3206 101.347 13.8995 101.347 12.8691L101.37 1.91366ZM73.5064 16.7757C72.7264 16.7757 71.0898 16.7473 70.1208 16.1189C68.8564 15.3206 68.9392 13.8995 68.9392 12.8691V6.79405H73.1637C73.5037 6.79405 73.8298 6.66461 74.0703 6.43421C74.3107 6.2038 74.4458 5.89131 74.4458 5.56546V4.2293H68.9392V1.91366C68.9392 1.58729 68.8043 1.27421 68.564 1.04291C68.3237 0.8116 67.9976 0.680903 67.657 0.679405H65.8845C65.5439 0.680903 65.2178 0.8116 64.9776 1.04291C64.7373 1.27421 64.6024 1.58729 64.6024 1.91366V4.2293H55.5389V1.91366C55.5389 1.58729 55.404 1.27421 55.1638 1.04291C54.9235 0.8116 54.5974 0.680903 54.2568 0.679405H52.4843C52.1437 0.680903 51.8176 0.8116 51.5773 1.04291C51.337 1.27421 51.2022 1.58729 51.2022 1.91366V4.2293H48.4488V5.56546C48.4488 5.72921 48.4829 5.89132 48.5492 6.04226C48.6155 6.19319 48.7126 6.32991 48.8348 6.44437C48.957 6.55884 49.1018 6.64873 49.2608 6.70879C49.4198 6.76884 49.5897 6.79783 49.7605 6.79405H51.1903V14.4091C51.1903 16.3227 51.8934 17.4324 53.1578 18.2307C54.4222 19.029 55.7989 19.3631 58.4754 19.3631H59.9052C60.2427 19.3542 60.5631 19.2187 60.7973 18.9857C61.0316 18.7528 61.161 18.441 61.1578 18.1175V16.7757H60.0825C59.2967 16.7757 57.66 16.7473 56.697 16.1189C55.4326 15.3206 55.5153 13.8995 55.5153 12.8691V6.79405H64.5965V14.4091C64.5965 16.3227 65.2996 17.4324 66.564 18.2307C67.8284 19.029 69.205 19.3631 71.8461 19.3631H73.2818C73.4535 19.3653 73.6238 19.3347 73.7829 19.273C73.942 19.2113 74.0867 19.1197 74.2083 19.0036C74.33 18.8876 74.4262 18.7494 74.4913 18.5973C74.5564 18.4451 74.5892 18.282 74.5876 18.1175V16.7757H73.5064ZM24.7562 0H22.9837C22.6436 0 22.3175 0.129441 22.0771 0.359846C21.8366 0.590252 21.7015 0.902749 21.7015 1.22859V4.2293C21.8424 3.79533 22.1333 3.42032 22.5264 3.16609C22.9195 2.91187 23.3913 2.79362 23.864 2.83086H24.7562C24.9246 2.83086 25.0913 2.79908 25.2468 2.73733C25.4024 2.67559 25.5437 2.5851 25.6628 2.47101C25.7818 2.35692 25.8763 2.22149 25.9407 2.07243C26.0051 1.92337 26.0383 1.76361 26.0383 1.60226V1.22859C26.0383 0.902749 25.9032 0.590252 25.6628 0.359846C25.4223 0.129441 25.0962 0 24.7562 0ZM46.8713 18.1175V16.7757H37.2229C35.6217 16.7757 33.796 16.6058 33.2406 14.9809C33.0689 14.2986 32.9817 13.5993 32.9807 12.8974H44.4548C45.2086 12.9472 45.9575 12.7473 46.5759 12.3312C46.9042 12.0493 47.1592 11.6976 47.3202 11.3044C47.4813 10.9111 47.5441 10.4872 47.5035 10.0665C47.5035 8.15287 47.019 6.27318 44.7147 5.15782C42.895 4.27459 40.5139 4.18967 38.2155 4.18967C36.3544 4.18967 33.0102 4.18967 30.8536 5.61642C28.6971 7.04317 28.4903 9.12102 28.4903 11.9462C28.4903 13.9448 28.6025 16.0226 29.9024 17.4494C31.539 19.2158 33.9201 19.3631 35.929 19.3631H45.5892C45.7588 19.3623 45.9267 19.3295 46.083 19.2664C46.2394 19.2033 46.3812 19.1113 46.5003 18.9956C46.6195 18.8798 46.7136 18.7427 46.7772 18.592C46.8409 18.4413 46.8729 18.28 46.8713 18.1175ZM43.0072 9.45506C43.0072 9.85138 42.895 10.3383 42.0382 10.3383H35.8462C34.2746 10.3383 32.9984 11.029 32.9984 11.8783V10.3326C33.0338 9.33616 32.9984 8.50955 33.8906 7.73956C35.0722 6.70913 36.8448 6.73744 38.0264 6.73744C39.2081 6.73744 40.6675 6.79405 41.7428 7.4225C42.115 7.63062 42.4261 7.92563 42.6472 8.28004C42.8683 8.63446 42.9921 9.03674 43.0072 9.4494V9.45506ZM93.9435 18.1175V16.7757H84.2951C82.6998 16.7757 80.8741 16.6058 80.3187 14.9809C80.1441 14.2991 80.0568 13.5994 80.0588 12.8974H91.5152C92.269 12.9472 93.0178 12.7473 93.6363 12.3312C93.9646 12.0493 94.2195 11.6976 94.3806 11.3044C94.5417 10.9111 94.6045 10.4872 94.5639 10.0665C94.5639 8.15287 94.0794 6.27318 91.7751 5.15782C89.9494 4.27459 87.5683 4.18967 85.2759 4.18967C83.4147 4.18967 80.0706 4.18967 77.9081 5.61642C75.7456 7.04317 75.5448 9.12102 75.5448 11.9462C75.5448 13.9448 75.657 16.0226 76.9569 17.4494C78.5935 19.2158 80.9746 19.3631 82.9834 19.3631H92.6377C92.8094 19.3653 92.9798 19.3347 93.1389 19.273C93.298 19.2113 93.4426 19.1197 93.5642 19.0036C93.6859 18.8876 93.7821 18.7494 93.8472 18.5973C93.9124 18.4451 93.9451 18.282 93.9435 18.1175ZM90.0735 9.45506C90.0735 9.85138 89.9612 10.3383 89.1104 10.3383H82.9066C81.3291 10.3383 80.0588 11.029 80.0588 11.8783V10.3326C80.0942 9.33616 80.0588 8.50955 80.9509 7.73956C82.1326 6.70913 83.9051 6.73744 85.0868 6.73744C86.2685 6.73744 87.7279 6.79405 88.8032 7.4225C89.1746 7.63091 89.4849 7.92612 89.7049 8.28058C89.925 8.63504 90.0478 9.03716 90.0617 9.4494L90.0735 9.45506Z"
+                                  fill="#EE0033"
+                                />
+                                <path
+                                  d="M43.8108 37.5258V36.235H48.9688C49.1793 36.2384 49.3858 36.179 49.5596 36.0651C49.6426 36.0046 49.7087 35.9254 49.752 35.8345C49.7953 35.7437 49.8145 35.6439 49.8078 35.5442C49.8121 35.4051 49.7753 35.2677 49.7014 35.1479C49.62 35.0236 49.5002 34.9267 49.3587 34.8705C49.225 34.8083 49.0868 34.7554 48.9452 34.712C48.827 34.678 48.6438 34.6327 48.3898 34.5817L47.8876 34.4742L46.115 34.0665C45.405 33.963 44.7374 33.6774 44.183 33.2399C43.8438 32.8453 43.6785 32.3396 43.7221 31.8301C43.6915 31.5532 43.729 31.2733 43.8316 31.0127C43.9342 30.7522 44.0991 30.5183 44.313 30.3298C44.914 29.9742 45.6177 29.8116 46.3218 29.8655H51.4917V31.1677H46.6291C46.3741 31.1508 46.1191 31.1997 45.8905 31.3093C45.8044 31.3766 45.7379 31.4641 45.6975 31.5633C45.6572 31.6625 45.6443 31.77 45.6601 31.8754C45.6602 31.974 45.683 32.0712 45.7269 32.1603C45.7708 32.2494 45.8348 32.328 45.9141 32.3907C46.0546 32.5147 46.2192 32.6109 46.3986 32.6737L47.0958 32.8606L49.0692 33.3248C49.471 33.4211 49.7842 33.5004 50.0028 33.5626C50.2587 33.6376 50.5094 33.7284 50.7531 33.8344C50.9919 33.9291 51.2102 34.0654 51.3971 34.2364C51.5551 34.4026 51.6811 34.5943 51.7694 34.8025C51.8745 35.0545 51.9267 35.3239 51.923 35.5952C51.9522 36.1195 51.7655 36.6338 51.4031 37.0276C51.1576 37.2204 50.8742 37.3639 50.5697 37.4495C50.2652 37.5351 49.9458 37.5611 49.6305 37.5258H43.8108Z"
+                                  fill="black"
+                                />
+                                <path
+                                  d="M61.4473 37.5258H56.3484C55.7473 37.5433 55.1476 37.4609 54.5759 37.2824C54.1426 37.1419 53.7691 36.8695 53.5124 36.5067C53.2689 36.1493 53.1022 35.7489 53.022 35.3291C52.9252 34.785 52.8817 34.2334 52.892 33.6815C52.892 32.1982 53.2288 31.1772 53.9023 30.6185C54.5759 30.0599 55.7122 29.7806 57.3115 29.7806C58.4459 29.7177 59.5774 29.9443 60.5906 30.4374C61.3469 30.879 61.725 31.6716 61.725 32.8153C61.725 33.7778 61.2524 34.259 60.307 34.259H54.9895C54.948 34.7809 55.0849 35.3016 55.3794 35.7424C55.5877 35.9316 55.8373 36.074 56.1102 36.1592C56.3831 36.2444 56.6723 36.2703 56.9569 36.235H61.4473V37.5258ZM54.9835 32.9568H59.1844C59.2474 32.9636 59.3112 32.9564 59.3709 32.9357C59.4305 32.9151 59.4844 32.8816 59.5284 32.8378C59.5724 32.794 59.6052 32.7411 59.6245 32.6832C59.6437 32.6253 59.6488 32.564 59.6394 32.5039C59.6451 32.2833 59.5854 32.0656 59.4673 31.8762C59.3491 31.6868 59.1772 31.5334 58.9717 31.4338C58.4591 31.1817 57.8872 31.0608 57.3115 31.0828C56.6736 31.0253 56.0348 31.1814 55.5035 31.5244C55.3143 31.7132 55.1699 31.9389 55.0801 32.1862C54.9904 32.4334 54.9574 32.6963 54.9835 32.9568Z"
+                                  fill="black"
+                                />
+                                <path
+                                  d="M70.5344 31.1677H67.1962C66.8389 31.1609 66.4825 31.2048 66.1386 31.2979C65.8894 31.3649 65.6565 31.4784 65.4532 31.632C65.2751 31.7847 65.1425 31.9801 65.0692 32.1982C64.9784 32.4159 64.9188 32.6445 64.8919 32.8776C64.8919 33.0984 64.8919 33.3701 64.8919 33.6985C64.885 34.0393 64.9068 34.3801 64.9569 34.7176C65.0084 34.9922 65.1083 35.2565 65.2523 35.4989C65.4116 35.7641 65.6655 35.9652 65.9673 36.0651C66.3716 36.199 66.7982 36.2604 67.2257 36.2463H70.7708V37.5485H66.7235C65.2583 37.5485 64.2381 37.2239 63.663 36.5747C63.0263 35.7473 62.7183 34.7295 62.7945 33.7042C62.7231 32.6916 63.0311 31.6878 63.663 30.8733C64.2341 30.2279 65.2543 29.9052 66.7235 29.9052H70.564L70.5344 31.1677Z"
+                                  fill="black"
+                                />
+                                <path
+                                  d="M80.4251 29.8655V36.235C80.4251 37.1069 79.9052 37.5372 78.8653 37.5372H75.5152C74.6 37.5969 73.6865 37.4002 72.886 36.971C72.5601 36.7412 72.3025 36.4338 72.1388 36.0793C71.975 35.7248 71.9108 35.3354 71.9525 34.9497V29.8655H73.9731V34.4628C73.9519 34.7021 73.9807 34.943 74.0578 35.1714C74.1349 35.3999 74.2588 35.6113 74.4222 35.7933C74.8342 36.117 75.3629 36.2717 75.8934 36.2236H77.8845C78.2272 36.2236 78.3985 36.0821 78.3985 35.7933V29.8655H80.4251Z"
+                                  fill="black"
+                                />
+                                <path
+                                  d="M82.0145 37.5258V32.7587C81.9791 32.3512 82.0435 31.9415 82.2025 31.5621C82.3615 31.1827 82.6107 30.8441 82.9303 30.5732C83.7538 30.057 84.7316 29.8143 85.7131 29.8825H87.0839V31.1847H86.2626C85.6516 31.1277 85.042 31.3048 84.5669 31.6773C84.1985 32.1113 84.0206 32.6655 84.0706 33.2229V37.5428L82.0145 37.5258Z"
+                                  fill="black"
+                                />
+                                <path
+                                  d="M89.9022 28.8747H87.8756V27.2951H89.9022V28.8747ZM87.8756 37.5428V29.8655H89.9022V37.5258L87.8756 37.5428Z"
+                                  fill="black"
+                                />
+                                <path
+                                  d="M96.5964 37.5258H95.332C94.4564 37.584 93.583 37.3866 92.8268 36.9597C92.5249 36.7359 92.2869 36.4426 92.135 36.107C91.9832 35.7714 91.9224 35.4045 91.9583 35.0403V31.1677H90.6939V29.8655H91.9583V27.414H93.9849V29.8712H96.5964V31.1677H93.9849V34.678C93.9619 34.9022 93.9968 35.1284 94.0864 35.3367C94.176 35.545 94.3177 35.729 94.4989 35.8726C94.9808 36.1432 95.537 36.2675 96.0941 36.2293H96.5964V37.5258Z"
+                                  fill="black"
+                                />
+                                <path
+                                  d="M107.143 29.8712L101.678 40H99.6215L101.034 37.4975L96.9509 29.8712H99.0424L101.997 35.7481L105.11 29.8712H107.143Z"
+                                  fill="black"
+                                />
+                              </g>
+                              <defs>
+                                <clipPath id="clip0_181_41">
+                                  <rect
+                                    width="107.143"
+                                    height="40"
+                                    fill="white"
+                                  />
+                                </clipPath>
+                              </defs>
+                            </svg>
+                          </td>
+                          <td width="65%" align="left" valign="middle">
+                            <h2
+                              style="
+                                margin-top: 0;
+                                font-size: 20px;
+                                text-align: center;
+                              "
+                            >
+                              CÔNG TY TNHH MTV AN NINH MẠNG VIETTEL
+                            </h2>
+                            <div
+                              style="
+                                display: grid;
+                                grid-template-columns: 20px auto;
+                                gap: 6px;
+                                font-size: 14px;
+                                line-height: 1.5;
+                                margin-bottom: 2px;
+                              "
+                            >
+                              <div>
+                                <svg
+                                  width="20"
+                                  height="20"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke-width="1.5"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                                  />
+                                  <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"
+                                  />
+                                </svg>
+                              </div>
+                              <div style="text-align: left">
+                                <span style="font-size: 12px">Địa chỉ:</span>
+                                <span style="font-size: 12px; margin-left: 4px">
+                                  41st & 43rd Floor, Keangnam Landmark 72, Pham
+                                  Hung Rd, Nam Tu Liem Dist, Hanoi, Vietnam.
+                                </span>
+                              </div>
+                            </div>
+                            <div
+                              style="
+                                display: grid;
+                                grid-template-columns: 20px auto;
+                                gap: 6px;
+                                font-size: 14px;
+                                line-height: 1.5;
+                                margin-bottom: 2px;
+                              "
+                            >
+                              <div>
+                                <svg
+                                  width="20"
+                                  height="20"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke-width="1.5"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z"
+                                  />
+                                </svg>
+                              </div>
+                              <div style="text-align: left">
+                                <span style="font-size: 12px">Điện thoại:</span>
+                                <span style="font-size: 12px; margin-left: 4px"
+                                  >(+84) 971 360 360</span
+                                >
+                              </div>
+                            </div>
+                            <div
+                              style="
+                                display: grid;
+                                grid-template-columns: 20px auto;
+                                gap: 6px;
+                                font-size: 14px;
+                                line-height: 1.5;
+                                margin-bottom: 2px;
+                              "
+                            >
+                              <div>
+                                <svg
+                                  width="20"
+                                  height="20"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke-width="1.5"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418"
+                                  />
+                                </svg>
+                              </div>
+                              <div style="text-align: left; font-size: 12px">
+                                Website:
+                                <a
+                                  href="https://viettelsecurity.com/"
+                                  target="_blank"
+                                  style="
+                                    text-decoration: none;
+                                    color: black;
+                                    font-size: 12px;
+                                  "
+                                >
+                                  viettelsecurity.com
+                                </a>
+                              </div>
+                            </div>
+                            <div
+                              style="
+                                display: grid;
+                                grid-template-columns: 20px auto;
+                                gap: 6px;
+                                font-size: 14px;
+                                line-height: 1.5;
+                                margin-bottom: 2px;
+                              "
+                            >
+                              <div>
+                                <svg
+                                  width="20"
+                                  height="20"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke-width="1.5"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
+                                  />
+                                </svg>
+                              </div>
+                              <div style="text-align: left; font-size: 12px">
+                                Email:
+                                <a
+                                  href="mailto:vcs.sales@viettel.com.vn"
+                                  target="_blank"
+                                  style="
+                                    text-decoration: none;
+                                    color: black;
+                                    font-size: 12px;
+                                  "
+                                >
+                                  vcs.sales@viettel.com.vn
+                                </a>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </table>
+                      <br />
+                      <!-- Title -->
+                      <div
+                        style="text-align: center; font-size: 14px; color: #555"
+                      >
+                        <h2
+                          style="
+                            text-align: center;
+                            margin-bottom: 0;
+                            font-size: 20px;
+                          "
+                        >
+                          BÁO GIÁ DỊCH VỤ AN TOÀN THÔNG TIN
+                        </h2>
+                        <p
+                          style="font-style: italic; margin-top: 4px"
+                          id="quote-date"
+                        ></p>
+                      </div>
+                      <!-- Customer Info -->
+                      <h3 style="margin-bottom: 8px; font-size: 16px">
+                        Khách hàng:
+                        <span id="company-name-vi" style="font-size: 16px"
+                          >...</span
+                        >
+                      </h3>
+                      <div
+                        style="
+                          line-height: 1.6;
+                          font-size: 14px;
+                          padding-left: 20px;
+                          color: black;
+                        "
+                      >
+                        <div
+                          style="
+                            display: grid;
+                            grid-template-columns: 20px auto;
+                            gap: 6px;
+                            font-size: 14px;
+                            line-height: 1.5;
+                            margin-bottom: 3px;
+                          "
+                        >
+                          <div>
+                            <svg
+                              width="20"
+                              height="20"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke-width="1.5"
+                              stroke="currentColor"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                              />
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"
+                              />
+                            </svg>
+                          </div>
+                          <div style="text-align: left; font-size: 12px">
+                            Địa chỉ:
+                            <span
+                              id="company-address-vi"
+                              style="font-size: 12px"
+                              >...</span
+                            >
+                          </div>
+                        </div>
+                        <div
+                          style="
+                            display: grid;
+                            grid-template-columns: 20px auto;
+                            gap: 6px;
+                            font-size: 14px;
+                            line-height: 1.5;
+                            margin-bottom: 3px;
+                          "
+                        >
+                          <div>
+                            <svg
+                              width="20"
+                              height="20"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke-width="1.5"
+                              stroke="currentColor"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+                              />
+                            </svg>
+                          </div>
+                          <div style="text-align: left; font-size: 12px">
+                            Người liên hệ:
+                            <span id="contact-name-vi" style="font-size: 12px"
+                              >...</span
+                            >
+                          </div>
+                        </div>
+                        <div
+                          style="
+                            display: grid;
+                            grid-template-columns: 20px auto;
+                            gap: 6px;
+                            font-size: 14px;
+                            line-height: 1.5;
+                            margin-bottom: 3px;
+                          "
+                        >
+                          <div>
+                            <svg
+                              width="20"
+                              height="20"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke-width="1.5"
+                              stroke="currentColor"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z"
+                              />
+                            </svg>
+                          </div>
+                          <div style="text-align: left; font-size: 12px">
+                            Điện thoại:
+                            <span id="contact-phone-vi" style="font-size: 12px"
+                              >...</span
+                            >
+                          </div>
+                        </div>
+                        <div
+                          style="
+                            display: grid;
+                            grid-template-columns: 20px auto;
+                            gap: 6px;
+                            font-size: 14px;
+                            line-height: 1.5;
+                            margin-bottom: 3px;
+                          "
+                        >
+                          <div>
+                            <svg
+                              width="20"
+                              height="20"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke-width="1.5"
+                              stroke="currentColor"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
+                              />
+                            </svg>
+                          </div>
+                          <div style="text-align: left; font-size: 12px">
+                            Email:
+                            <span id="contact-email-vi" style="font-size: 12px"
+                              >...</span
+                            >
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="page-section">
+                      <p
+                        style="color: #666; margin-bottom: 2px; font-size: 14px"
+                      >
+                        Nhận được sự quan tâm của quý khách hàng, chúng tôi xin
+                        gửi quý khách hàng báo giá như sau:
+                      </p>
+                      <!-- Product Table Section-->
+                      <table
+                        class="quoteContent-table"
+                        width="100%"
+                        cellspacing="0"
+                        cellpadding="8"
+                        style="
+                          border-collapse: collapse;
+                          border: 0.5px solid black;
+                          width: 100%;
+                          text-align: center;
+                          margin-bottom: 10px;
+                          font-family: 'Segoe UI', sans-serif;
+                          font-size: 12px;
+                          word-break: break-word;
+                          color: black;
+                          page-break-inside: auto;
+                        "
+                      >
+                        <thead style="background-color: yellow">
+                          <tr>
+                            <th style="width: 20%; font-size: 12px">
+                              Sản phẩm / Dịch vụ
+                            </th>
+                            <th style="width: 15%; font-size: 12px">Đơn giá</th>
+                            <th style="width: 11%; font-size: 12px">
+                              Số lượng
+                            </th>
+                            <th style="width: 11%; font-size: 12px">
+                              Thời hạn
+                            </th>
+                            <th style="width: 15%; font-size: 12px">
+                              Thành tiền
+                            </th>
+                            <th style="width: 13%; font-size: 12px">
+                              Giảm giá<br />SPDV
+                            </th>
+                            <th style="width: 15%; font-size: 12px">
+                              Thành tiền<br />(Sau giảm giá)
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody id="productTable-vi" style="font-size: 10px">
+                          <!-- Inject rows -->
+                        </tbody>
+                        <tfoot>
+                          <tr>
+                            <td
+                              colspan="6"
+                              style="text-align: center; font-size: 12px"
+                            >
+                              Tổng cộng :
+                            </td>
+                            <td id="subtotalCell-vi" style="font-size: 10px">
+                              0
+                            </td>
+                          </tr>
+                          <tr>
+                            <td
+                              colspan="6"
+                              style="text-align: center; font-size: 12px"
+                            >
+                              Giảm giá :
+                            </td>
+                            <td
+                              id="globalDiscountCell-vi"
+                              style="font-size: 10px"
+                            >
+                              0
+                            </td>
+                          </tr>
+                          <tr>
+                            <td
+                              colspan="6"
+                              style="text-align: center; font-size: 12px"
+                            >
+                              <strong>Tổng cộng (Sau giảm giá) :</strong>
+                            </td>
+                            <td id="totalCell-vi" style="font-size: 10px">
+                              <strong>0</strong>
+                            </td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                    <!-- Terms and Conditions -->
+                    <div id="noteContainer">
+                      <h3 style="margin-bottom: 2px; font-size: 16px">
+                        Ghi chú
+                      </h3>
+                      <input
+                        type="text"
+                        class="note-line"
+                        value="- Giá trên không bao gồm thuế giá trị gia tăng (VAT)."
+                        style="
+                          width: 100%;
+                          border: none;
+                          padding-bottom: 2px;
+                          font-style: italic;
+                          font-size: 12px;
+                        "
+                      />
+                      <br />
+                      <input
+                        type="text"
+                        class="note-line"
+                        value="- Thời gian triển khai dự kiến: 02 tháng kể từ ngày ký hợp đồng."
+                        style="
+                          width: 100%;
+                          border: none;
+                          padding-bottom: 2px;
+                          font-style: italic;
+                          font-size: 12px;
+                        "
+                      />
+                      <br />
+                      <input
+                        type="text"
+                        class="note-line"
+                        value="- Giảm giá cố định áp dụng riêng cho từng dịch vụ như đã nêu trong bảng."
+                        style="
+                          width: 100%;
+                          border: none;
+                          padding-bottom: 2px;
+                          font-style: italic;
+                          font-size: 12px;
+                        "
+                      />
+                    </div>
+                    <!-- Representation -->
+                    <div
+                      style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: flex-start;
+                        margin-top: 20px;
+                        margin-bottom: 40px;
+                      "
+                    >
+                      <!-- Column trái (có thể để trống hoặc thêm nội dung khác) -->
+                      <div style="flex: 1">
+                        <!-- Nội dung column trái nếu có -->
+                      </div>
+                      <!-- Column phải -->
+                      <div style="flex: 1; text-align: center">
+                        <p
+                          style="
+                            font-weight: bold;
+                            margin: 0 0 10px 0;
+                            font-size: 20px;
+                          "
+                        >
+                          ĐẠI DIỆN
+                        </p>
+                        <p
+                          style="font-weight: bold; margin: 0; font-size: 16px"
+                        >
+                          CÔNG TY TNHH MTV AN NINH MẠNG VIETTEL
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        <div class="modal fade" id="quoteModal" tabindex="-1" aria-hidden="true">
-          <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">Quotation Preview</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body" id="quoteModalBody">
-                <!-- Template English -->
-                <div id="quoteContent-en" style="display: none;">
-                  <div class="page-section">
-                    <!-- Header -->
-                    <table width="100%" style="color: black;">
-                      <tr>
-                        <td width="35%" align="center" valign="middle">
-                          <svg width="216" height="80" viewBox="0 0 108 40" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <g clip-path="url(#clip0_181_41)">
-                              <path
-                                d="M26.0383 5.46355V18.1175C26.0383 18.4438 25.9034 18.7569 25.6631 18.9882C25.4229 19.2195 25.0968 19.3502 24.7562 19.3517H22.9837C22.814 19.3525 22.6459 19.3211 22.4889 19.2594C22.332 19.1977 22.1893 19.1069 22.0691 18.9922C21.9488 18.8776 21.8534 18.7412 21.7883 18.5911C21.7232 18.441 21.6897 18.28 21.6897 18.1175V5.46355C21.6889 5.30174 21.7215 5.14137 21.7856 4.99165C21.8497 4.84194 21.944 4.70583 22.0632 4.59114C22.1823 4.47646 22.3239 4.38545 22.4798 4.32336C22.6358 4.26126 22.803 4.2293 22.9718 4.2293H24.7444C24.9142 4.2278 25.0827 4.25865 25.24 4.32008C25.3973 4.3815 25.5403 4.47227 25.6607 4.58711C25.7811 4.70194 25.8765 4.83856 25.9413 4.98902C26.0061 5.13948 26.0391 5.30078 26.0383 5.46355ZM18.3574 4.2293C17.8246 4.23306 17.304 4.38269 16.857 4.66055C16.4101 4.93841 16.0553 5.33292 15.8345 5.79759L11.1078 15.4225C10.9955 15.649 10.7769 16.017 10.5878 16.017C10.3988 16.017 10.1802 15.649 10.0679 15.4225L5.29983 5.79759C5.07739 5.32943 4.71894 4.93257 4.26735 4.65445C3.81576 4.37633 3.29013 4.22873 2.75331 4.2293H0L7.51548 18.1741C8.25994 19.5442 9.7843 19.5159 10.5642 19.5159C11.6454 19.5159 12.9276 19.4593 13.5775 18.1741L21.093 4.2293H18.3574ZM101.37 1.91366C101.37 1.58729 101.235 1.27421 100.995 1.04291C100.755 0.8116 100.429 0.680903 100.088 0.679405H98.3157C97.9751 0.680903 97.649 0.8116 97.4088 1.04291C97.1685 1.27421 97.0336 1.58729 97.0336 1.91366V14.4091C97.0336 16.3227 97.7367 17.4324 99.0011 18.2307C100.265 19.029 101.642 19.3631 104.283 19.3631H105.719C106.06 19.3586 106.384 19.225 106.622 18.9916C106.861 18.7581 106.992 18.4439 106.989 18.1175V16.7757H105.908C105.128 16.7757 103.491 16.7473 102.528 16.1189C101.258 15.3206 101.347 13.8995 101.347 12.8691L101.37 1.91366ZM73.5064 16.7757C72.7264 16.7757 71.0898 16.7473 70.1208 16.1189C68.8564 15.3206 68.9392 13.8995 68.9392 12.8691V6.79405H73.1637C73.5037 6.79405 73.8298 6.66461 74.0703 6.43421C74.3107 6.2038 74.4458 5.89131 74.4458 5.56546V4.2293H68.9392V1.91366C68.9392 1.58729 68.8043 1.27421 68.564 1.04291C68.3237 0.8116 67.9976 0.680903 67.657 0.679405H65.8845C65.5439 0.680903 65.2178 0.8116 64.9776 1.04291C64.7373 1.27421 64.6024 1.58729 64.6024 1.91366V4.2293H55.5389V1.91366C55.5389 1.58729 55.404 1.27421 55.1638 1.04291C54.9235 0.8116 54.5974 0.680903 54.2568 0.679405H52.4843C52.1437 0.680903 51.8176 0.8116 51.5773 1.04291C51.337 1.27421 51.2022 1.58729 51.2022 1.91366V4.2293H48.4488V5.56546C48.4488 5.72921 48.4829 5.89132 48.5492 6.04226C48.6155 6.19319 48.7126 6.32991 48.8348 6.44437C48.957 6.55884 49.1018 6.64873 49.2608 6.70879C49.4198 6.76884 49.5897 6.79783 49.7605 6.79405H51.1903V14.4091C51.1903 16.3227 51.8934 17.4324 53.1578 18.2307C54.4222 19.029 55.7989 19.3631 58.4754 19.3631H59.9052C60.2427 19.3542 60.5631 19.2187 60.7973 18.9857C61.0316 18.7528 61.161 18.441 61.1578 18.1175V16.7757H60.0825C59.2967 16.7757 57.66 16.7473 56.697 16.1189C55.4326 15.3206 55.5153 13.8995 55.5153 12.8691V6.79405H64.5965V14.4091C64.5965 16.3227 65.2996 17.4324 66.564 18.2307C67.8284 19.029 69.205 19.3631 71.8461 19.3631H73.2818C73.4535 19.3653 73.6238 19.3347 73.7829 19.273C73.942 19.2113 74.0867 19.1197 74.2083 19.0036C74.33 18.8876 74.4262 18.7494 74.4913 18.5973C74.5564 18.4451 74.5892 18.282 74.5876 18.1175V16.7757H73.5064ZM24.7562 0H22.9837C22.6436 0 22.3175 0.129441 22.0771 0.359846C21.8366 0.590252 21.7015 0.902749 21.7015 1.22859V4.2293C21.8424 3.79533 22.1333 3.42032 22.5264 3.16609C22.9195 2.91187 23.3913 2.79362 23.864 2.83086H24.7562C24.9246 2.83086 25.0913 2.79908 25.2468 2.73733C25.4024 2.67559 25.5437 2.5851 25.6628 2.47101C25.7818 2.35692 25.8763 2.22149 25.9407 2.07243C26.0051 1.92337 26.0383 1.76361 26.0383 1.60226V1.22859C26.0383 0.902749 25.9032 0.590252 25.6628 0.359846C25.4223 0.129441 25.0962 0 24.7562 0ZM46.8713 18.1175V16.7757H37.2229C35.6217 16.7757 33.796 16.6058 33.2406 14.9809C33.0689 14.2986 32.9817 13.5993 32.9807 12.8974H44.4548C45.2086 12.9472 45.9575 12.7473 46.5759 12.3312C46.9042 12.0493 47.1592 11.6976 47.3202 11.3044C47.4813 10.9111 47.5441 10.4872 47.5035 10.0665C47.5035 8.15287 47.019 6.27318 44.7147 5.15782C42.895 4.27459 40.5139 4.18967 38.2155 4.18967C36.3544 4.18967 33.0102 4.18967 30.8536 5.61642C28.6971 7.04317 28.4903 9.12102 28.4903 11.9462C28.4903 13.9448 28.6025 16.0226 29.9024 17.4494C31.539 19.2158 33.9201 19.3631 35.929 19.3631H45.5892C45.7588 19.3623 45.9267 19.3295 46.083 19.2664C46.2394 19.2033 46.3812 19.1113 46.5003 18.9956C46.6195 18.8798 46.7136 18.7427 46.7772 18.592C46.8409 18.4413 46.8729 18.28 46.8713 18.1175ZM43.0072 9.45506C43.0072 9.85138 42.895 10.3383 42.0382 10.3383H35.8462C34.2746 10.3383 32.9984 11.029 32.9984 11.8783V10.3326C33.0338 9.33616 32.9984 8.50955 33.8906 7.73956C35.0722 6.70913 36.8448 6.73744 38.0264 6.73744C39.2081 6.73744 40.6675 6.79405 41.7428 7.4225C42.115 7.63062 42.4261 7.92563 42.6472 8.28004C42.8683 8.63446 42.9921 9.03674 43.0072 9.4494V9.45506ZM93.9435 18.1175V16.7757H84.2951C82.6998 16.7757 80.8741 16.6058 80.3187 14.9809C80.1441 14.2991 80.0568 13.5994 80.0588 12.8974H91.5152C92.269 12.9472 93.0178 12.7473 93.6363 12.3312C93.9646 12.0493 94.2195 11.6976 94.3806 11.3044C94.5417 10.9111 94.6045 10.4872 94.5639 10.0665C94.5639 8.15287 94.0794 6.27318 91.7751 5.15782C89.9494 4.27459 87.5683 4.18967 85.2759 4.18967C83.4147 4.18967 80.0706 4.18967 77.9081 5.61642C75.7456 7.04317 75.5448 9.12102 75.5448 11.9462C75.5448 13.9448 75.657 16.0226 76.9569 17.4494C78.5935 19.2158 80.9746 19.3631 82.9834 19.3631H92.6377C92.8094 19.3653 92.9798 19.3347 93.1389 19.273C93.298 19.2113 93.4426 19.1197 93.5642 19.0036C93.6859 18.8876 93.7821 18.7494 93.8472 18.5973C93.9124 18.4451 93.9451 18.282 93.9435 18.1175ZM90.0735 9.45506C90.0735 9.85138 89.9612 10.3383 89.1104 10.3383H82.9066C81.3291 10.3383 80.0588 11.029 80.0588 11.8783V10.3326C80.0942 9.33616 80.0588 8.50955 80.9509 7.73956C82.1326 6.70913 83.9051 6.73744 85.0868 6.73744C86.2685 6.73744 87.7279 6.79405 88.8032 7.4225C89.1746 7.63091 89.4849 7.92612 89.7049 8.28058C89.925 8.63504 90.0478 9.03716 90.0617 9.4494L90.0735 9.45506Z"
-                                fill="#EE0033" />
-                              <path
-                                d="M43.8108 37.5258V36.235H48.9688C49.1793 36.2384 49.3858 36.179 49.5596 36.0651C49.6426 36.0046 49.7087 35.9254 49.752 35.8345C49.7953 35.7437 49.8145 35.6439 49.8078 35.5442C49.8121 35.4051 49.7753 35.2677 49.7014 35.1479C49.62 35.0236 49.5002 34.9267 49.3587 34.8705C49.225 34.8083 49.0868 34.7554 48.9452 34.712C48.827 34.678 48.6438 34.6327 48.3898 34.5817L47.8876 34.4742L46.115 34.0665C45.405 33.963 44.7374 33.6774 44.183 33.2399C43.8438 32.8453 43.6785 32.3396 43.7221 31.8301C43.6915 31.5532 43.729 31.2733 43.8316 31.0127C43.9342 30.7522 44.0991 30.5183 44.313 30.3298C44.914 29.9742 45.6177 29.8116 46.3218 29.8655H51.4917V31.1677H46.6291C46.3741 31.1508 46.1191 31.1997 45.8905 31.3093C45.8044 31.3766 45.7379 31.4641 45.6975 31.5633C45.6572 31.6625 45.6443 31.77 45.6601 31.8754C45.6602 31.974 45.683 32.0712 45.7269 32.1603C45.7708 32.2494 45.8348 32.328 45.9141 32.3907C46.0546 32.5147 46.2192 32.6109 46.3986 32.6737L47.0958 32.8606L49.0692 33.3248C49.471 33.4211 49.7842 33.5004 50.0028 33.5626C50.2587 33.6376 50.5094 33.7284 50.7531 33.8344C50.9919 33.9291 51.2102 34.0654 51.3971 34.2364C51.5551 34.4026 51.6811 34.5943 51.7694 34.8025C51.8745 35.0545 51.9267 35.3239 51.923 35.5952C51.9522 36.1195 51.7655 36.6338 51.4031 37.0276C51.1576 37.2204 50.8742 37.3639 50.5697 37.4495C50.2652 37.5351 49.9458 37.5611 49.6305 37.5258H43.8108Z"
-                                fill="black" />
-                              <path
-                                d="M61.4473 37.5258H56.3484C55.7473 37.5433 55.1476 37.4609 54.5759 37.2824C54.1426 37.1419 53.7691 36.8695 53.5124 36.5067C53.2689 36.1493 53.1022 35.7489 53.022 35.3291C52.9252 34.785 52.8817 34.2334 52.892 33.6815C52.892 32.1982 53.2288 31.1772 53.9023 30.6185C54.5759 30.0599 55.7122 29.7806 57.3115 29.7806C58.4459 29.7177 59.5774 29.9443 60.5906 30.4374C61.3469 30.879 61.725 31.6716 61.725 32.8153C61.725 33.7778 61.2524 34.259 60.307 34.259H54.9895C54.948 34.7809 55.0849 35.3016 55.3794 35.7424C55.5877 35.9316 55.8373 36.074 56.1102 36.1592C56.3831 36.2444 56.6723 36.2703 56.9569 36.235H61.4473V37.5258ZM54.9835 32.9568H59.1844C59.2474 32.9636 59.3112 32.9564 59.3709 32.9357C59.4305 32.9151 59.4844 32.8816 59.5284 32.8378C59.5724 32.794 59.6052 32.7411 59.6245 32.6832C59.6437 32.6253 59.6488 32.564 59.6394 32.5039C59.6451 32.2833 59.5854 32.0656 59.4673 31.8762C59.3491 31.6868 59.1772 31.5334 58.9717 31.4338C58.4591 31.1817 57.8872 31.0608 57.3115 31.0828C56.6736 31.0253 56.0348 31.1814 55.5035 31.5244C55.3143 31.7132 55.1699 31.9389 55.0801 32.1862C54.9904 32.4334 54.9574 32.6963 54.9835 32.9568Z"
-                                fill="black" />
-                              <path
-                                d="M70.5344 31.1677H67.1962C66.8389 31.1609 66.4825 31.2048 66.1386 31.2979C65.8894 31.3649 65.6565 31.4784 65.4532 31.632C65.2751 31.7847 65.1425 31.9801 65.0692 32.1982C64.9784 32.4159 64.9188 32.6445 64.8919 32.8776C64.8919 33.0984 64.8919 33.3701 64.8919 33.6985C64.885 34.0393 64.9068 34.3801 64.9569 34.7176C65.0084 34.9922 65.1083 35.2565 65.2523 35.4989C65.4116 35.7641 65.6655 35.9652 65.9673 36.0651C66.3716 36.199 66.7982 36.2604 67.2257 36.2463H70.7708V37.5485H66.7235C65.2583 37.5485 64.2381 37.2239 63.663 36.5747C63.0263 35.7473 62.7183 34.7295 62.7945 33.7042C62.7231 32.6916 63.0311 31.6878 63.663 30.8733C64.2341 30.2279 65.2543 29.9052 66.7235 29.9052H70.564L70.5344 31.1677Z"
-                                fill="black" />
-                              <path
-                                d="M80.4251 29.8655V36.235C80.4251 37.1069 79.9052 37.5372 78.8653 37.5372H75.5152C74.6 37.5969 73.6865 37.4002 72.886 36.971C72.5601 36.7412 72.3025 36.4338 72.1388 36.0793C71.975 35.7248 71.9108 35.3354 71.9525 34.9497V29.8655H73.9731V34.4628C73.9519 34.7021 73.9807 34.943 74.0578 35.1714C74.1349 35.3999 74.2588 35.6113 74.4222 35.7933C74.8342 36.117 75.3629 36.2717 75.8934 36.2236H77.8845C78.2272 36.2236 78.3985 36.0821 78.3985 35.7933V29.8655H80.4251Z"
-                                fill="black" />
-                              <path
-                                d="M82.0145 37.5258V32.7587C81.9791 32.3512 82.0435 31.9415 82.2025 31.5621C82.3615 31.1827 82.6107 30.8441 82.9303 30.5732C83.7538 30.057 84.7316 29.8143 85.7131 29.8825H87.0839V31.1847H86.2626C85.6516 31.1277 85.042 31.3048 84.5669 31.6773C84.1985 32.1113 84.0206 32.6655 84.0706 33.2229V37.5428L82.0145 37.5258Z"
-                                fill="black" />
-                              <path
-                                d="M89.9022 28.8747H87.8756V27.2951H89.9022V28.8747ZM87.8756 37.5428V29.8655H89.9022V37.5258L87.8756 37.5428Z"
-                                fill="black" />
-                              <path
-                                d="M96.5964 37.5258H95.332C94.4564 37.584 93.583 37.3866 92.8268 36.9597C92.5249 36.7359 92.2869 36.4426 92.135 36.107C91.9832 35.7714 91.9224 35.4045 91.9583 35.0403V31.1677H90.6939V29.8655H91.9583V27.414H93.9849V29.8712H96.5964V31.1677H93.9849V34.678C93.9619 34.9022 93.9968 35.1284 94.0864 35.3367C94.176 35.545 94.3177 35.729 94.4989 35.8726C94.9808 36.1432 95.537 36.2675 96.0941 36.2293H96.5964V37.5258Z"
-                                fill="black" />
-                              <path
-                                d="M107.143 29.8712L101.678 40H99.6215L101.034 37.4975L96.9509 29.8712H99.0424L101.997 35.7481L105.11 29.8712H107.143Z"
-                                fill="black" />
-                            </g>
-                            <defs>
-                              <clipPath id="clip0_181_41">
-                                <rect width="107.143" height="40" fill="white" />
-                              </clipPath>
-                            </defs>
-                          </svg>
-                        </td>
-                        <td width="65%" align="left" valign="middle">
-                          <h2 style="margin-top: 0; font-size: 20px; text-align: center;">VIETTEL CYBER SECURITY</h2>
-                          <div
-                            style="display: grid; grid-template-columns: 20px auto; gap: 6px; font-size: 14px; line-height: 1.5; margin-bottom: 2px;">
-                            <div>
-                              <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
-                              </svg>
-                            </div>
-                            <div style="text-align: left;">
-                              <span style="font-size: 12px;">Address:</span>
-                              <span style="font-size: 12px; margin-left: 4px;">
-                                41st & 43rd Floor, Keangnam Landmark 72, Pham Hung Rd, Nam Tu Liem Dist, Hanoi, Vietnam.
-                              </span>
-                            </div>
-                          </div>
-                          <div
-                            style="display: grid; grid-template-columns: 20px auto; gap: 6px; font-size: 14px; line-height: 1.5; margin-bottom: 2px;">
-                            <div>
-                              <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
-                              </svg>
-                            </div>
-                            <div style="text-align: left;">
-                              <span style="font-size: 12px;">Hotline:</span>
-                              <span style="font-size: 12px; margin-left: 4px;">(+84) 971 360 360</span>
-                            </div>
-                          </div>
-                          <div
-                            style="display: grid; grid-template-columns: 20px auto; gap: 6px; font-size: 14px; line-height: 1.5; margin-bottom: 2px;">
-                            <div>
-                              <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />
-                              </svg>
-                            </div>
-                            <div style="text-align: left; font-size: 12px;">
-                              Website:
-                              <a href="https://viettelsecurity.com/" target="_blank"
-                                style="text-decoration: none; color: black; font-size: 12px;">
-                                viettelsecurity.com
-                              </a>
-                            </div>
-                          </div>
-                          <div
-                            style="display: grid; grid-template-columns: 20px auto; gap: 6px; font-size: 14px; line-height: 1.5; margin-bottom: 2px;">
-                            <div>
-                              <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-                              </svg>
-                            </div>
-                            <div style="text-align: left; font-size: 12px;">
-                              Email:
-                              <a href="mailto:vcs.sales@viettel.com.vn" target="_blank"
-                                style="text-decoration: none; color: black; font-size: 12px;">
-                                vcs.sales@viettel.com.vn
-                              </a>
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                    </table><br>
-                    <!-- Title -->
-                    <div style="text-align: center; font-size: 14px; color: #555; ">
-                      <h3 style="text-align: center; margin-bottom: 0; font-size: 20px">INFORMATION SECURITY SERVICE
-                        QUOTATION</h3>
-                      <p style="font-style: italic; margin-top: 4px;" id="quote-date"></p>
-                    </div>
-                    <!-- Customer Info -->
-                    <h4 style="margin-bottom: 8px; font-size: 16px;">Customer: <span id="company-name-en"
-                        style="font-size: 16px;">...</span></h4>
-                    <div style="line-height: 1.6; font-size: 14px; padding-left: 20px; color: black;">
-                      <div
-                        style="display: grid; grid-template-columns: 20px auto; gap: 6px; font-size: 14px; line-height: 1.5; margin-bottom: 3px;">
-                        <div>
-                          <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                            stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
-                          </svg>
-                        </div>
-                        <div style="text-align: left; font-size: 12px;">
-                          Address: <span id="company-address-en" style="font-size: 12px;">...</span>
-                        </div>
-                      </div>
-                      <div
-                        style="display: grid; grid-template-columns: 20px auto; gap: 6px; font-size: 14px; line-height: 1.5; margin-bottom: 3px;">
-                        <div>
-                          <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                            stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                          </svg>
-                        </div>
-                        <div style="text-align: left; font-size: 12px;">
-                          Contact: <span id="contact-name-en" style="font-size: 12px;">...</span>
-                        </div>
-                      </div>
-                      <div
-                        style="display: grid; grid-template-columns: 20px auto; gap: 6px; font-size: 14px; line-height: 1.5; margin-bottom: 3px;">
-                        <div>
-                          <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                            stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
-                          </svg>
-                        </div>
-                        <div style="text-align: left; font-size: 12px;">
-                          Phone: <span id="contact-phone-en" style="font-size: 12px;">...</span>
-                        </div>
-                      </div>
-                      <div
-                        style="display: grid; grid-template-columns: 20px auto; gap: 6px; font-size: 14px; line-height: 1.5; margin-bottom: 3px;">
-                        <div>
-                          <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                            stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-                          </svg>
-                        </div>
-                        <div style="text-align: left; font-size: 12px;">
-                          Email: <span id="contact-email-en" style="font-size: 12px;">...</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="page-section">
-                    <p style="color: #666; margin-bottom: 2px; font-size: 14px;">Receiving your interest, we would like
-                      to send you the
-                      following
-                      quote:</p>
-                    <!-- Product Table Section-->
-                    <table class="quoteContent-table" width="100%" cellspacing="0" cellpadding="8" style="border-collapse: collapse; border: 0.5px solid black; width: 100%; text-align: center; margin-bottom: 10px;
-                  font-family: 'Segoe UI', sans-serif; font-size: 12px; word-break: break-word; color: black;
-                  page-break-inside: auto;">
-                      <thead style="background-color: yellow;">
-                        <tr>
-                          <th style="width: 20%; font-size: 12px;">Product / Service</th>
-                          <th style="width: 15%; font-size: 12px;">Unit Price</th>
-                          <th style="width: 11%; font-size: 12px;">Quantity</th>
-                          <th style="width: 11%; font-size: 12px;">Duration</th>
-                          <th style="width: 15%; font-size: 12px;">Total Price</th>
-                          <th style="width: 13%; font-size: 12px;">Item<br>Discount</th>
-                          <th style="width: 15%; font-size: 12px;">Total Price<br>(After Discount)</th>
-                        </tr>
-                      </thead>
-                      <tbody id="productTable-en" style="font-size: 10px;">
-                        <!-- Inject rows -->
-                      </tbody>
-                      <tfoot>
-                        <tr>
-                          <td colspan="6" style="text-align: center; font-size: 12px;">Total :</td>
-                          <td id="subtotalCell-en" style="font-size: 10px;">0</td>
-                        </tr>
-                        <tr>
-                          <td colspan="6" style="text-align: center; font-size: 12px;">Discount :</td>
-                          <td id="globalDiscountCell-en" style="font-size: 10px;">0</td>
-                        </tr>
-                        <tr>
-                          <td colspan="6" style="text-align: center; font-size: 12px;"><strong>Total (After Discount)
-                              :</strong></td>
-                          <td id="totalCell-en" style="font-size: 10px;"><strong>0</strong></td>
-                        </tr>
-                      </tfoot>
-                    </table>
-                  </div>
-                  <!-- Terms and Conditions -->
-                  <div id="noteContainer">
-                    <h3 style="margin-bottom: 2px; font-size: 16px;">Note</h3>
-                    <input type="text" class="note-line"
-                      value="- The prices above do not include value-added tax (VAT)."
-                      style="width: 100%; border: none; padding-bottom: 2px; font-style: italic; font-size: 12px;">
-                    <br>
-                    <input type="text" class="note-line"
-                      value="- The estimated implementation time is 2 months from the contract signing date."
-                      style="width: 100%; border: none; padding-bottom: 2px; font-style: italic; font-size: 12px;">
-                    <br>
-                    <input type="text" class="note-line"
-                      value="- Fixed discounts are applied to each service as specified in the table."
-                      style="width: 100%; border: none; padding-bottom: 2px; font-style: italic; font-size: 12px;">
-                  </div>
-                  <!-- Representation -->
-                  <div
-                    style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 20px; margin-bottom: 40px;">
-                    <!-- Column trái (có thể để trống hoặc thêm nội dung khác) -->
-                    <div style="flex: 1;">
-                      <!-- Nội dung column trái nếu có -->
-                    </div>
-                    <!-- Column phải -->
-                    <div style="flex: 1; text-align: center;">
-                      <p style="font-weight: bold; margin: 0 0 10px 0; font-size: 20px;">
-                        REPRESENTATIVE'S SIGNATURE
-                      </p>
-                      <p style="font-weight: bold; margin: 0; font-size: 16px;">
-                        VIETTEL CYBER SECURITY
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <!-- Template Vietnamese -->
-                <div id="quoteContent-vi" style="display: none;">
-                  <div class="page-section">
-                    <!-- Header -->
-                    <table width="100%" style="color: black;">
-                      <tr>
-                        <td width="35%" align="center" valign="middle">
-                          <svg width="216" height="80" viewBox="0 0 108 40" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <g clip-path="url(#clip0_181_41)">
-                              <path
-                                d="M26.0383 5.46355V18.1175C26.0383 18.4438 25.9034 18.7569 25.6631 18.9882C25.4229 19.2195 25.0968 19.3502 24.7562 19.3517H22.9837C22.814 19.3525 22.6459 19.3211 22.4889 19.2594C22.332 19.1977 22.1893 19.1069 22.0691 18.9922C21.9488 18.8776 21.8534 18.7412 21.7883 18.5911C21.7232 18.441 21.6897 18.28 21.6897 18.1175V5.46355C21.6889 5.30174 21.7215 5.14137 21.7856 4.99165C21.8497 4.84194 21.944 4.70583 22.0632 4.59114C22.1823 4.47646 22.3239 4.38545 22.4798 4.32336C22.6358 4.26126 22.803 4.2293 22.9718 4.2293H24.7444C24.9142 4.2278 25.0827 4.25865 25.24 4.32008C25.3973 4.3815 25.5403 4.47227 25.6607 4.58711C25.7811 4.70194 25.8765 4.83856 25.9413 4.98902C26.0061 5.13948 26.0391 5.30078 26.0383 5.46355ZM18.3574 4.2293C17.8246 4.23306 17.304 4.38269 16.857 4.66055C16.4101 4.93841 16.0553 5.33292 15.8345 5.79759L11.1078 15.4225C10.9955 15.649 10.7769 16.017 10.5878 16.017C10.3988 16.017 10.1802 15.649 10.0679 15.4225L5.29983 5.79759C5.07739 5.32943 4.71894 4.93257 4.26735 4.65445C3.81576 4.37633 3.29013 4.22873 2.75331 4.2293H0L7.51548 18.1741C8.25994 19.5442 9.7843 19.5159 10.5642 19.5159C11.6454 19.5159 12.9276 19.4593 13.5775 18.1741L21.093 4.2293H18.3574ZM101.37 1.91366C101.37 1.58729 101.235 1.27421 100.995 1.04291C100.755 0.8116 100.429 0.680903 100.088 0.679405H98.3157C97.9751 0.680903 97.649 0.8116 97.4088 1.04291C97.1685 1.27421 97.0336 1.58729 97.0336 1.91366V14.4091C97.0336 16.3227 97.7367 17.4324 99.0011 18.2307C100.265 19.029 101.642 19.3631 104.283 19.3631H105.719C106.06 19.3586 106.384 19.225 106.622 18.9916C106.861 18.7581 106.992 18.4439 106.989 18.1175V16.7757H105.908C105.128 16.7757 103.491 16.7473 102.528 16.1189C101.258 15.3206 101.347 13.8995 101.347 12.8691L101.37 1.91366ZM73.5064 16.7757C72.7264 16.7757 71.0898 16.7473 70.1208 16.1189C68.8564 15.3206 68.9392 13.8995 68.9392 12.8691V6.79405H73.1637C73.5037 6.79405 73.8298 6.66461 74.0703 6.43421C74.3107 6.2038 74.4458 5.89131 74.4458 5.56546V4.2293H68.9392V1.91366C68.9392 1.58729 68.8043 1.27421 68.564 1.04291C68.3237 0.8116 67.9976 0.680903 67.657 0.679405H65.8845C65.5439 0.680903 65.2178 0.8116 64.9776 1.04291C64.7373 1.27421 64.6024 1.58729 64.6024 1.91366V4.2293H55.5389V1.91366C55.5389 1.58729 55.404 1.27421 55.1638 1.04291C54.9235 0.8116 54.5974 0.680903 54.2568 0.679405H52.4843C52.1437 0.680903 51.8176 0.8116 51.5773 1.04291C51.337 1.27421 51.2022 1.58729 51.2022 1.91366V4.2293H48.4488V5.56546C48.4488 5.72921 48.4829 5.89132 48.5492 6.04226C48.6155 6.19319 48.7126 6.32991 48.8348 6.44437C48.957 6.55884 49.1018 6.64873 49.2608 6.70879C49.4198 6.76884 49.5897 6.79783 49.7605 6.79405H51.1903V14.4091C51.1903 16.3227 51.8934 17.4324 53.1578 18.2307C54.4222 19.029 55.7989 19.3631 58.4754 19.3631H59.9052C60.2427 19.3542 60.5631 19.2187 60.7973 18.9857C61.0316 18.7528 61.161 18.441 61.1578 18.1175V16.7757H60.0825C59.2967 16.7757 57.66 16.7473 56.697 16.1189C55.4326 15.3206 55.5153 13.8995 55.5153 12.8691V6.79405H64.5965V14.4091C64.5965 16.3227 65.2996 17.4324 66.564 18.2307C67.8284 19.029 69.205 19.3631 71.8461 19.3631H73.2818C73.4535 19.3653 73.6238 19.3347 73.7829 19.273C73.942 19.2113 74.0867 19.1197 74.2083 19.0036C74.33 18.8876 74.4262 18.7494 74.4913 18.5973C74.5564 18.4451 74.5892 18.282 74.5876 18.1175V16.7757H73.5064ZM24.7562 0H22.9837C22.6436 0 22.3175 0.129441 22.0771 0.359846C21.8366 0.590252 21.7015 0.902749 21.7015 1.22859V4.2293C21.8424 3.79533 22.1333 3.42032 22.5264 3.16609C22.9195 2.91187 23.3913 2.79362 23.864 2.83086H24.7562C24.9246 2.83086 25.0913 2.79908 25.2468 2.73733C25.4024 2.67559 25.5437 2.5851 25.6628 2.47101C25.7818 2.35692 25.8763 2.22149 25.9407 2.07243C26.0051 1.92337 26.0383 1.76361 26.0383 1.60226V1.22859C26.0383 0.902749 25.9032 0.590252 25.6628 0.359846C25.4223 0.129441 25.0962 0 24.7562 0ZM46.8713 18.1175V16.7757H37.2229C35.6217 16.7757 33.796 16.6058 33.2406 14.9809C33.0689 14.2986 32.9817 13.5993 32.9807 12.8974H44.4548C45.2086 12.9472 45.9575 12.7473 46.5759 12.3312C46.9042 12.0493 47.1592 11.6976 47.3202 11.3044C47.4813 10.9111 47.5441 10.4872 47.5035 10.0665C47.5035 8.15287 47.019 6.27318 44.7147 5.15782C42.895 4.27459 40.5139 4.18967 38.2155 4.18967C36.3544 4.18967 33.0102 4.18967 30.8536 5.61642C28.6971 7.04317 28.4903 9.12102 28.4903 11.9462C28.4903 13.9448 28.6025 16.0226 29.9024 17.4494C31.539 19.2158 33.9201 19.3631 35.929 19.3631H45.5892C45.7588 19.3623 45.9267 19.3295 46.083 19.2664C46.2394 19.2033 46.3812 19.1113 46.5003 18.9956C46.6195 18.8798 46.7136 18.7427 46.7772 18.592C46.8409 18.4413 46.8729 18.28 46.8713 18.1175ZM43.0072 9.45506C43.0072 9.85138 42.895 10.3383 42.0382 10.3383H35.8462C34.2746 10.3383 32.9984 11.029 32.9984 11.8783V10.3326C33.0338 9.33616 32.9984 8.50955 33.8906 7.73956C35.0722 6.70913 36.8448 6.73744 38.0264 6.73744C39.2081 6.73744 40.6675 6.79405 41.7428 7.4225C42.115 7.63062 42.4261 7.92563 42.6472 8.28004C42.8683 8.63446 42.9921 9.03674 43.0072 9.4494V9.45506ZM93.9435 18.1175V16.7757H84.2951C82.6998 16.7757 80.8741 16.6058 80.3187 14.9809C80.1441 14.2991 80.0568 13.5994 80.0588 12.8974H91.5152C92.269 12.9472 93.0178 12.7473 93.6363 12.3312C93.9646 12.0493 94.2195 11.6976 94.3806 11.3044C94.5417 10.9111 94.6045 10.4872 94.5639 10.0665C94.5639 8.15287 94.0794 6.27318 91.7751 5.15782C89.9494 4.27459 87.5683 4.18967 85.2759 4.18967C83.4147 4.18967 80.0706 4.18967 77.9081 5.61642C75.7456 7.04317 75.5448 9.12102 75.5448 11.9462C75.5448 13.9448 75.657 16.0226 76.9569 17.4494C78.5935 19.2158 80.9746 19.3631 82.9834 19.3631H92.6377C92.8094 19.3653 92.9798 19.3347 93.1389 19.273C93.298 19.2113 93.4426 19.1197 93.5642 19.0036C93.6859 18.8876 93.7821 18.7494 93.8472 18.5973C93.9124 18.4451 93.9451 18.282 93.9435 18.1175ZM90.0735 9.45506C90.0735 9.85138 89.9612 10.3383 89.1104 10.3383H82.9066C81.3291 10.3383 80.0588 11.029 80.0588 11.8783V10.3326C80.0942 9.33616 80.0588 8.50955 80.9509 7.73956C82.1326 6.70913 83.9051 6.73744 85.0868 6.73744C86.2685 6.73744 87.7279 6.79405 88.8032 7.4225C89.1746 7.63091 89.4849 7.92612 89.7049 8.28058C89.925 8.63504 90.0478 9.03716 90.0617 9.4494L90.0735 9.45506Z"
-                                fill="#EE0033" />
-                              <path
-                                d="M43.8108 37.5258V36.235H48.9688C49.1793 36.2384 49.3858 36.179 49.5596 36.0651C49.6426 36.0046 49.7087 35.9254 49.752 35.8345C49.7953 35.7437 49.8145 35.6439 49.8078 35.5442C49.8121 35.4051 49.7753 35.2677 49.7014 35.1479C49.62 35.0236 49.5002 34.9267 49.3587 34.8705C49.225 34.8083 49.0868 34.7554 48.9452 34.712C48.827 34.678 48.6438 34.6327 48.3898 34.5817L47.8876 34.4742L46.115 34.0665C45.405 33.963 44.7374 33.6774 44.183 33.2399C43.8438 32.8453 43.6785 32.3396 43.7221 31.8301C43.6915 31.5532 43.729 31.2733 43.8316 31.0127C43.9342 30.7522 44.0991 30.5183 44.313 30.3298C44.914 29.9742 45.6177 29.8116 46.3218 29.8655H51.4917V31.1677H46.6291C46.3741 31.1508 46.1191 31.1997 45.8905 31.3093C45.8044 31.3766 45.7379 31.4641 45.6975 31.5633C45.6572 31.6625 45.6443 31.77 45.6601 31.8754C45.6602 31.974 45.683 32.0712 45.7269 32.1603C45.7708 32.2494 45.8348 32.328 45.9141 32.3907C46.0546 32.5147 46.2192 32.6109 46.3986 32.6737L47.0958 32.8606L49.0692 33.3248C49.471 33.4211 49.7842 33.5004 50.0028 33.5626C50.2587 33.6376 50.5094 33.7284 50.7531 33.8344C50.9919 33.9291 51.2102 34.0654 51.3971 34.2364C51.5551 34.4026 51.6811 34.5943 51.7694 34.8025C51.8745 35.0545 51.9267 35.3239 51.923 35.5952C51.9522 36.1195 51.7655 36.6338 51.4031 37.0276C51.1576 37.2204 50.8742 37.3639 50.5697 37.4495C50.2652 37.5351 49.9458 37.5611 49.6305 37.5258H43.8108Z"
-                                fill="black" />
-                              <path
-                                d="M61.4473 37.5258H56.3484C55.7473 37.5433 55.1476 37.4609 54.5759 37.2824C54.1426 37.1419 53.7691 36.8695 53.5124 36.5067C53.2689 36.1493 53.1022 35.7489 53.022 35.3291C52.9252 34.785 52.8817 34.2334 52.892 33.6815C52.892 32.1982 53.2288 31.1772 53.9023 30.6185C54.5759 30.0599 55.7122 29.7806 57.3115 29.7806C58.4459 29.7177 59.5774 29.9443 60.5906 30.4374C61.3469 30.879 61.725 31.6716 61.725 32.8153C61.725 33.7778 61.2524 34.259 60.307 34.259H54.9895C54.948 34.7809 55.0849 35.3016 55.3794 35.7424C55.5877 35.9316 55.8373 36.074 56.1102 36.1592C56.3831 36.2444 56.6723 36.2703 56.9569 36.235H61.4473V37.5258ZM54.9835 32.9568H59.1844C59.2474 32.9636 59.3112 32.9564 59.3709 32.9357C59.4305 32.9151 59.4844 32.8816 59.5284 32.8378C59.5724 32.794 59.6052 32.7411 59.6245 32.6832C59.6437 32.6253 59.6488 32.564 59.6394 32.5039C59.6451 32.2833 59.5854 32.0656 59.4673 31.8762C59.3491 31.6868 59.1772 31.5334 58.9717 31.4338C58.4591 31.1817 57.8872 31.0608 57.3115 31.0828C56.6736 31.0253 56.0348 31.1814 55.5035 31.5244C55.3143 31.7132 55.1699 31.9389 55.0801 32.1862C54.9904 32.4334 54.9574 32.6963 54.9835 32.9568Z"
-                                fill="black" />
-                              <path
-                                d="M70.5344 31.1677H67.1962C66.8389 31.1609 66.4825 31.2048 66.1386 31.2979C65.8894 31.3649 65.6565 31.4784 65.4532 31.632C65.2751 31.7847 65.1425 31.9801 65.0692 32.1982C64.9784 32.4159 64.9188 32.6445 64.8919 32.8776C64.8919 33.0984 64.8919 33.3701 64.8919 33.6985C64.885 34.0393 64.9068 34.3801 64.9569 34.7176C65.0084 34.9922 65.1083 35.2565 65.2523 35.4989C65.4116 35.7641 65.6655 35.9652 65.9673 36.0651C66.3716 36.199 66.7982 36.2604 67.2257 36.2463H70.7708V37.5485H66.7235C65.2583 37.5485 64.2381 37.2239 63.663 36.5747C63.0263 35.7473 62.7183 34.7295 62.7945 33.7042C62.7231 32.6916 63.0311 31.6878 63.663 30.8733C64.2341 30.2279 65.2543 29.9052 66.7235 29.9052H70.564L70.5344 31.1677Z"
-                                fill="black" />
-                              <path
-                                d="M80.4251 29.8655V36.235C80.4251 37.1069 79.9052 37.5372 78.8653 37.5372H75.5152C74.6 37.5969 73.6865 37.4002 72.886 36.971C72.5601 36.7412 72.3025 36.4338 72.1388 36.0793C71.975 35.7248 71.9108 35.3354 71.9525 34.9497V29.8655H73.9731V34.4628C73.9519 34.7021 73.9807 34.943 74.0578 35.1714C74.1349 35.3999 74.2588 35.6113 74.4222 35.7933C74.8342 36.117 75.3629 36.2717 75.8934 36.2236H77.8845C78.2272 36.2236 78.3985 36.0821 78.3985 35.7933V29.8655H80.4251Z"
-                                fill="black" />
-                              <path
-                                d="M82.0145 37.5258V32.7587C81.9791 32.3512 82.0435 31.9415 82.2025 31.5621C82.3615 31.1827 82.6107 30.8441 82.9303 30.5732C83.7538 30.057 84.7316 29.8143 85.7131 29.8825H87.0839V31.1847H86.2626C85.6516 31.1277 85.042 31.3048 84.5669 31.6773C84.1985 32.1113 84.0206 32.6655 84.0706 33.2229V37.5428L82.0145 37.5258Z"
-                                fill="black" />
-                              <path
-                                d="M89.9022 28.8747H87.8756V27.2951H89.9022V28.8747ZM87.8756 37.5428V29.8655H89.9022V37.5258L87.8756 37.5428Z"
-                                fill="black" />
-                              <path
-                                d="M96.5964 37.5258H95.332C94.4564 37.584 93.583 37.3866 92.8268 36.9597C92.5249 36.7359 92.2869 36.4426 92.135 36.107C91.9832 35.7714 91.9224 35.4045 91.9583 35.0403V31.1677H90.6939V29.8655H91.9583V27.414H93.9849V29.8712H96.5964V31.1677H93.9849V34.678C93.9619 34.9022 93.9968 35.1284 94.0864 35.3367C94.176 35.545 94.3177 35.729 94.4989 35.8726C94.9808 36.1432 95.537 36.2675 96.0941 36.2293H96.5964V37.5258Z"
-                                fill="black" />
-                              <path
-                                d="M107.143 29.8712L101.678 40H99.6215L101.034 37.4975L96.9509 29.8712H99.0424L101.997 35.7481L105.11 29.8712H107.143Z"
-                                fill="black" />
-                            </g>
-                            <defs>
-                              <clipPath id="clip0_181_41">
-                                <rect width="107.143" height="40" fill="white" />
-                              </clipPath>
-                            </defs>
-                          </svg>
-                        </td>
-                        <td width="65%" align="left" valign="middle">
-                          <h2 style="margin-top: 0; font-size: 20px; text-align: center;">CÔNG TY TNHH MTV AN NINH MẠNG
-                            VIETTEL</h2>
-                          <div
-                            style="display: grid; grid-template-columns: 20px auto; gap: 6px; font-size: 14px; line-height: 1.5; margin-bottom: 2px;">
-                            <div>
-                              <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
-                              </svg>
-                            </div>
-                            <div style="text-align: left;">
-                              <span style="font-size: 12px;">Địa chỉ:</span>
-                              <span style="font-size: 12px; margin-left: 4px;">
-                                41st & 43rd Floor, Keangnam Landmark 72, Pham Hung Rd, Nam Tu Liem Dist, Hanoi, Vietnam.
-                              </span>
-                            </div>
-                          </div>
-                          <div
-                            style="display: grid; grid-template-columns: 20px auto; gap: 6px; font-size: 14px; line-height: 1.5; margin-bottom: 2px;">
-                            <div>
-                              <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
-                              </svg>
-                            </div>
-                            <div style="text-align: left;">
-                              <span style="font-size: 12px;">Điện thoại:</span>
-                              <span style="font-size: 12px; margin-left: 4px;">(+84) 971 360 360</span>
-                            </div>
-                          </div>
-                          <div
-                            style="display: grid; grid-template-columns: 20px auto; gap: 6px; font-size: 14px; line-height: 1.5; margin-bottom: 2px;">
-                            <div>
-                              <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />
-                              </svg>
-                            </div>
-                            <div style="text-align: left; font-size: 12px;">
-                              Website:
-                              <a href="https://viettelsecurity.com/" target="_blank"
-                                style="text-decoration: none; color: black; font-size: 12px;">
-                                viettelsecurity.com
-                              </a>
-                            </div>
-                          </div>
-                          <div
-                            style="display: grid; grid-template-columns: 20px auto; gap: 6px; font-size: 14px; line-height: 1.5; margin-bottom: 2px;">
-                            <div>
-                              <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-                              </svg>
-                            </div>
-                            <div style="text-align: left; font-size: 12px;">
-                              Email:
-                              <a href="mailto:vcs.sales@viettel.com.vn" target="_blank"
-                                style="text-decoration: none; color: black; font-size: 12px;">
-                                vcs.sales@viettel.com.vn
-                              </a>
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                    </table><br>
-                    <!-- Title -->
-                    <div style="text-align: center; font-size: 14px; color: #555; ">
-                      <h2 style="text-align: center; margin-bottom: 0; font-size: 20px;">BÁO GIÁ DỊCH VỤ AN TOÀN THÔNG
-                        TIN</h2>
-                      <p style="font-style: italic; margin-top: 4px;" id="quote-date"></p>
-                    </div>
-                    <!-- Customer Info -->
-                    <h3 style="margin-bottom: 8px; font-size: 16px;">Khách hàng: <span id="company-name-vi"
-                        style="font-size: 16px;">...</span></h3>
-                    <div style="line-height: 1.6; font-size: 14px; padding-left: 20px; color: black;">
-                      <div
-                        style="display: grid; grid-template-columns: 20px auto; gap: 6px; font-size: 14px; line-height: 1.5; margin-bottom: 3px;">
-                        <div>
-                          <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                            stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
-                          </svg>
-                        </div>
-                        <div style="text-align: left; font-size: 12px;">
-                          Địa chỉ: <span id="company-address-vi" style="font-size: 12px;">...</span>
-                        </div>
-                      </div>
-                      <div
-                        style="display: grid; grid-template-columns: 20px auto; gap: 6px; font-size: 14px; line-height: 1.5; margin-bottom: 3px;">
-                        <div>
-                          <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                            stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                          </svg>
-                        </div>
-                        <div style="text-align: left; font-size: 12px;">
-                          Người liên hệ: <span id="contact-name-vi" style="font-size: 12px;">...</span>
-                        </div>
-                      </div>
-                      <div
-                        style="display: grid; grid-template-columns: 20px auto; gap: 6px; font-size: 14px; line-height: 1.5; margin-bottom: 3px;">
-                        <div>
-                          <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                            stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
-                          </svg>
-                        </div>
-                        <div style="text-align: left; font-size: 12px;">
-                          Điện thoại: <span id="contact-phone-vi" style="font-size: 12px;">...</span>
-                        </div>
-                      </div>
-                      <div
-                        style="display: grid; grid-template-columns: 20px auto; gap: 6px; font-size: 14px; line-height: 1.5; margin-bottom: 3px;">
-                        <div>
-                          <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                            stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-                          </svg>
-                        </div>
-                        <div style="text-align: left; font-size: 12px;">
-                          Email: <span id="contact-email-vi" style="font-size: 12px;">...</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="page-section">
-                    <p style="color: #666; margin-bottom: 2px; font-size: 14px;">Nhận được sự quan tâm của quý khách
-                      hàng, chúng tôi xin
-                      gửi quý
-                      khách hàng báo giá như sau:</p>
-                    <!-- Product Table Section-->
-                    <table class="quoteContent-table" width="100%" cellspacing="0" cellpadding="8" style="border-collapse: collapse; border: 0.5px solid black; width: 100%; text-align: center; margin-bottom: 10px;
-                  font-family: 'Segoe UI', sans-serif; font-size: 12px; word-break: break-word; color: black;
-                  page-break-inside: auto;">
-                      <thead style="background-color: yellow;">
-                        <tr>
-                          <th style="width: 20%; font-size: 12px;">Sản phẩm / Dịch vụ</th>
-                          <th style="width: 15%; font-size: 12px;">Đơn giá</th>
-                          <th style="width: 11%; font-size: 12px;">Số lượng</th>
-                          <th style="width: 11%; font-size: 12px;">Thời hạn</th>
-                          <th style="width: 15%; font-size: 12px;">Thành tiền</th>
-                          <th style="width: 13%; font-size: 12px;">Giảm giá<br>SPDV</th>
-                          <th style="width: 15%; font-size: 12px;">Thành tiền<br>(Sau giảm giá)</th>
-                        </tr>
-                      </thead>
-                      <tbody id="productTable-vi" style="font-size: 10px;">
-                        <!-- Inject rows -->
-                      </tbody>
-                      <tfoot>
-                        <tr>
-                          <td colspan="6" style="text-align: center; font-size: 12px;">Tổng cộng :</td>
-                          <td id="subtotalCell-vi" style="font-size: 10px;">0</td>
-                        </tr>
-                        <tr>
-                          <td colspan="6" style="text-align: center; font-size: 12px;">Giảm giá :</td>
-                          <td id="globalDiscountCell-vi" style="font-size: 10px;">0</td>
-                        </tr>
-                        <tr>
-                          <td colspan="6" style="text-align: center; font-size: 12px;"><strong>Tổng cộng (Sau giảm giá)
-                              :</strong></td>
-                          <td id="totalCell-vi" style="font-size: 10px;"><strong>0</strong></td>
-                        </tr>
-                      </tfoot>
-                    </table>
-                  </div>
-                  <!-- Terms and Conditions -->
-                  <div id="noteContainer">
-                    <h3 style="margin-bottom: 2px; font-size: 16px;">Ghi chú</h3>
-                    <input type="text" class="note-line" value="- Giá trên không bao gồm thuế giá trị gia tăng (VAT)."
-                      style="width: 100%; border: none; padding-bottom: 2px; font-style: italic; font-size: 12px;">
-                    <br>
-                    <input type="text" class="note-line"
-                      value="- Thời gian triển khai dự kiến: 02 tháng kể từ ngày ký hợp đồng."
-                      style="width: 100%; border: none; padding-bottom: 2px; font-style: italic; font-size: 12px;">
-                    <br>
-                    <input type="text" class="note-line"
-                      value="- Giảm giá cố định áp dụng riêng cho từng dịch vụ như đã nêu trong bảng."
-                      style="width: 100%; border: none; padding-bottom: 2px; font-style: italic; font-size: 12px;">
-                  </div>
-                  <!-- Representation -->
-                  <div
-                    style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 20px; margin-bottom: 40px;">
-                    <!-- Column trái (có thể để trống hoặc thêm nội dung khác) -->
-                    <div style="flex: 1;">
-                      <!-- Nội dung column trái nếu có -->
-                    </div>
-                    <!-- Column phải -->
-                    <div style="flex: 1; text-align: center;">
-                      <p style="font-weight: bold; margin: 0 0 10px 0; font-size: 20px;">
-                        ĐẠI DIỆN
-                      </p>
-                      <p style="font-weight: bold; margin: 0; font-size: 16px;">
-                        CÔNG TY TNHH MTV AN NINH MẠNG VIETTEL
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+      </section>
+
+      <!-- Cảnh báo giảm giá -->
+      <div
+        class="modal fade"
+        id="discountWarningModal"
+        tabindex="-1"
+        aria-labelledby="discountWarningLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+              <h5 class="modal-title" id="discountWarningLabel">⚠ Warning</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body" id="discountWarningBody">
+              <!-- Nội dung sẽ thay đổi theo lang -->
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                OK
+              </button>
             </div>
           </div>
         </div>
       </div>
-    </section>
 
-    <!-- Cảnh báo giảm giá -->
-    <div class="modal fade" id="discountWarningModal" tabindex="-1" aria-labelledby="discountWarningLabel"
-      aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header bg-warning text-dark">
-            <h5 class="modal-title" id="discountWarningLabel">⚠ Warning</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body" id="discountWarningBody">
-            <!-- Nội dung sẽ thay đổi theo lang -->
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">OK</button>
+      <!-- Modal: Review Allocation -->
+      <div class="modal fade" id="allocationModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header bg-light border-bottom">
+              <h5 class="modal-title">
+                <span id="allocationModalTitle"> Previous Allocation </span>
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+
+            <div
+              class="modal-body"
+              id="allocationModalBody"
+              style="max-height: 70vh; overflow-y: auto"
+            >
+              <!-- Nội dung render động bởi renderAllocationPreview() -->
+            </div>
+
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                class="btn btn-primary"
+                id="btn-save-allocation"
+                onclick="saveAllocatedRecords()"
+              >
+                Save
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Modal: Review Allocation -->
-    <div class="modal fade" id="allocationModal" tabindex="-1">
-      <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content">
-          <div class="modal-header bg-light border-bottom">
-            <h5 class="modal-title">
-              <span id="allocationModalTitle">
-                Previous Allocation
-              </span>
-            </h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
+    <!-- Alert -->
+    <div
+      id="alert-container"
+      style="
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1050;
+        width: 300px;
+      "
+    ></div>
 
-          <div class="modal-body" id="allocationModalBody" style="max-height:70vh; overflow-y:auto;">
-            <!-- Nội dung render động bởi renderAllocationPreview() -->
-          </div>
+    <!-- Config -->
+    <script defer src="scripts/config/constants.js"></script>
+    <script defer src="scripts/config/mappings.js"></script>
 
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-              Close
-            </button>
-            <button type="button" class="btn btn-primary" id="btn-save-allocation" onclick="saveAllocatedRecords()">
-              Save
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- Utils -->
+    <script defer src="scripts/utils/formatter.js"></script>
+    <script defer src="scripts/utils/calculator.js"></script>
+    <script defer src="scripts/utils/validator.js"></script>
 
-  </div>
+    <!-- Services -->
+    <script defer src="scripts/services/api.js"></script>
+    <script defer src="scripts/services/storage.js"></script>
 
-  <!-- Alert -->
-  <div id="alert-container" style="position:fixed; top:20px; right:20px; z-index:1050; width:300px;"></div>
+    <!-- Components -->
+    <script defer src="scripts/components/alert.js"></script>
+    <script defer src="scripts/components/modal.js"></script>
 
-  <script defer src="scripts/app.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Sections -->
+    <script defer src="scripts/sections/section1.js"></script>
+    <script defer src="scripts/sections/section2.js"></script>
+    <script defer src="scripts/sections/section3.js"></script>
+    <script defer src="scripts/sections/section4.js"></script>
+    <script defer src="scripts/sections/section5.js"></script>
 
-</body>
-
+    <!-- Main App - Load cuối cùng -->
+    <script defer src="scripts/app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
 </html>
