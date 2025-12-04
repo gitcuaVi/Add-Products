@@ -268,35 +268,6 @@ async function loadProductsFromDeal() {
   }
 }
 
-async function loadTerritory() {
-  try {
-    const stored = await client.db.get("territoryList").catch(() => null);
-    if (stored?.value && Array.isArray(stored.value) && stored.value.length) {
-      cachedTerritories = stored.value;  // ✅ gán vào biến global
-      return cachedTerritories;
-    }
-
-    const res = await client.request.invokeTemplate("getTerritory");
-    const raw = res.response || res.body || res.respData?.response;
-    const data = typeof raw === "string" ? JSON.parse(raw) : raw;
-    const rawTerritories = Array.isArray(data.territories) ? data.territories : [];
-
-    cachedTerritories = rawTerritories.map(t => ({
-      id: String(t.id),
-      name: t.name || ""
-    }));
-
-    if (cachedTerritories.length) {
-      await client.db.set("territoryList", { value: cachedTerritories }).catch(err => console.error(err));
-    }
-
-    return cachedTerritories;
-  } catch (err) {
-    console.error("❌ loadTerritory error:", err);
-    return [];
-  }
-}
-
 // ============= RENDER =============
 function renderNoProductMessage() {
   const header = document.querySelector(".products-header");
@@ -659,30 +630,6 @@ function toggleEditButton(state) {
     btnCancel.textContent = (lang === "vi") ? "Hủy" : "Cancel";
     btnEdit.disabled = true; // khóa click khi đang edit
   }
-}
-
-function computeDraftTotals(draft) {
-  const basePrice = Number(draft.basePrice) || 0;
-  const quantitative = Number(draft.quantitative) || 1;
-  const duration = Number(draft.duration) || 1;
-  const effectiveQty = draft.isQuantityBased ? quantitative : 1;
-  const tmp = basePrice * effectiveQty * duration;
-
-  let finalTotal;
-  if (draft.discountType === "percent") {
-    const disc = Number(draft.discount) || 0;
-    baseTotal = tmp * (1 - Math.min(Math.max(disc, 0), 100) / 100);
-    finalTotal = tmp * (1 - Math.min(Math.max(disc, 0), 100) / 100);
-  } else { // amount
-    const disc = Number(draft.discount) || 0;
-    baseTotal = tmp - disc;
-    finalTotal = tmp - disc;;
-  }
-  if (finalTotal < 0) finalTotal = 0;
-  return {
-    baseTotal,
-    finalTotal
-  };
 }
 
 function enterSection1EditMode() {

@@ -1203,14 +1203,3 @@ async function saveAllocatedRecords() {
     console.error("❌ Lưu phân bổ thất bại:", err);
   }
 }
-
-async function updateRevenueRecord(body) {
-  try {
-    await client.request.invokeTemplate("updateDeal", {
-      context: { dealID: currentDealID },
-      body: JSON.stringify(body)
-    });
-  } catch (err) {
-    console.error("❌ Lưu phân bổ thất bại:", err);
-  }
-}

@@ -1,68 +1,4 @@
 // ================= SECTION 2 =================
-// ============= DATA =============
-async function loadMarket() {
-  try {
-    // Load từ DB
-    const stored = await client.db.get("marketList").catch(() => null);
-    if (stored?.value && Array.isArray(stored.value) && stored.value.length) {
-      cachedMarkets = stored.value;
-      renderMarket(cachedMarkets);
-      return;
-    }
-
-    // Gọi API
-    const res = await client.request.invokeTemplate("getMarket");
-    const raw = res.response || res.body || res.respData?.response;
-    const data = typeof raw === "string" ? JSON.parse(raw) : raw;
-    const rawMarkets = Array.isArray(data.cm_markets) ? data.cm_markets : [];
-
-    cachedMarkets = rawMarkets.map(m => ({
-      id: String(m.id),
-      name: m.name,
-      alias: m.custom_field?.cf_alias || m.name,
-      currency: m.custom_field?.cf_currency || "",
-      currencySymbol: m.custom_field?.cf_currency_symbol || ""
-    }));
-
-    await client.db.set("marketList", { value: cachedMarkets }).catch(err => console.error(err));
-    renderMarket(cachedMarkets);
-  } catch (err) {
-    console.error("getMarket error:", err);
-  }
-}
-
-async function loadCatalogByMarket(marketId) {
-  if (!marketId) return [];
-  try {
-    const res = await client.request.invokeTemplate("getCatalog", {
-      context: { q: marketId, f: "cf_market" }
-    });
-
-    const raw = res.response || res.body || res.respData?.response;
-    const data = typeof raw === "string" ? JSON.parse(raw) : raw;
-
-    const rawCatalog = Array.isArray(data.cm_catalog?.cm_catalog)
-      ? data.cm_catalog.cm_catalog
-      : [];
-    if (!rawCatalog.length) return [];
-
-    const activeCatalog = rawCatalog.filter(p => p.custom_field?.cf_active === true);
-
-    return activeCatalog.map(p => ({
-      id: String(p.id),
-      name: p.name || "",
-      category: p.custom_field?.cf_category || "",
-      version: p.custom_field?.cf_version || "",
-      item_type: p.custom_field?.cf_item_type || "",
-      max_discount: p.custom_field?.cf_max_discount ?? null,
-      active: Boolean(p.custom_field?.cf_active),
-      market: String(marketId) // ép theo marketId hiện tại
-    }));
-  } catch (err) {
-    console.error("getCatalog API error:", err);
-    return [];
-  }
-}
 
 async function loadCatalogFromMarket(marketId) {
   if (!marketId) return [];
@@ -1252,16 +1188,6 @@ function pushToQuote() {
   document.getElementById("btn-save-section2").style.display = "inline-block";
 }
 
-// ============= HELPERS =============
-function escapeHtml(str = "") {
-  return String(str)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
 function applyGlobalDiscount() {
   const valEl = document.getElementById("global-discount-input");
   const typeEl = document.getElementById("global-discount-type");
@@ -1394,18 +1320,6 @@ function commitDuration(idx, rawValue, pkg) {
   recalcItem(idx);
 }
 
-function commitAllocationCount(rawValue, maxValue) {
-  let val = parseInt(rawValue, 10);
-
-  if (isNaN(val) || val < 1) val = 1;
-
-  maxValue = Number(maxValue) || 1;
-
-  if (val > maxValue) val = maxValue;
-
-  return val;
-}
-
 function commitDiscount(idx, value, type) {
   let raw = String(value || "");
   raw = raw.replace(/[^\d\.\-\,]/g, ""); // chỉ giữ số, ., -, ,
@@ -1503,16 +1417,6 @@ function commitDiscount(idx, value, type) {
   }
 }
 
-function recomputeBaseTotal(item) {
-  const price = Number(item.basePrice) || 0;
-  const qty = Number(item.quantity) || 0;
-  const duration = Number(item.duration) || 1;
-  const isQuantityBased = item.isQuantityBased;
-
-  // Nếu muốn baseTotal không nhân duration thì bỏ duration ở đây
-  item.baseTotal = isQuantityBased ? price * qty * duration : price * duration;
-}
-
 function recalcItem(idx) {
   const item = listItems[idx];
   if (!item) return;
@@ -1566,66 +1470,5 @@ function removeQuoteItem(index) {
       notice.textContent = (lang === "vi") ? `⚠ Bạn cần bấm 'Update Product' để lưu thay đổi.` : `⚠ You need to click 'Update Product to save changes.'`;
       notice.style.display = "block";
     }
-  }
-}
-
-async function updateDeal(finalTotal) {
-  const currencyMap = {
-    "$": "USD",
-    "đ": "VND",
-    "¥": "JPY",
-    "€": "EUR"
-  };
-
-  const currentCurrencyItem = listItems[0]?.currency || "$";
-  const dealCurrency = currencyMap[currentCurrencyItem] || "USD";
-
-  // 👉 Lấy tất cả category duy nhất
-  const categories = [...new Set(
-    listItems.map(it => it.category).filter(Boolean)
-  )].join(";");
-
-  // 👉 Tính duration lớn nhất (đổi ra tháng nếu package = "year")
-  const maxDuration = Math.max(
-    ...(listItems.map(it => {
-      const dur = Number(it.duration) || 0;
-      const pack = (it.package || "").toLowerCase();
-      return pack === "year" ? dur * 12 : dur;
-    }))
-  ) || 0;
-
-  // 👉 Tính expire date
-  const startDate = closedDate || expectedCloseDate;
-  let expireDate = null;
-  if (startDate instanceof Date && !isNaN(startDate)) {
-    const expire = new Date(startDate);
-    expire.setMonth(expire.getMonth() + maxDuration);
-    expireDate = expire.toString();
-  } else {
-    expireDate = "";
-  }
-
-  try {
-    await client.request.invokeTemplate("updateDeal", {
-      context: { dealID: currentDealID },
-      body: JSON.stringify({
-        deal: {
-          amount: String(finalTotal),
-          custom_field: {
-            cf__products: JSON.stringify(listItems),
-            cf__allocated_products: JSON.stringify(allocatedItems),
-            cf__allocated_records: JSON.stringify(allocatedRecords),
-            cf__global_discount: JSON.stringify(globalDiscount),
-            cf_interested_products: categories,
-            cf__currency: dealCurrency,
-            cf__duration: maxDuration,
-            cf__expire_date: expireDate,
-            cf__check_change: true
-          }
-        }
-      })
-    });
-  } catch (err) {
-    console.error("❌ Update deal failed:", err);
   }
 }
