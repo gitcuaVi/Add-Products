@@ -1,0 +1,26 @@
+{
+  "platform-version": "3.0",
+  "modules": {
+    "common": {
+      "requests": {
+        "getMarket": {},
+        "getCatalog": {},
+        "getPricebook": {},
+        "updateDeal": {},
+        "getTerritory": {}
+      }
+    },
+    "deal": {
+      "location": {
+        "deal_entity_menu": {
+          "url": "index.html",
+          "icon": "styles/images/icon.svg"
+        }
+      }
+    }
+  },
+  "engines": {
+    "node": "18.20.8",
+    "fdk": "9.7.3"
+  }
+}

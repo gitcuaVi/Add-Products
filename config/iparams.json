@@ -1,0 +1,15 @@
+{
+    "subdomain": {
+      "display_name": "CRM Sub Domain",
+      "type": "text",
+      "description": "CRM Sub Domain",
+      "required": true
+    },
+    "api_key": {
+      "display_name": "API Key CRM",
+      "description": "API Key CRM",
+      "type": "text",
+      "secure": true,
+      "required": true
+    }
+}
