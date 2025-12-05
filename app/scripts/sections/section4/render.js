@@ -1,4 +1,3 @@
-// ================= SECTION 4 =================
 // ============= RENDER =============
 function setInfoData(info, currentLang) {
   if (!info) return;
