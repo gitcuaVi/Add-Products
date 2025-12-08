@@ -315,11 +315,5 @@ function updateProductDisplay() {
     return true;
   });
 
-  if (productsToShow.length === 1) {
-    currentProduct = productsToShow[0];
-  } else {
-    currentProduct = null;
-  }
-
   renderProduct(productsToShow);
 }

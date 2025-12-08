@@ -4,17 +4,22 @@ function computeDraftTotals(draft) {
   const quantitative = Number(draft.quantitative) || 1;
   const duration = Number(draft.duration) || 1;
   const effectiveQty = draft.isQuantityBased ? quantitative : 1;
+  const vat = Number(draft.vat) || 0;
   const tmp = basePrice * effectiveQty * duration;
 
-  let finalTotal;
+  let baseTotal, finalTotal;
   if (draft.discountType === "percent") {
     const disc = Number(draft.discount) || 0;
-    baseTotal = tmp * (1 - Math.min(Math.max(disc, 0), 100) / 100);
-    finalTotal = tmp * (1 - Math.min(Math.max(disc, 0), 100) / 100);
+    const oriBaseTotal = tmp * (1 - Math.min(Math.max(disc, 0), 100) / 100);
+    baseTotal = oriBaseTotal + oriBaseTotal * vat / 100;
+    const oriFinalTotal = tmp * (1 - Math.min(Math.max(disc, 0), 100) / 100);
+    finalTotal = oriFinalTotal + oriFinalTotal * vat / 100;
   } else {
     const disc = Number(draft.discount) || 0;
-    baseTotal = tmp - disc;
-    finalTotal = tmp - disc;
+    const oriBaseTotal = tmp - disc;
+    baseTotal = oriBaseTotal + oriBaseTotal * vat / 100;
+    const oriFinalTotal = tmp - disc;
+    finalTotal = oriFinalTotal + oriFinalTotal * vat / 100;
   }
   if (finalTotal < 0) finalTotal = 0;
   return { baseTotal, finalTotal };

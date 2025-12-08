@@ -9,8 +9,8 @@ async function loadCatalogFromMarket(marketId) {
     console.warn("❌ Market not found in cache:", marketId);
     return [];
   }
-  const currencySymbol = selectedMarket.currencySymbol || "$";
-  const cacheKey = `categoryList-${currencySymbol}`;
+
+  const cacheKey = `categoryList-${marketId}`;
 
   // 1. Thử lấy từ DB trước
   const stored = await client.db.get(cacheKey).catch(() => null);

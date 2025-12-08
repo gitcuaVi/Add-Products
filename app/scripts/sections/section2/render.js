@@ -273,11 +273,11 @@ function renderPackageSelect(pricebook) {
     if (durationInput) durationInput.removeAttribute("max");
 
     // trigger update so quantitative/product reflect perpetual mode
-    updateProductDisplay();
+    attachProductFilterEvents();
 
     // attach change handler (in case user changes it later)
     packageSelect.onchange = () => {
-      updateProductDisplay();
+      attachProductFilterEvents();
     };
 
     return;
@@ -322,7 +322,6 @@ function renderPackageSelect(pricebook) {
     } else if (durationInput) {
       durationInput.removeAttribute("max");
     }
-    updateProductDisplay();
   };
 }
 
@@ -339,6 +338,7 @@ function renderProduct(products) {
     return;
   }
 
+  window.products = products;
   containerEl.style.display = "block";
 
   // Lấy giá trị UI
@@ -394,7 +394,7 @@ function renderProduct(products) {
         <td>
           <button style="margin-top: 10px; padding: 6px; font-size: 14px; display: inline-flex; align-items: center; gap: 6px;
             border: none; border-radius: 4px; background-color: #ffffff; color: #004085; cursor: pointer; font-weight: bold;"
-            onclick="pushToQuote()">
+            onclick="pushToQuote(${idx})">
             <fw-icon name="circle-plus" size="18" color="#004085"></fw-icon>
             Add
           </button>        

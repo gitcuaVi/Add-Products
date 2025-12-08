@@ -1,27 +1,32 @@
 // ============= HELPER =============
 function toggleTag() {
   if (!Array.isArray(tag)) tag = [];
-
+ 
   let hasPending = false;
   let hasSuccess = false;
-
+ 
   tag = tag.map(t => {
-    if (t.toLowerCase() === "revenue pending") {
+    const lower = t.toLowerCase();
+ 
+    if (lower === "revenue pending") {
       hasPending = true;
-      return "Revenue Success";
+      return "Revenue Success"; // đổi pending → success
     }
-    if (t.toLowerCase() === "revenue success") {
+ 
+    if (lower === "revenue success") {
       hasSuccess = true;
-      return "Revenue Pending";
+      return t; // giữ nguyên, KHÔNG đổi
     }
+ 
     return t; // giữ nguyên tag khác
   });
-
-  // nếu không có cả pending lẫn success → thêm mới pending
+ 
+  // nếu không có pending và không có success → thêm pending
   if (!hasPending && !hasSuccess) {
     tag.push("Revenue Pending");
   }
 }
+ 
 
 function ensureNormalLayout() {
   const header = document.querySelector(".products-header");
@@ -146,7 +151,7 @@ async function exitSection1EditMode(save = false) {
 function onEditDraftChange(idx, field, rawValue, isFinal = false) {
   if (!editDrafts[idx]) return;
 
-  const numeric = ["basePrice", "quantitative", "duration", "discount"];
+  const numeric = ["basePrice", "quantitative", "duration", "discount", "vat"];
   if (numeric.includes(field)) {
     const cleaned = String(rawValue).replace(/,/g, "");
     let num = Number(cleaned);
@@ -180,6 +185,12 @@ function onEditDraftChange(idx, field, rawValue, isFinal = false) {
       const inputEl = document.getElementById(`edit-${field}-${idx}`);
       if (inputEl) inputEl.value = editDrafts[idx][field];
     } else if (field === "basePrice") {
+      if (num < 0) num = 0;
+      editDrafts[idx][field] = isNaN(num) ? 0 : num;
+
+      const inputEl = document.getElementById(`edit-${field}-${idx}`);
+      if (inputEl) inputEl.value = editDrafts[idx][field].toLocaleString('en-US');
+    } else if (field === "vat") {
       if (num < 0) num = 0;
       editDrafts[idx][field] = isNaN(num) ? 0 : num;
 
@@ -223,6 +234,7 @@ function onEditDraftChange(idx, field, rawValue, isFinal = false) {
 
       // check maxDiscount
       let isExceed = false;
+      if (maxDisc <= 0) return;
       const maxDisc = Number(editDrafts[idx].maxDiscount) || 0;
 
       if (editDrafts[idx].discountType === "percent") {

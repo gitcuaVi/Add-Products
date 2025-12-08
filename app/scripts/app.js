@@ -174,7 +174,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           const rawproductType = document.getElementById(`product-type-${idx}`)?.value || "";
           const productType = productTypeMap?.[rawproductType] || rawproductType;
           const spdvType = document.getElementById(`spdv-type-${idx}`)?.value || "";
-          const region = document.getElementById(`region-${idx}`)?.value || "";
+          const region = document.getElementById(`region-${idx}`)?.value ?? currentTerritory;
 
           return {
             id: p.id,

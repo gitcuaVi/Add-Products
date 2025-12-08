@@ -48,7 +48,9 @@ function renderProductTable(tLang, products, currency, globalValue = null, globa
   let subtotal = 0;
 
   products.forEach(p => {
-    const totalPrice = p.basePrice * p.quantity * p.duration;
+    const oriTotalPrice = p.basePrice * (p.isQuantityBased ? p.quantitative : 1) * p.duration;
+    const totalPrice = oriTotalPrice + oriTotalPrice * p.vat / 100;
+    const vatStr = `${p.vat}%`;
     let discountAmount = 0;
     let discountText = "";
 
@@ -69,10 +71,11 @@ function renderProductTable(tLang, products, currency, globalValue = null, globa
     row.innerHTML = `
       <td style="text-align:left">${p.name}</td>
       <td>${formatCurrency(p.basePrice, currency)}</td>
-      <td>${p.quantity} ${p.unit}</td>
+      <td>${p.quantitative} ${p.unit}</td>
       <td>${p.duration} ${p.package}</td>
       <td>${formatCurrency(totalPrice, currency)}</td>
       <td>${discountText}</td>
+      <td>${vatStr}</td>
       <td>${formatCurrency(totalAfter, currency)}</td>
     `;
     tbody.appendChild(row);
@@ -140,12 +143,15 @@ async function createQuote(tLang) {
     const basePrice = (item.basePrice ?? 0);
 
     // quantity và unit giữ riêng
-    const quantity = item.quantity ?? "";
+    const quantitative = item.quantitative ?? "";
     const unit = item.unit ?? "";
 
     // duration và package giữ riêng
     const duration = item.duration ?? "";
     const pkg = item.package ?? "";
+
+    // vat
+    const vat = Number(item.vat ?? 0);
 
     // discount + discountType
     const discount = Number(item.discount ?? 0);
@@ -158,10 +164,11 @@ async function createQuote(tLang) {
     return {
       name: item.name || item.title || "Unnamed product",
       basePrice,
-      quantity,
+      quantitative,
       unit,
       duration,
       package: pkg,
+      vat,
       discount,
       discountType,
       finalTotal,

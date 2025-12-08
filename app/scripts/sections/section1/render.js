@@ -55,6 +55,7 @@ function renderProductList(targetId = "product-list") {
     const html = listItems.map((item) => {
       const quantitative = Number(item.quantitative) || 1;
       const basePrice = Number(item.basePrice) || 0;
+      const vatStr = `${item.vat}%`;
       const discount = Number(item.discount) || 0;
       const discountType = item.discountType;
       const pkg = item.package || "";
@@ -76,7 +77,7 @@ function renderProductList(targetId = "product-list") {
             <div style="font-weight:600; color:#1f6feb;">${item.name}</div>
           </div>
 
-          <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:12px;">
+          <div style="display:grid; grid-template-columns: repeat(6, 1fr); gap:12px;">
             <div><strong>${lang === "vi" ? "Đơn giá" : "Price"}</strong><div>${formatCurrency(basePrice, item.currency)}</div></div>
             <div><strong>${lang === "vi" ? "Số lượng" : "Quantity"}</strong><div>${quantitative} ${item.unit || ""}</div></div>
             <div><strong>${lang === "vi" ? "Thời hạn" : "Duration"}</strong>
@@ -87,6 +88,7 @@ function renderProductList(targetId = "product-list") {
               </div>
             </div>
             <div><strong>${lang === "vi" ? "Giảm giá" : "Discount"}</strong><div>${discountDisplay}</div></div>
+            <div><strong>VAT</strong><div>${vatStr}</div></div>
             <div><strong>${lang === "vi" ? "Thành tiền" : "Amount"}</strong><div>${formatCurrency(finalTotal, item.currency)}</div></div>
           </div>
         </div>
@@ -151,7 +153,7 @@ function renderProductList(targetId = "product-list") {
             </button>
         </div>
 
-        <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:12px;">
+        <div style="display:grid; grid-template-columns: repeat(6, 1fr); gap:12px;">
           <!-- Price -->
           <div style="display:flex; flex-direction:column;">
             <label style="font-weight:500; color:#555; margin-bottom:4px;">${lang === "vi" ? "Đơn giá" : "Price"}</label>
@@ -199,6 +201,19 @@ function renderProductList(targetId = "product-list") {
                 style="padding:6px;">
                 <option value="percent" ${discountType === "percent" ? "selected" : ""}>%</option>
                 <option value="amount" ${discountType === "amount" ? "selected" : ""}>${d.currency || ''}</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- VAT -->
+          <div style="display:flex; flex-direction:column;">
+            <label style="font-weight:500; color:#555; margin-bottom:4px;">VAT</label>
+            <div style="display:flex; gap:6px;">
+              <input id="edit-vat-${idx}" value="${d.vat}" 
+                oninput="onEditDraftChange(${idx}, 'vat', this.value)" 
+                style="padding:6px; text-align:right; flex:1;">
+              <select style="padding:6px;">
+                <option selected>%</option>
               </select>
             </div>
           </div>

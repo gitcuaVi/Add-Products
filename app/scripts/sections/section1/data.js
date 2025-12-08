@@ -70,6 +70,7 @@ async function loadProductsFromDeal() {
       } else {
         lang = "en";
       }
+      currentTerritory = territory.name;
     }
 
     contractID = deal?.custom_field.cf_contract || "";
@@ -100,6 +101,7 @@ async function loadProductsFromDeal() {
             min: Number(p.min),
             max: p.max === null ? null : Number(p.max),
             maxDiscount: Number(p.maxDiscount) || 0,
+            vat: Number(p.vat) || 0,
             discount: Number(p.discount) || 0,
             discountType: p.discountType,
             priceType: p.priceType,
@@ -228,10 +230,11 @@ async function loadProductsFromDeal() {
             products: Array.isArray(q.products) ? q.products.map(p => ({
               name: p.name || "",
               basePrice: Number(p.basePrice) || 0,
-              quantity: Number(p.quantity) || 0,
+              quantitative: Number(p.quantitative) || 0,
               unit: p.unit || "",
               duration: Number(p.duration) || 0,
               package: p.package || "",
+              vat: Number(p.vat) || 0,
               discount: p.discount || 0,
               discountType: p.discountType || "percent",
               baseTotal: Number(p.baseTotal) || 0,

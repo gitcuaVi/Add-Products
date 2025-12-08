@@ -51,8 +51,25 @@ function findMatchingProducts(pricebook, filters) {
   return unique;
 }
 
-function pushToQuote() {
-  if (!currentProduct) return;
+function pushToQuote(idx) {
+  const product = window.products[idx]
+  if (!product) return;
+
+    // --- Currency Check ---
+  if (listItems.length > 0) {
+    const firstCurrency = listItems[0].currency;
+    const currentCurrency = product.currencySymbol || "đ";
+ 
+    if (firstCurrency !== currentCurrency) {
+      const message = (lang === "vi")
+        ? `⚠ Sản phẩm không phù hợp với giỏ hàng hiện tại do khác loại tiền tệ!`
+        : `⚠ Product cannot be added due to mismatched currency!`;
+ 
+      showAlert(message, "warning");
+      return; // stop and do not push
+    }
+  }
+
   const quantitativeInput = document.getElementById("quantitative-input");
   const packageInput = document.getElementById("package-select");
   const licenseInput = document.getElementById("license-select");
@@ -66,27 +83,27 @@ function pushToQuote() {
   if (packageType === "year") allocationDuration = duration * 12;
   if (packageType.toLowerCase() === "perpetual") allocationDuration = 1;
 
-  let adjustedPrice = currentProduct.price ?? 0;
-  if (currentProduct.package && packageType) {
-    if (currentProduct.package === "year" && packageType === "month") adjustedPrice /= 12;
-    else if (currentProduct.package === "month" && packageType === "year") adjustedPrice *= 12;
+  let adjustedPrice = product.price ?? 0;
+  if (product.package && packageType) {
+    if (product.package === "year" && packageType === "month") adjustedPrice /= 12;
+    else if (product.package === "month" && packageType === "year") adjustedPrice *= 12;
   }
-  const isQuantityBased = currentProduct.isQuantityBased;
-  const maxDiscount = currentProduct.maxDiscount || 0;
-  const currentCurrency = currentProduct.currencySymbol || "đ";
+  const isQuantityBased = product.isQuantityBased;
+  const maxDiscount = product.maxDiscount || 0;
+  const currentCurrency = product.currencySymbol || "đ";
   const baseTotal = adjustedPrice * (isQuantityBased ? quantitative : 1) * duration;
 
   listItems.push({
-    id: currentProduct.id,
-    name: currentProduct.name,
-    category: currentProduct.category,
+    id: product.id,
+    name: product.name,
+    category: product.category,
     license: licenseInput?.value || "",
     quantitative,
-    min: currentProduct.min ?? 1,
-    max: currentProduct.max ?? null,
-    unit: currentProduct.unit,
+    min: product.min ?? 1,
+    max: product.max ?? null,
+    unit: product.unit,
     package: packageType,
-    priceType: currentProduct.priceType,
+    priceType: product.priceType,
     duration,
     allocationDuration,
     allocationValue: baseTotal,
@@ -101,12 +118,10 @@ function pushToQuote() {
   });
 
   // Reset lại form
-  quantitativeInput.value = currentProduct.min || 1;
+  quantitativeInput.value = product.min || 1;
   if (packageInput) packageInput.value = "";
   if (durationInput) durationInput.value = 1;
   if (subtypeInput) subtypeInput.value = "";
-
-  currentProduct = null;
 
   document.getElementById("product-table").style.display = "none";
   renderPriceTable();
