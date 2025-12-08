@@ -19,6 +19,7 @@ let periodicity;
 let market;
 let lang;
 let tag;
+let loggedInUser;
 let currentTerritory;
 const quoteItems = [];
 let listItems = [];

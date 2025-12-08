@@ -27,7 +27,6 @@ function toggleTag() {
   }
 }
  
-
 function ensureNormalLayout() {
   const header = document.querySelector(".products-header");
   if (header) header.style.display = "flex";

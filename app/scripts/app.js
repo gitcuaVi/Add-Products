@@ -3,17 +3,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   client = await app.initialized();
   console.log("✅ App initialized!");
 
-  // Load Market sau khi init
-  //await clearAllDbObjects();
-  await loadMarket();
+await loadMarket();
   await loadTerritory();
-
+  await getLoggedInUserData();
+ 
   // 👉 Gắn sự kiện navbar & nút chuyển Section 2 (đặt ở cuối DOMContentLoaded)
   document.querySelectorAll(".nav-link").forEach(link => {
     link.addEventListener("click", (e) => {
       e.preventDefault();
       const targetId = link.getAttribute('data-target');
-
+ 
       // 🚫 Nếu đã phân bổ revenue thì không cho vào Section 2
       if (lockRevenue && targetId === "section-2") {
         showAlert(
@@ -24,16 +23,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         );
         return;
       }
-
+ 
       // hide all sections
       document.querySelectorAll('section').forEach(s => s.style.display = 'none');
       document.getElementById(targetId).style.display = 'block';
-
+ 
       // remove active from all nav links
       document.querySelectorAll(".nav-link").forEach(l => l.classList.remove("active"));
       // add active to current
       link.classList.add("active");
-
+ 
       // render content per section
       if (targetId === "section-1") renderProductList();
       if (targetId === "section-2") {
@@ -45,6 +44,35 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (targetId === "section-5") renderQuotationTemplate();
     });
   });
+ 
+  const reloadBtn = document.getElementById("reload-btn");
+  if (reloadBtn) {
+    const allowedRoles = [
+      role.Admin,
+      role.AccountAdmin,
+      role.Manager
+    ];
+ 
+    if (allowedRoles.includes(loggedInUser.roleId)) reloadBtn.classList.remove("hidden");
+ 
+    reloadBtn.addEventListener("click", async () => {
+      await clearAllDbObjects();
+      showAlert(
+        (lang === "vi")
+          ? "⚠ Reloading Data."
+          : "⚠ Đang tải lại dữ liệu.",
+        "warning"
+      );
+      await loadMarket();
+      await loadTerritory();
+      showAlert(
+        (lang === "vi")
+          ? "✅ Loaded Success."
+          : "✅ Đã tải thành công.",
+        "success"
+      );
+    });
+  }
 
   const editModChanged = document.getElementById("section1EditModeChanged");
   if (editModChanged) {
@@ -241,3 +269,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
+async function getLoggedInUserData() {
+  try {
+    const data = await client.data.get("loggedInUser");
+    const user = data.loggedInUser;
+    loggedInUser = {
+      id: user.id,
+      name: user.display_name,
+      email: user.email,
+      roleId: user.role_id,
+    };
+  } catch (error) {
+    console.error("❌ Lỗi get User: ", error);
+  }
+}
