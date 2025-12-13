@@ -1,11 +1,7 @@
-// // ============= UNINSTALL =============
 async function clearAllDbObjects() {
   try {
-    console.log("🚨 Clearing specific DB objects...");
-
-    // Các key tĩnh
-    const staticKeys = ["marketList", "categoryList-đ", "categoryList-$"];
-
+    const staticKeys = ["marketList", "categoryList-50000000185", "categoryList-50000000184", "categoryList-50000000183"];
+ 
     // Các key động (pricebook theo id)
     const pricebookIds = [
       "50000100596", "50000100595", "50000100594", "50000100593",
@@ -21,16 +17,14 @@ async function clearAllDbObjects() {
       "50000100486", "50000100481", "50000100480", "50000100479",
       "50000101504"
     ];
-
+ 
     const pricebookKeys = pricebookIds.map(id => `pricebook-${id}`);
-
+ 
     // Gộp tất cả key lại
     const allKeys = [...staticKeys, ...pricebookKeys];
-
+ 
     // Xóa
     await Promise.all(allKeys.map(k => client.db.delete(k).catch(() => null)));
-
-    console.log("✅ Cleared DB keys:", allKeys);
   } catch (err) {
     console.error("❌ Error clearing DB:", err);
   }
