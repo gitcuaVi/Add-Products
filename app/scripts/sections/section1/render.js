@@ -277,8 +277,8 @@ function renderProductList(targetId = "product-list") {
           <div style="display:flex; flex-direction:column;">
             <label style="font-weight:500; color:#555; margin-bottom:4px;">VAT</label>
             <div style="display:flex; gap:6px;">
-              <input id="edit-vat-${idx}" value="${d.vat}" 
-                oninput="onEditDraftChange(${idx}, 'vat', this.value)" 
+              <input id="edit-vat-${idx}" value="${d.vat}"
+                oninput="onEditDraftChange(${idx}, 'vat', this.value)"
                 style="padding:6px; text-align:right; flex:1;">
               <select style="padding:6px;">
                 <option selected>%</option>
