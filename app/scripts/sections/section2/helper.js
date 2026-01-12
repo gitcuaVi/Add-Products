@@ -1,3 +1,13 @@
+function generateNextId() {
+  if (listItems.length === 0) {
+    return 1;
+  }
+  
+  // Tìm ID lớn nhất hiện tại
+  const maxId = Math.max(...listItems.map(item => Number(item.id) || 0));
+  return maxId + 1;
+}
+
 function packageMatches(productPackage, selectedPackage) {
   if (!selectedPackage) return false; // unit-select luôn có value
   if (!productPackage) return false;
@@ -93,8 +103,11 @@ function pushToQuote(idx) {
   const currentCurrency = product.currencySymbol || "đ";
   const baseTotal = adjustedPrice * (isQuantityBased ? quantitative : 1) * duration;
 
+  // ✅ Tạo ID tự động tăng
+  const newId = generateNextId();
+
   listItems.push({
-    id: product.id, // thay = stt || khi thêm thì tăng stt
+    id: newId,
     name: product.name,
     category: product.category,
     license: licenseInput?.value || "",
@@ -123,8 +136,6 @@ function pushToQuote(idx) {
   if (packageInput) packageInput.value = "";
   if (durationInput) durationInput.value = 1;
   if (subtypeInput) subtypeInput.value = "";
-
-  //product = [];
 
   document.getElementById("product-table").style.display = "none";
   renderPriceTable();
