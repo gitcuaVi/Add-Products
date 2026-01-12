@@ -215,34 +215,3 @@ function buildAllocatedRecords(items = [], startFC = (closedDate || expectedClos
 
   return compactRecords;
 }
-
-function stripOcc(arr) {
-  return arr.map(item => {
-    const clone = { ...item };
-    delete clone.__occ;
-    return clone;
-  });
-}
-
-function attachOccurrenceIndex(records) {
-  const counter = {};
-  return records.map(r => {
-    const key = String(r.id);
-    counter[key] = counter[key] ?? 0;
-    const occ = counter[key];
-    counter[key]++;
-    return { ...r, __occ: occ };
-  });
-}
-
-function getExpandedRecord(productId, occ) {
-  return expandedAllocatedRecords
-    .filter(r => String(r.id) === String(productId))[occ] || null;
-}
-
-function flashCell(id) {
-  const cell = document.getElementById(id);
-  if (!cell) return;
-  cell.style.backgroundColor = "#ffe6e6";
-  setTimeout(() => (cell.style.backgroundColor = ""), 1500);
-}
