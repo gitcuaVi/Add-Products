@@ -348,9 +348,7 @@ function renderAllocationPreview() {
     title.textContent = lang === "vi" ? "Phân bổ gần nhất" : "Previous Allocation";
   }
 
-  const records = attachOccurrenceIndex(expandedAllocatedRecords);
-  const html = records.map((rec, recIdx) => {
-    const key = `${rec.id}-${rec.__occ}`;
+  const html = expandedAllocatedRecords.map((rec) => {
     const headerActualStr = rec.startActual || "--/--/--";
 
     const rows = rec.allocations.map((a, i) => {
@@ -372,24 +370,23 @@ function renderAllocationPreview() {
           <td>${forecastDateStr}</td>
           <td>${vcsValueStr}</td>
           <td>${forecastValueStr}</td>
+          <td id="actual-cell-${rec.id}-${i}">${actualDateStr}</td>
+          <td id="actual-allocated-${rec.id}-${i}">${actualValueStr}</td>
 
-          <td id="actual-cell-${key}-${i}">${actualDateStr}</td>
-          <td id="actual-allocated-${recIdx}-${i}">${actualValueStr}</td>
-
-          <td id="invoice-cell-${key}-${i}">
+          <td id="invoice-cell-${rec.id}-${i}">
             <span>${invoiceValueStr}</span>
             <button class="btn btn-link p-0 ms-1"
                     ${lockRevenue ? "disabled" : ""}
-                    onclick="enableInvoiceEdit('${rec.id}', ${rec.__occ}, ${i})">
+                    onclick="enableInvoiceEdit('${rec.id}', ${i})">
               <i class="bi bi-pencil"></i>
             </button>
           </td>
 
-          <td id="acceptance-cell-${key}-${i}">
+          <td id="acceptance-cell-${rec.id}-${i}">
             <span>${acceptanceStr}</span>
             <button class="btn btn-link p-0 ms-1"
                     ${lockRevenue ? "disabled" : ""}
-                    onclick="enableAcceptanceEdit('${rec.id}', ${rec.__occ}, ${i})">
+                    onclick="enableAcceptanceEdit('${rec.id}', ${i})">
               <i class="bi bi-pencil"></i>
             </button>
           </td>
@@ -401,7 +398,7 @@ function renderAllocationPreview() {
         <div class="card-header d-flex justify-content-between align-items-center"
              style="cursor:pointer; background:#eef4ff;"
              data-bs-toggle="collapse"
-             data-bs-target="#collapse-${key}">
+             data-bs-target="#collapse-${rec.id}">
 
           <div>
             <strong>${rec.name}</strong><br>
@@ -417,10 +414,10 @@ function renderAllocationPreview() {
 
             <div style="font-size:12px;">
               <strong>${lang === "vi" ? "Ngày ghi nhận:" : "Actual date:"}</strong>
-              <span id="fac-header-${key}">${headerActualStr}</span>
+              <span id="fac-header-${rec.id}">${headerActualStr}</span>
               <button class="btn btn-link btn-sm p-0 ms-1"
                       ${lockRevenue ? "disabled" : ""}
-                      onclick="enableFacEdit('${rec.id}', ${rec.__occ})">
+                      onclick="enableFacEdit('${rec.id}')">
                 <i class="bi bi-pencil"></i>
               </button>
             </div>
@@ -429,7 +426,7 @@ function renderAllocationPreview() {
           <i class="bi bi-chevron-down"></i>
         </div>
 
-        <div id="collapse-${recIdx}" class="collapse show">
+        <div id="collapse-${rec.id}" class="collapse show">
           <div class="card-body p-0">
             <table class="table table-sm mb-0">
               <thead class="table-light" style="font-size:14px">
