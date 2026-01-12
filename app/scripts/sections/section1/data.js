@@ -229,11 +229,6 @@ async function loadProductsFromDeal() {
       expandedAllocatedRecords.length = 0;
     }
 
-    // ✅ GẮN OCCURRENCE INDEX – CHỈ 1 LẦN
-    allocatedItems = attachOccurrenceIndex(allocatedItems);
-    allocatedRecords = attachOccurrenceIndex(allocatedRecords);
-    expandedAllocatedRecords = attachOccurrenceIndex(expandedAllocatedRecords);
-
     // parse quoteItems để Section 4
     try {
       const quotations = JSON.parse(oldQuotations);
