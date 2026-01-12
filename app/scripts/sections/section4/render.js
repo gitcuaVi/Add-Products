@@ -113,7 +113,8 @@ function renderProductTableById(tLang, products, currency, globalValue = null, g
   let subtotal = 0;
 
   products.forEach(p => {
-    const totalPrice = p.finalTotal + p.finalTotal * p.vat / 100;
+    const oriTotalPrice = p.finalTotal;
+    const totalPrice = oriTotalPrice + oriTotalPrice * p.vat / 100;
     const vatStr = `${p.vat}%`;
     let discountAmount = 0;
     let discountText = "";

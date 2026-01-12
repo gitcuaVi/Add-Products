@@ -1,4 +1,12 @@
 // ============= DATA =============
+function updateNavLabels(lang) {
+  document.getElementById("nav-section-1").textContent = navLabels[lang].section1;
+  document.getElementById("nav-section-2").textContent = navLabels[lang].section2;
+  document.getElementById("nav-section-3").textContent = navLabels[lang].section3;
+  document.getElementById("nav-section-4").textContent = navLabels[lang].section4;
+  document.getElementById("nav-section-5").textContent = navLabels[lang].section5;
+}
+
 async function loadProductsFromDeal() {
   try {
     const { deal } = await client.data.get("deal");
@@ -10,6 +18,7 @@ async function loadProductsFromDeal() {
     expectedCloseDate = deal?.expected_close ? new Date(deal?.expected_close) : null;
     facDate = deal?.custom_field?.cf__fac_date ? new Date(deal?.custom_field?.cf__fac_date) : null;
     tag = deal?.plain_tags;
+
     const btn = document.getElementById("btn-allocate");
     if (btn) {
       if (lockRevenue) {
@@ -70,8 +79,11 @@ async function loadProductsFromDeal() {
       } else {
         lang = "en";
       }
+
       currentTerritory = territory.name;
     }
+
+    updateNavLabels(lang);
 
     contractID = deal?.custom_field.cf_contract || "";
     market = deal?.custom_field.cf_market || "";
@@ -95,17 +107,18 @@ async function loadProductsFromDeal() {
             category: p.category || "",
             license: p.license || "",
             quantitative: Number(p.quantitative) || 1,
+            vcsValue: Number(p.vcsValue),
             allocationValue: Number(p.allocationValue),
             allocationDuration: Number(p.allocationDuration) || 1,
             isQuantityBased: p.isQuantityBased,
             min: Number(p.min),
             max: p.max === null ? null : Number(p.max),
             maxDiscount: Number(p.maxDiscount) || 0,
-            vat: Number(p.vat) || 0,
+            vat: Number(p.vat),
             discount: Number(p.discount) || 0,
             discountType: p.discountType,
             priceType: p.priceType,
-            currency: p.currency,
+            currency: p.currency || "đ",
             unit: p.unit,
             duration: Number(p.duration) || 1,
             package: p.package,
@@ -158,41 +171,43 @@ async function loadProductsFromDeal() {
 
       if (Array.isArray(parsedRecords) && parsedRecords.length) {
         parsedRecords.forEach(r => {
-          const isValid = d => d instanceof Date && !isNaN(d);
-          const fmt = d => `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
+          function fmt(d) {
+            if (!d) return "";
+            return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
+          }
 
           // === 🔹 Format mới (compact) ===
           if (parsedRecords.length > 0) {
             const forecastStart = r.forecastStart || r.startForecast;
             const actualStart = r.actualStart || r.startActual;
             const duration = Number(r.count) || 1;
+            const vcsValue = Number(r.vcsValue) || 0;
             const forecastValue = Number(r.forecastValue) || 0;
             const actualValue = Number(r.actualValue) || 0;
             const overrides = Array.isArray(r.allocationOverrides) ? r.allocationOverrides : [];
-
             const allocations = [];
-            let currFC = forecastStart ? new Date(forecastStart.split("/").reverse().join("-")) : null;
-            let currAC = actualStart ? new Date(actualStart.split("/").reverse().join("-")) : null;
+            const origFC = dmyToDate(forecastStart);
+            const origAC = dmyToDate(actualStart);
 
             for (let i = 0; i < duration; i++) {
               const ov = overrides.find(o => o.index === i) || {};
+              const fcDate = origFC ? addMonthsFromAnchor(origFC, i) : null;
+              const acDate = origAC ? addMonthsFromAnchor(origAC, i) : null;
               allocations.push({
-                forecastDate: currFC && isValid(currFC) ? fmt(currFC) : "",
+                vcsValue,
+                forecastDate: fmt(fcDate),
                 forecastValue,
-                actualDate: currAC && isValid(currAC) ? fmt(currAC) : "",
+                actualDate: fmt(acDate),
                 actualValue,
                 acceptanceDate: ov.acceptanceDate || "",
                 invoiceValue: Number(ov.invoiceValue || 0)
               });
-
-              // advance +1 tháng
-              if (currFC && isValid(currFC)) currFC = new Date(currFC.getFullYear(), currFC.getMonth() + 1, currFC.getDate());
-              if (currAC && isValid(currAC)) currAC = new Date(currAC.getFullYear(), currAC.getMonth() + 1, currAC.getDate());
             }
 
             const expanded = {
               id: r.id,
               name: r.name,
+              totalVcsValue : Number(r.totalVcsValue ?? 0),
               totalValue: Number(r.totalValue ?? 0),
               currency: r.currency || "đ",
               startForecast: r.forecastStart || r.startForecast,
@@ -214,6 +229,11 @@ async function loadProductsFromDeal() {
       expandedAllocatedRecords.length = 0;
     }
 
+    // ✅ GẮN OCCURRENCE INDEX – CHỈ 1 LẦN
+    allocatedItems = attachOccurrenceIndex(allocatedItems);
+    allocatedRecords = attachOccurrenceIndex(allocatedRecords);
+    expandedAllocatedRecords = attachOccurrenceIndex(expandedAllocatedRecords);
+
     // parse quoteItems để Section 4
     try {
       const quotations = JSON.parse(oldQuotations);
@@ -230,11 +250,11 @@ async function loadProductsFromDeal() {
             products: Array.isArray(q.products) ? q.products.map(p => ({
               name: p.name || "",
               basePrice: Number(p.basePrice) || 0,
-              quantitative: Number(p.quantitative) || 0,
+              quantity: Number(p.quantity) || 0,
               unit: p.unit || "",
               duration: Number(p.duration) || 0,
               package: p.package || "",
-              vat: Number(p.vat) || 0,
+              vat: p.vat,
               discount: p.discount || 0,
               discountType: p.discountType || "percent",
               baseTotal: Number(p.baseTotal) || 0,

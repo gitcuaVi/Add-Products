@@ -3,7 +3,7 @@ async function loadTerritory() {
   try {
     const stored = await client.db.get("territoryList").catch(() => null);
     if (stored?.value && Array.isArray(stored.value) && stored.value.length) {
-      cachedTerritories = stored.value;
+      cachedTerritories = stored.value;  // ✅ gán vào biến global
       return cachedTerritories;
     }
 
@@ -30,6 +30,7 @@ async function loadTerritory() {
 
 async function loadMarket() {
   try {
+    // Load từ DB
     const stored = await client.db.get("marketList").catch(() => null);
     if (stored?.value && Array.isArray(stored.value) && stored.value.length) {
       cachedMarkets = stored.value;
@@ -37,6 +38,7 @@ async function loadMarket() {
       return;
     }
 
+    // Gọi API
     const res = await client.request.invokeTemplate("getMarket");
     const raw = res.response || res.body || res.respData?.response;
     const data = typeof raw === "string" ? JSON.parse(raw) : raw;
@@ -82,7 +84,7 @@ async function loadCatalogByMarket(marketId) {
       item_type: p.custom_field?.cf_item_type || "",
       max_discount: p.custom_field?.cf_max_discount ?? null,
       active: Boolean(p.custom_field?.cf_active),
-      market: String(marketId)
+      market: String(marketId) // ép theo marketId hiện tại
     }));
   } catch (err) {
     console.error("getCatalog API error:", err);
@@ -101,10 +103,12 @@ async function updateDeal(finalTotal) {
   const currentCurrencyItem = listItems[0]?.currency || "$";
   const dealCurrency = currencyMap[currentCurrencyItem] || "USD";
 
+  // 👉 Lấy tất cả category duy nhất
   const categories = [...new Set(
     listItems.map(it => it.category).filter(Boolean)
   )].join(";");
 
+  // 👉 Tính duration lớn nhất (đổi ra tháng nếu package = "year")
   const maxDuration = Math.max(
     ...(listItems.map(it => {
       const dur = Number(it.duration) || 0;
@@ -113,6 +117,7 @@ async function updateDeal(finalTotal) {
     }))
   ) || 0;
 
+  // 👉 Tính expire date
   const startDate = closedDate || expectedCloseDate;
   let expireDate = null;
   if (startDate instanceof Date && !isNaN(startDate)) {
@@ -138,7 +143,8 @@ async function updateDeal(finalTotal) {
             cf__currency: dealCurrency,
             cf__duration: maxDuration,
             cf__expire_date: expireDate,
-            cf__check_change: true
+            cf__check_change: true,
+            cf__added: "yes"
           }
         }
       })

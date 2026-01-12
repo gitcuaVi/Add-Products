@@ -3,6 +3,7 @@ function normalizeRenderItem(item) {
   return {
     id: item.id ?? null,
     name: item.name ?? "",
+    package: item.package,
     allocationValue: item.allocationValue || 0,
     allocationDuration: item.allocationDuration || 1,
     coefficient: item.coefficient,
@@ -108,10 +109,13 @@ function buildAllocatedRecords(items = [], startFC = (closedDate || expectedClos
     const baseValue = AllocValue * duration * coef / 100;
     const itemValue = computeDiscount(baseValue, subtotal);
     const perMonthValue = (AllocValue * coef) / 100;
+    const perMonthVcsValue = AllocValue;
 
     // clone date tránh mutate
     let currFC = start_FC_valid ? new Date(start_FC_valid) : null;
     let currAC = start_AC_valid ? new Date(start_AC_valid) : null;
+    const anchorDayFC = currFC?.getDate();
+    const anchorDayAC = currAC?.getDate();
 
     // lấy allocations hiện tại nếu có (để lưu override)
     const existingAlloc = Array.isArray(item.allocations) ? item.allocations : [];
@@ -130,12 +134,15 @@ function buildAllocatedRecords(items = [], startFC = (closedDate || expectedClos
       name,
       category,
       territory,
+      recurring: false,
+      totalVcsValue: AllocValue * duration,
       totalValue: itemValue,
       count: duration,
       currency,
       period: periodicity || "month",
       forecastStart: fmtDate(start_FC_valid),
       actualStart: fmtDate(start_AC_valid),
+      vcsValue: perMonthVcsValue,
       forecastValue: perMonthValue,
       actualValue: perMonthValue,
       allocationOverrides
@@ -144,30 +151,50 @@ function buildAllocatedRecords(items = [], startFC = (closedDate || expectedClos
     // --- build expanded record (song song) ---
     const allocations = [];
     const periodType = item.type || "month";
+    const origFC = start_FC_valid ? new Date(start_FC_valid) : null;
+    const origAC = start_AC_valid ? new Date(start_AC_valid) : null;
 
     for (let i = 0; i < duration; i++) {
       const ov = allocationOverrides.find(o => o.index === i) || {};
+      let fcDate = "", acDate = "";
+
+      if (origFC && isValidDate(origFC)) {
+        if (periodType === "month") {
+          fcDate = addMonthsFromAnchor(origFC, i);
+        } else if (periodType === "year") {
+          fcDate = new Date(origFC.getFullYear() + i, origFC.getMonth(), origFC.getDate());
+        }
+      }
+
+      if (origAC && isValidDate(origAC)) {
+        if (periodType === "month") {
+          acDate = addMonthsFromAnchor(origAC, i);
+        } else if (periodType === "year") {
+          acDate = new Date(origAC.getFullYear() + i, origAC.getMonth(), origAC.getDate());
+        }
+      }
+
       allocations.push({
-        forecastDate: currFC ? fmtDate(currFC) : "",
+        vcsValue: perMonthVcsValue,
+        forecastDate: fcDate ? fmtDate(fcDate) : "",
         forecastValue: perMonthValue,
-        actualDate: currAC ? fmtDate(currAC) : "",
+        actualDate: acDate ? fmtDate(acDate) : "",
         actualValue: perMonthValue,
         acceptanceDate: ov.acceptanceDate || "",
         invoiceValue: Number(ov.invoiceValue || 0)
       });
       if (currFC && isValidDate(currFC)) {
         if (periodType === "month") {
-          currFC = new Date(currFC.getFullYear(), currFC.getMonth() + 1, currFC.getDate());
+          currFC = addMonthsFromAnchor(currFC, anchorDayFC);
         } else if (periodType === "year") {
-          currFC = new Date(currFC.getFullYear() + 1, currFC.getMonth(), currFC.getDate());
+          currFC = new Date(currFC.getFullYear() + 1, currFC.getMonth(), anchorDayFC);
         }
       }
-
       if (currAC && isValidDate(currAC)) {
         if (periodType === "month") {
-          currAC = new Date(currAC.getFullYear(), currAC.getMonth() + 1, currAC.getDate());
+          currAC = addMonthsFromAnchor(currAC, anchorDayAC);
         } else if (periodType === "year") {
-          currAC = new Date(currAC.getFullYear() + 1, currAC.getMonth(), currAC.getDate());
+          currAC = new Date(currAC.getFullYear() + 1, currAC.getMonth(), anchorDayAC);
         }
       }
     }
@@ -175,6 +202,7 @@ function buildAllocatedRecords(items = [], startFC = (closedDate || expectedClos
     expandedAllocatedRecords.push({
       id,
       name,
+      totalVcsValue: AllocValue * duration,
       totalValue: itemValue,
       currency,
       startForecast: fmtDate(start_FC_valid),
@@ -186,4 +214,35 @@ function buildAllocatedRecords(items = [], startFC = (closedDate || expectedClos
   });
 
   return compactRecords;
+}
+
+function stripOcc(arr) {
+  return arr.map(item => {
+    const clone = { ...item };
+    delete clone.__occ;
+    return clone;
+  });
+}
+
+function attachOccurrenceIndex(records) {
+  const counter = {};
+  return records.map(r => {
+    const key = String(r.id);
+    counter[key] = counter[key] ?? 0;
+    const occ = counter[key];
+    counter[key]++;
+    return { ...r, __occ: occ };
+  });
+}
+
+function getExpandedRecord(productId, occ) {
+  return expandedAllocatedRecords
+    .filter(r => String(r.id) === String(productId))[occ] || null;
+}
+
+function flashCell(id) {
+  const cell = document.getElementById(id);
+  if (!cell) return;
+  cell.style.backgroundColor = "#ffe6e6";
+  setTimeout(() => (cell.style.backgroundColor = ""), 1500);
 }

@@ -293,7 +293,6 @@ function renderPackageSelect(pricebook) {
   if (durationInput) durationInput.classList.remove("hidden");
 
   const rawPackage = [...new Set(pricebook.map(p => p.package).filter(Boolean))];
-
   if (!rawPackage.length) {
     if (durationWrapper) { durationWrapper.classList.add("hidden"); durationWrapper.style.display = "none"; }
     if (packageUnit) { packageUnit.classList.add("hidden"); packageUnit.style.display = "none"; }
@@ -301,28 +300,17 @@ function renderPackageSelect(pricebook) {
     return;
   }
 
-  let options = [];
-  if (rawPackage.includes("time")) {
-    options = ["time"];
-  } else if (rawPackage.some(p => p === "year" || p === "month")) {
-    options = ["year", "month"];
+  const options = [];
+  if (rawPackage.includes("time")) options.push("time");
+  if (rawPackage.some(p => p === "year" || p === "month")) {
+    options.push("year");
+    options.push("month");
   }
 
   // Render options but DO NOT set packageSelect.value -> wait for user
   packageSelect.innerHTML =
     `<option value="">${lang === "vi" ? "--- Chọn Đơn vị ---" : "--- Select Package Unit ---"}</option>` +
     options.map(p => `<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`).join("");
-
-  // onChange will handle duration max + update product display
-  packageSelect.onchange = () => {
-    const selectedPackage = packageSelect.value;
-    if (selectedPackage === "month" && durationInput) {
-      durationInput.max = 12;
-      if (+durationInput.value > 12) durationInput.value = 12;
-    } else if (durationInput) {
-      durationInput.removeAttribute("max");
-    }
-  };
 }
 
 function renderProduct(products) {
@@ -385,13 +373,13 @@ function renderProduct(products) {
             data-index="${idx}"
             style="resize: vertical; min-height:40px; white-space: normal; word-break: break-word;">${escapeHtml(p.name)}</textarea>
         </td>
-        <td>${rangeText}</td>
-        <td>${maxDiscount} %</td>
-        <td>${formatPrice(adjustedPrice, currentCurrency)}</td>
-        <td>${quantitative} ${unit}</td>
-        <td>${durationDisplay}</td>
-        <td>${formatPrice(subtotal, currentCurrency)}</td>
-        <td>
+        <td class="table-center-header">${rangeText}</td>
+        <td class="table-center-header">${maxDiscount} %</td>
+        <td class="table-center-header">${formatPrice(adjustedPrice, currentCurrency)}</td>
+        <td class="table-center-header">${quantitative} ${unit}</td>
+        <td class="table-center-header">${durationDisplay}</td>
+        <td class="table-center-header">${formatPrice(subtotal, currentCurrency)}</td>
+        <td class="table-center-header">
           <button style="margin-top: 10px; padding: 6px; font-size: 14px; display: inline-flex; align-items: center; gap: 6px;
             border: none; border-radius: 4px; background-color: #ffffff; color: #004085; cursor: pointer; font-weight: bold;"
             onclick="pushToQuote(${idx})">
@@ -407,13 +395,13 @@ function renderProduct(products) {
     <table class="table table-sm table-bordered">
       <thead>
         <tr>
-          <th>${lang === "vi" ? "Tên sản phẩm" : "Product Name"}</th>
-          <th>${lang === "vi" ? "Định lượng tiêu chuẩn" : "Quantitative standard"}</th>
-          <th>${lang === "vi" ? "Giảm giá tối đa" : "Max discount"}</th>
-          <th>${lang === "vi" ? "Đơn giá" : "Unit Price"}</th>
-          <th>${lang === "vi" ? "Định lượng" : "Quantitative"}</th>
-          <th>${lang === "vi" ? "Thời hạn" : "Duration"}</th>
-          <th>${lang === "vi" ? "Thành tiền" : "Total"}</th>
+          <th class="table-center-header">${lang === "vi" ? "Tên sản phẩm" : "Product Name"}</th>
+          <th class="table-center-header">${lang === "vi" ? "Định lượng tiêu chuẩn" : "Quantitative standard"}</th>
+          <th class="table-center-header">${lang === "vi" ? "Giảm giá tối đa" : "Max discount"}</th>
+          <th class="table-center-header">${lang === "vi" ? "Đơn giá" : "Unit Price"}</th>
+          <th class="table-center-header">${lang === "vi" ? "Định lượng" : "Quantitative"}</th>
+          <th class="table-center-header">${lang === "vi" ? "Thời hạn" : "Duration"}</th>
+          <th class="table-center-header">${lang === "vi" ? "Thành tiền" : "Total"}</th>
           <th></th>
         </tr>
       </thead>
@@ -467,7 +455,6 @@ function renderPriceTable(targetId = "price-table") {
                         type="number" 
                         value="${item.duration || 1}" 
                         min="1"
-                        ${pkg === "month" ? 'max="12"' : ""}
                         oninput="commitDuration(${idx}, this.value, '${pkg}')" 
                         style="flex:1; border:none; text-align:center; font-size:14px; outline:none; min-width:50px; padding: 4px 6px; height: 32px; line-height: 32px;" 
                     />

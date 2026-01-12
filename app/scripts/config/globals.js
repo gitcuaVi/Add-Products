@@ -1,15 +1,14 @@
-// constants.js - Các hằng số và biến global
 let client;
 let cachedTerritories = [];
 let cachedMarkets = [];
 let cachedCatalogs = [];
 let cachedPricebook = [];
-let editDrafts = [];
+let editDrafts = []; // bản nháp khi edit
 let section1EditMode = false;
 let selectedMarketId = null;
-let currentProduct = null;
 let currentDealID;
 let currentCompanyID;
+let currentTerritory;
 let contractID;
 let expectedCloseDate;
 let closedDate;
@@ -20,26 +19,24 @@ let market;
 let lang;
 let tag;
 let loggedInUser;
-let currentTerritory;
 const quoteItems = [];
 let listItems = [];
 let allocatedItems = [];
 let allocatedRecords = [];
-const expandedAllocatedRecords = [];
+let expandedAllocatedRecords = [];
 const products = [];
 const globalDiscount = { value: 0, type: "percent" };
-
-// mappings.js - Các mapping data
+const AMBIGUOUS_AS_DDMM = true;
 const heSoMap = {
   opportunity: {
     "Lần đầu": 125, "New": 125,
     "Sự cố": 30, "Incident": 30,
     "Gia hạn": 50, "Renewal": 50,
-    "Gia hạn_GOV": 50, "Renewal_GOV": 50,
+    "Gia hạn_GOV": 70, "Renewal_GOV": 70,
     "Bán thêm": 100, "Upsale": 100,
     "Độc lập": 30, "Dependent": 30,
     "Phụ thuộc": 0, "Independent": 0,
-    "SI": "SI"
+    "SI": "SI", "Unknown": 100
   },
   spdv: {
     "Standalone": 150,
@@ -50,7 +47,6 @@ const heSoMap = {
     "Miền Bắc": 100
   }
 };
-
 const productTypeMap = {
   "New": "New",
   "Lần đầu": "New",
@@ -67,4 +63,27 @@ const productTypeMap = {
   "Dependent": "Dependent",
   "Phụ thuộc": "Dependent",
   "SI": "SI"
+};
+const role = {
+  Admin: 50000449630,
+  AccountAdmin: 50000449631,
+  Manager: 50000506494,
+  AmManager: 50000522191,
+  AM: 50000504129,
+};
+const navLabels = {
+  en: {
+    section1: "Product List",
+    section2: "Find Product",
+    section3: "Revenue Allocation",
+    section4: "Quotation List",
+    section5: "Quotation Template"
+  },
+  vi: {
+    section1: "Danh sách sản phẩm",
+    section2: "Tìm sản phẩm",
+    section3: "Phân bổ doanh thu",
+    section4: "Danh sách báo giá",
+    section5: "Mẫu báo giá"
+  }
 };

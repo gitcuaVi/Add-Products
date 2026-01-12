@@ -10,9 +10,8 @@ async function loadCatalogFromMarket(marketId) {
     return [];
   }
 
-  const cacheKey = `categoryList-${marketId}`;
-
   // 1. Thử lấy từ DB trước
+  const cacheKey = `categoryList-${marketId}`;
   const stored = await client.db.get(cacheKey).catch(() => null);
   if (stored?.value && Array.isArray(stored.value) && stored.value.length) {
     return stored.value;

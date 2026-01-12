@@ -30,274 +30,175 @@ function handleRegionChange(idx, val) {
   validateSelections(idx);
 }
 
-function handleKey(e, id, index) {
+function handleKey(e, productId, occ, index) {
   if (e.key !== "Enter") return;
 
-  const record = expandedAllocatedRecords.find(r => String(r.id) === String(id));
+  const record = getExpandedRecord(productId, occ);
   if (!record) return;
 
   const alloc = record.allocations[index];
   if (!alloc) return;
 
-  // Lấy input hiện tại (có thể chỉ 1 trong 2)
-  const invoiceInput = document.getElementById(`invoice-input-${id}-${index}`);
-  const acceptanceInput = document.getElementById(`acceptance-input-${id}-${index}`);
+  const key = `${productId}-${occ}`;
 
-  // Ưu tiên giá trị từ input hiện tại, nếu không có thì lấy từ record.allocations
+  const invoiceInput =
+    document.getElementById(`invoice-input-${key}-${index}`);
+  const acceptanceInput =
+    document.getElementById(`acceptance-input-${key}-${index}`);
+
   const invoiceValue = invoiceInput
     ? Number(invoiceInput.value || 0)
     : Number(alloc.invoiceValue || 0);
 
   const acceptanceDate = acceptanceInput
     ? acceptanceInput.value.trim()
-    : (alloc.acceptanceDate ? alloc.acceptanceDate.split("/").reverse().join("-") : "");
+    : (alloc.acceptanceDate
+        ? alloc.acceptanceDate.split("/").reverse().join("-")
+        : "");
 
   const hasInvoice = invoiceValue > 0;
   const hasAcceptance = acceptanceDate && acceptanceDate !== "--/--/--";
 
   if (!hasInvoice || !hasAcceptance) {
-    if (!hasInvoice) {
-      const cell = document.getElementById(`invoice-cell-${id}-${index}`);
-      if (cell) {
-        cell.style.backgroundColor = "#ffe6e6";
-        setTimeout(() => (cell.style.backgroundColor = ""), 1500);
-      }
-    }
-    if (!hasAcceptance) {
-      const cell = document.getElementById(`acceptance-cell-${id}-${index}`);
-      if (cell) {
-        cell.style.backgroundColor = "#ffe6e6";
-        setTimeout(() => (cell.style.backgroundColor = ""), 1500);
-      }
-    }
+    if (!hasInvoice) flashCell(`invoice-cell-${key}-${index}`);
+    if (!hasAcceptance) flashCell(`acceptance-cell-${key}-${index}`);
     return;
   }
 
-  // ✅ Cả 2 đều có value → gọi xử lý chính
-  handleChange(id, index, invoiceValue, acceptanceDate);
+  handleChange(productId, occ, index, invoiceValue, acceptanceDate);
 }
 
-function enableInvoiceEdit(id, index) {
-  const cell = document.getElementById(`invoice-cell-${id}-${index}`);
-  if (!cell) return;
+function enableInvoiceEdit(productId, occ, index) {
+  const rec = getExpandedRecord(productId, occ);
+  if (!rec) return;
 
-  const record = expandedAllocatedRecords.find(r => String(r.id) === String(id));
-  if (!record) return;
-
-  const current = record.allocations[index];
-  const currentValue = current.invoiceValue ?? "";
-
-  // Render input
-  cell.innerHTML = `
-    <input id="invoice-input-${id}-${index}"
-           type="number"
-           class="form-control form-control-sm"
-           style="max-width:140px; display:inline-block;"
-           value="${currentValue}"
-           placeholder="${lang === 'vi' ? 'Nhập giá trị...' : 'Enter value...'}"
-           onkeydown="if(event.key === 'Enter'){ commitInvoiceValue('${id}', ${index}, this.value) }"
-           onblur="disableInvoiceEdit('${id}', ${index})">
-  `;
-
-  setTimeout(() => {
-    const input = document.getElementById(`invoice-input-${id}-${index}`);
-    if (input) input.focus();
-  }, 30);
-}
-
-function enableAcceptanceEdit(id, index) {
-  const cell = document.getElementById(`acceptance-cell-${id}-${index}`);
-  if (!cell) return;
-
-  const record = expandedAllocatedRecords.find(r => String(r.id) === String(id));
-  if (!record) return;
-
-  const current = record.allocations[index];
-  const currentValue = current.acceptanceDate || "";
+  const key = `${productId}-${occ}`;
+  const cell = document.getElementById(`invoice-cell-${key}-${index}`);
 
   cell.innerHTML = `
-    <input id="acceptance-input-${id}-${index}"
-           type="date"
-           class="form-control form-control-sm"
-           style="max-width:160px; display:inline-block;"
-           value="${currentValue ? currentValue.split('/').reverse().join('-') : ''}"
-           onkeydown="if(event.key === 'Enter'){ commitAcceptanceValue('${id}', ${index}, this.value) }"
-           onblur="disableAcceptanceEdit('${id}', ${index})">
+    <input type="number"
+      onkeydown="if(event.key==='Enter'){commitInvoiceValue('${productId}',${occ},${index},this.value)}">
   `;
-
-  setTimeout(() => {
-    const input = document.getElementById(`acceptance-input-${id}-${index}`);
-    if (input) input.focus();
-  }, 30);
 }
 
-function enableFacEdit(id) {
-  const span = document.getElementById(`fac-header-${id}`);
+function enableAcceptanceEdit(productId, occ, index) {
+  const key = `${productId}-${occ}`;
+  const cell = document.getElementById(`acceptance-cell-${key}-${index}`);
+
+  cell.innerHTML = `
+    <input type="date"
+      onkeydown="if(event.key==='Enter'){commitAcceptanceValue('${productId}',${occ},${index},this.value)}">
+  `;
+}
+
+function enableFacEdit(productId, occ) {
+  const rec = getExpandedRecord(productId, occ);
+  if (!rec) return;
+
+  const key = `${productId}-${occ}`;
+  const span = document.getElementById(`fac-header-${key}`);
   if (!span) return;
 
-  // Lấy giá trị hiện tại (dd/mm/yyyy -> yyyy-mm-dd)
-  const current = span.textContent.trim();
-  const isoVal = current.includes("/")
+  const current = rec.startActual || "";
+  const isoVal = current
     ? current.split("/").reverse().join("-")
     : "";
 
-  // Tạo input type="date"
-  const input = document.createElement("input");
-  input.type = "date";
-  input.id = `fac-input-${id}`;
-  input.className = "form-control form-control-sm d-inline-block";
-  input.style.width = "150px";
-  input.value = isoVal;
-
-  // Nút Save
-  const saveBtn = document.createElement("button");
-  saveBtn.className = "btn btn-sm btn-primary ms-2";
-  saveBtn.textContent = "Save";
-  saveBtn.onclick = () => saveFacEdit(id);
-
-  // Nút Cancel
-  const cancelBtn = document.createElement("button");
-  cancelBtn.className = "btn btn-sm btn-secondary ms-1";
-  cancelBtn.textContent = "Cancel";
-  cancelBtn.onclick = () => cancelFacEdit(id);
-
-  // Thay nội dung span bằng input + nút
-  span.innerHTML = "";
-  span.appendChild(input);
-  span.appendChild(saveBtn);
-  span.appendChild(cancelBtn);
-
-  input.focus();
+  span.innerHTML = `
+    <input type="date" id="fac-input-${key}" value="${isoVal}">
+    <button onclick="saveFacEdit('${productId}',${occ},
+      document.getElementById('fac-input-${key}').value)">Save</button>
+    <button onclick="cancelFacEdit('${productId}',${occ})">Cancel</button>
+  `;
 }
 
-function saveFacEdit(id) {
-  const input = document.getElementById(`fac-input-${id}`);
-  if (!input) return;
-  const rawVal = input.value?.trim();
-  if (!rawVal) {
-    showAlert("⚠ Please select a valid FAC date.", "warning");
-    return;
-  }
+function saveFacEdit(productId, occ, iso) {
+  const rec = getExpandedRecord(productId, occ);
+  if (!rec || !iso) return;
 
-  // yyyy-mm-dd -> dd/mm/yyyy
-  const formatted = rawVal.split("-").reverse().join("/");
-
-  // Cập nhật dữ liệu trong allocatedRecords
-  const rec = expandedAllocatedRecords.find(r => String(r.id) === String(id));
-  if (!rec) return;
-
-  // Lấy forecastDate đầu tiên
-  const firstForecast = rec.allocations[0]?.forecastDate;
-  if (!firstForecast) return;
-  const baseForecast = parseDDMMYYYYtoDate(firstForecast);
-  const newFacDate = new Date(rawVal);
-  const offsetDays = Math.floor((newFacDate - baseForecast) / (1000 * 60 * 60 * 24));
-
-  // Cập nhật actualDate cho từng allocation
-  rec.allocations.forEach((a, i) => {
-    const fc = parseDDMMYYYYtoDate(a.forecastDate);
-    if (fc) {
-      const newDate = new Date(fc);
-      newDate.setDate(newDate.getDate() + offsetDays);
-      a.actualDate = formatDateToDDMMYYYY(newDate);
-    }
-    // Cập nhật DOM
-    const cell = document.getElementById(`actual-cell-${id}-${i}`);
-    if (cell) cell.textContent = a.actualDate || "--/--/--";
-  });
-
+  const formatted = iso.split("-").reverse().join("/");
   rec.startActual = formatted;
 
-  // Render lại header
-  const span = document.getElementById(`fac-header-${id}`);
-  if (span) {
-    span.innerHTML = `
-      ${formatted}
-      <button class="btn btn-link btn-sm p-0 ms-1" title="Edit FAC"
-              onclick="enableFacEdit('${id}')">
-      </button>
-    `;
-  }
+  rec.allocations.forEach(a => (a.actualDate = formatted));
+
+  renderAllocationPreview();
 }
 
-function cancelFacEdit(id) {
-  const rec = expandedAllocatedRecords.find(r => String(r.id) === String(id));
-  const span = document.getElementById(`fac-header-${id}`);
+function cancelFacEdit(productId, occ) {
+  const rec = getExpandedRecord(productId, occ);
+  if (!rec) return;
+
+  const key = `${productId}-${occ}`;
+  const span = document.getElementById(`fac-header-${key}`);
   if (!span) return;
 
-  const current = rec?.startActual || rec?.allocations?.[0]?.actualDate || "--/--/--";
+  const val =
+    rec.startActual ||
+    rec.allocations?.[0]?.actualDate ||
+    "--/--/--";
+
   span.innerHTML = `
-    ${current}
-    <button class="btn btn-link btn-sm p-0 ms-1" title="Edit FAC"
-            onclick="enableFacEdit('${id}')">
-    </button>
+    ${val}
+    <button onclick="enableFacEdit('${productId}',${occ})">✎</button>
   `;
 }
 
-function commitInvoiceValue(id, index, value) {
-  const record = expandedAllocatedRecords.find(r => String(r.id) === String(id));
-  if (!record) return;
+function commitInvoiceValue(productId, occ, index, value) {
+  const rec = getExpandedRecord(productId, occ);
+  if (!rec) return;
 
-  const invoiceVal = Number(value) || 0;
-  record.allocations[index].invoiceValue = invoiceVal;
-
-  handleKey({ key: "Enter" }, id, index);
-  disableInvoiceEdit(id, index);
+  rec.allocations[index].invoiceValue = Number(value) || 0;
+  renderAllocationPreview();
 }
 
-function commitAcceptanceValue(id, index, value) {
-  const record = expandedAllocatedRecords.find(r => String(r.id) === String(id));
-  if (!record) return;
+function commitAcceptanceValue(productId, occ, index, iso) {
+  const rec = getExpandedRecord(productId, occ);
+  if (!rec) return;
 
-  const dateStr = value ? value.split("-").reverse().join("/") : "";
-  record.allocations[index].acceptanceDate = dateStr;
+  rec.allocations[index].acceptanceDate =
+    iso.split("-").reverse().join("/");
 
-  handleKey({ key: "Enter" }, id, index);
-  disableAcceptanceEdit(id, index);
+  renderAllocationPreview();
 }
 
-function disableInvoiceEdit(id, index) {
-  const record = expandedAllocatedRecords.find(r => String(r.id) === String(id));
-  if (!record) return;
+//chua thay dung
+function disableInvoiceEdit(productId, occ, index) {
+  const rec = getExpandedRecord(productId, occ);
+  if (!rec) return;
 
-  const cell = document.getElementById(`invoice-cell-${id}-${index}`);
+  const key = `${productId}-${occ}`;
+  const cell = document.getElementById(`invoice-cell-${key}-${index}`);
   if (!cell) return;
 
-  const a = record.allocations[index];
+  const a = rec.allocations[index];
   cell.innerHTML = `
-    <span>${a.invoiceValue ? formatCurrency(a.invoiceValue, record.currency) : "0"}</span>
-    <button class="btn btn-link p-0 ms-1" title="Edit"
-            onclick="enableInvoiceEdit('${id}', ${index})">
-      <i class="bi bi-pencil"></i>
-    </button>
+    <span>${a.invoiceValue
+      ? formatCurrency(a.invoiceValue, rec.currency)
+      : "0"}</span>
+    <button onclick="enableInvoiceEdit('${productId}',${occ},${index})">✎</button>
   `;
 }
+//chua thay dung
+function disableAcceptanceEdit(productId, occ, index) {
+  const rec = getExpandedRecord(productId, occ);
+  if (!rec) return;
 
-function disableAcceptanceEdit(id, index) {
-  const record = expandedAllocatedRecords.find(r => String(r.id) === String(id));
-  if (!record) return;
-
-  const cell = document.getElementById(`acceptance-cell-${id}-${index}`);
+  const key = `${productId}-${occ}`;
+  const cell = document.getElementById(`acceptance-cell-${key}-${index}`);
   if (!cell) return;
 
-  const a = record.allocations[index];
+  const a = rec.allocations[index];
   cell.innerHTML = `
     <span>${a.acceptanceDate || "--/--/--"}</span>
-    <button class="btn btn-link p-0 ms-1" title="Edit"
-            onclick="enableAcceptanceEdit('${id}', ${index})">
-      <i class="bi bi-pencil"></i>
-    </button>
+    <button onclick="enableAcceptanceEdit('${productId}',${occ},${index})">✎</button>
   `;
 }
 
-function handleChange(id, index, invoiceValue, acceptanceDateInput) {
-  const recordIndex = expandedAllocatedRecords.findIndex(r => String(r.id) === String(id));
-  if (recordIndex === -1) return;
+function handleChange(productId, occ, index, invoiceValue, acceptanceDateInput) {
+  const record = getExpandedRecord(productId, occ);
+  if (!record) return;
 
-  const record = expandedAllocatedRecords[recordIndex];
-  const allocations = Array.isArray(record.allocations)
-    ? record.allocations.map(a => ({ ...a }))
-    : [];
+  const allocations = record.allocations.map(a => ({ ...a }));
   const totalValue = Number(record.totalValue || 0);
   const perDayValue = totalValue / 365;
 
@@ -414,101 +315,57 @@ function handleChange(id, index, invoiceValue, acceptanceDateInput) {
   });
 
   // --- 9️⃣ Lưu và render lại UI
-  expandedAllocatedRecords[recordIndex] = { ...record, allocations };
-  updateAllocationTableUI(id);
+  record.allocations = allocations;
+  updateAllocationTableUI(productId, occ);
 }
-
+//chua thay dung
 async function saveAllocatedRecords() {
   try {
-    if (!allocatedRecords || !allocatedRecords.length) return;
+    if (!Array.isArray(allocatedRecords) || !allocatedRecords.length) return;
 
-    // ✅ đóng modal
-    const modal = bootstrap.Modal.getInstance(document.getElementById("allocationModal"));
+    // Đóng modal
+    const modal = bootstrap.Modal.getInstance(
+      document.getElementById("allocationModal")
+    );
     if (modal) modal.hide();
 
-    // --- 🔹 Cập nhật lại allocationOverrides cho từng record trước khi lưu ---
-    if (Array.isArray(expandedAllocatedRecords) && expandedAllocatedRecords.length) {
-      expandedAllocatedRecords.forEach(expanded => {
-        const matched = allocatedRecords.find(r => String(r.id) === String(expanded.id));
-        if (!matched) return;
+    // 1️⃣ Sync từ expanded → allocatedRecords
+    allocatedRecords.forEach(rec => {
+      const expanded = getExpandedRecord(rec.id, rec.__occ);
+      if (!expanded) return;
 
-        // build allocationOverrides mới từ các tháng có acceptanceDate hoặc invoiceValue
-        const newOverrides = [];
-        expanded.allocations.forEach((alloc, idx) => {
-          if (alloc.acceptanceDate || alloc.invoiceValue) {
-            newOverrides.push({
-              index: idx,
-              acceptanceDate: alloc.acceptanceDate || "",
-              invoiceValue: Number(alloc.invoiceValue || 0)
-            });
-          }
-        });
+      rec.actualStart =
+        expanded.startActual ||
+        expanded.allocations?.[0]?.actualDate ||
+        "";
+    });
 
-        matched.allocationOverrides = newOverrides;
-      });
-    }
+    // 2️⃣ Sync từ allocatedRecords → allocatedItems
+    allocatedItems.forEach(item => {
+      const rec = allocatedRecords.find(
+        r =>
+          String(r.id) === String(item.id) &&
+          r.__occ === item.__occ
+      );
 
-    // --- 🔹 Sync allocatedRecords -> allocatedItems (Section 3 source) ---
-    if (Array.isArray(allocatedRecords) && allocatedRecords.length) {
-      const recMap = {};
-      allocatedRecords.forEach(rec => {
-        const pid = rec.id ?? null;
-        const pname = (rec.name ?? "").toString().trim();
-        const firstAlloc = Array.isArray(rec.allocations) && rec.allocations[0] ? rec.allocations[0] : null;
-        const actual = formatDateToDDMMYYYY(firstAlloc?.actualDate) ?? null;
+      if (!rec) return;
 
-        recMap[String(pid ?? pname)] = {
-          id: pid,
-          name: pname,
-          startActual: actual,
-          actualDate: actual
-        };
-      });
+      // ✅ update đúng cái user đã edit
+      item.actualDate = rec.actualStart || "";
+    });
 
-      if (!Array.isArray(allocatedItems)) allocatedItems = [];
-      const updated = [];
+    // 3️⃣ Remove __occ trước khi gửi backend
+    const cleanAllocatedRecords = stripOcc(allocatedRecords);
+    const cleanAllocatedItems = stripOcc(allocatedItems);
 
-      allocatedItems.forEach(ai => {
-        const keyId = String(ai.id ?? "");
-        const keyName = (ai.name ?? "").toString().trim();
-        const matched = recMap[keyId] || recMap[keyName] || null;
-        if (matched) {
-          ai.actualDate = matched.actualDate;
-        }
-        updated.push(ai);
-      });
-
-      Object.keys(recMap).forEach(k => {
-        const m = recMap[k];
-        const exists = updated.some(
-          u =>
-            String(u.id ?? "") === String(m.id ?? "") ||
-            ((u.name ?? "").toString().trim() === (m.name ?? "").toString().trim())
-        );
-        if (!exists) {
-          updated.push({
-            id: m.id ?? null,
-            name: m.name ?? "",
-            actualDate: m.actualDate ?? null,
-            forecastDate: m.forecastDate ?? null
-          });
-        }
-      });
-
-      // replace allocatedItems with updated array
-      allocatedItems.length = 0;
-      updated.forEach(u => allocatedItems.push(u));
-    }
-
-    // --- 🔹 Gửi lên API ---
-    const body = {
+    // 4️⃣ Gửi API
+    await updateRevenueRecord({
       custom_field: {
-        cf__allocated_records: JSON.stringify(allocatedRecords),
-        cf__allocated_products: JSON.stringify(allocatedItems)
+        cf__allocated_records: JSON.stringify(cleanAllocatedRecords),
+        cf__allocated_products: JSON.stringify(cleanAllocatedItems)
       }
-    };
+    });
 
-    await updateRevenueRecord(body);
     renderProductAllocation();
   } catch (err) {
     console.error("❌ Lưu phân bổ thất bại:", err);

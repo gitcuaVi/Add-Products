@@ -1,4 +1,22 @@
 // ============= HELPER =============
+function isAtLeastYear(pkg, duration, minYears = 1) {
+  if (!pkg || !duration) return false;
+
+  const p = String(pkg).toLowerCase();
+  const d = Number(duration);
+  const minMonths = minYears * 12;
+
+  if (p === "year") {
+    return d >= minYears;
+  }
+
+  if (p === "month") {
+    return d >= minMonths;
+  }
+
+  return false;
+}
+
 function toggleTag() {
   if (!Array.isArray(tag)) tag = [];
  
@@ -25,6 +43,91 @@ function toggleTag() {
   if (!hasPending && !hasSuccess) {
     tag.push("Revenue Pending");
   }
+}
+
+function dmyToDate(obj) {
+  if (!obj) return null;
+  if (typeof obj === "string") obj = parseDMY(obj);
+  if (!obj) return null;
+  const { day, month, year } = obj;
+  return new Date(year, month - 1, day); // local date, no timezone shift
+}
+
+function addMonthsFromAnchor(startDate, months = 1) {
+  if (!(startDate instanceof Date) || isNaN(startDate)) return null;
+
+  const anchor = startDate.getDate();
+  const target = new Date(startDate.getFullYear(), startDate.getMonth() + months, 1);
+  const lastDay = new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate();
+  const day = Math.min(anchor, lastDay);
+
+  return new Date(target.getFullYear(), target.getMonth(), day);
+}
+
+function isValidDMY(d, m, y) {
+  if (!Number.isInteger(d) || !Number.isInteger(m) || !Number.isInteger(y)) return false;
+  if (y < 1900 || y > 3000) return false;
+  if (m < 1 || m > 12) return false;
+  if (d < 1 || d > 31) return false;
+  // optional: check day vs month days (Feb, months with 30 days)
+  const maxDays = new Date(y, m, 0).getDate(); // last day of month m
+  return d <= maxDays;
+}
+
+function parseDMY(s) {
+  if (!s && s !== 0) return null;
+
+  // already object like {day, month, year}
+  if (typeof s === "object" && s !== null) {
+    const day = Number(s.day);
+    const month = Number(s.month);
+    const year = Number(s.year);
+    return isValidDMY(day, month, year) ? { day, month, year } : null;
+  }
+
+  if (typeof s !== "string") return null;
+  const str = s.trim();
+
+  // yyyy-mm-dd or yyyy/mm/dd  (date-only) => parse manually to avoid timezone issues
+  let m;
+  if ((m = str.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/))) {
+    const y = Number(m[1]), mm = Number(m[2]), dd = Number(m[3]);
+    return isValidDMY(dd, mm, y) ? { day: dd, month: mm, year: y } : null;
+  }
+
+  // ISO-like with time e.g. 2025-04-10T00:00:00Z or 2025-04-10 00:00:00
+  if ((m = str.match(/^(\d{4})-(\d{2})-(\d{2})T?/))) {
+    const y = Number(m[1]), mm = Number(m[2]), dd = Number(m[3]);
+    return isValidDMY(dd, mm, y) ? { day: dd, month: mm, year: y } : null;
+  }
+
+  // dd/mm/yyyy or mm/dd/yyyy or variants with - or /
+  if (/^\d{1,2}[-/]\d{1,2}[-/]\d{4}$/.test(str)) {
+    const [a, b, y] = str.split(/[-/]/).map(Number);
+
+    // if first part >12 -> must be dd/mm
+    if (a > 12 && b <= 12) {
+      return isValidDMY(a, b, y) ? { day: a, month: b, year: y } : null;
+    }
+
+    // if second part >12 -> must be mm/dd (first is month)
+    if (b > 12 && a <= 12) {
+      return isValidDMY(b, a, y) ? { day: b, month: a, year: y } : null;
+    }
+
+    // both <=12 => ambiguous: use config
+    if (a <= 12 && b <= 12) {
+      if (AMBIGUOUS_AS_DDMM) {
+        return isValidDMY(a, b, y) ? { day: a, month: b, year: y } : null; // treat as dd/mm
+      } else {
+        return isValidDMY(b, a, y) ? { day: b, month: a, year: y } : null; // treat as mm/dd
+      }
+    }
+
+    return null;
+  }
+
+  return null;
 }
  
 function ensureNormalLayout() {
@@ -176,28 +279,21 @@ function onEditDraftChange(idx, field, rawValue, isFinal = false) {
       }
     } else if (field === "duration") {
       if (num < 1) num = 1;
-      if (editDrafts[idx].package === "month" && num > 12) {
-        num = 12;
-      }
       editDrafts[idx][field] = isNaN(num) ? null : num;
-
       const inputEl = document.getElementById(`edit-${field}-${idx}`);
       if (inputEl) inputEl.value = editDrafts[idx][field];
     } else if (field === "basePrice") {
       if (num < 0) num = 0;
       editDrafts[idx][field] = isNaN(num) ? 0 : num;
-
       const inputEl = document.getElementById(`edit-${field}-${idx}`);
       if (inputEl) inputEl.value = editDrafts[idx][field].toLocaleString('en-US');
     } else if (field === "vat") {
       if (num < 0) num = 0;
       editDrafts[idx][field] = isNaN(num) ? 0 : num;
-
       const inputEl = document.getElementById(`edit-${field}-${idx}`);
-      if (inputEl) inputEl.value = editDrafts[idx][field].toLocaleString('en-US');
+      if (inputEl) inputEl.value = editDrafts[idx][field];
     } else {
       editDrafts[idx][field] = isNaN(num) ? 0 : num;
-
       const inputEl = document.getElementById(`edit-${field}-${idx}`);
       if (inputEl) inputEl.value = editDrafts[idx][field];
     }
@@ -215,7 +311,6 @@ function onEditDraftChange(idx, field, rawValue, isFinal = false) {
   // --- validate discount giống Section 2 ---
   if (field === "discount" || field === "discountType") {
     const discountInputEl = document.getElementById(`edit-discount-${idx}`);
-
     if (discountInputEl) {
       // reset style
       discountInputEl.style.border = "1px solid #ccc";
@@ -233,9 +328,9 @@ function onEditDraftChange(idx, field, rawValue, isFinal = false) {
 
       // check maxDiscount
       let isExceed = false;
-      if (maxDisc <= 0) return;
       const maxDisc = Number(editDrafts[idx].maxDiscount) || 0;
 
+      if (maxDisc <= 0) return;
       if (editDrafts[idx].discountType === "percent") {
         if (discValue > maxDisc) isExceed = true;
       } else { // amount
@@ -246,7 +341,6 @@ function onEditDraftChange(idx, field, rawValue, isFinal = false) {
       if (isExceed) {
         discountInputEl.style.border = "2px solid red";
         discountInputEl.style.backgroundColor = "#ffe5e5";
-
         const message = (lang === "vi")
           ? `⚠ Giảm giá vượt quá mức cho phép (tối đa ${maxDisc}%)`
           : `⚠ Discount exceeds the allowed limit (max ${maxDisc}%)`;

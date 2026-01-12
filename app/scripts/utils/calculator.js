@@ -14,7 +14,7 @@ function computeDraftTotals(draft) {
     baseTotal = oriBaseTotal + oriBaseTotal * vat / 100;
     const oriFinalTotal = tmp * (1 - Math.min(Math.max(disc, 0), 100) / 100);
     finalTotal = oriFinalTotal + oriFinalTotal * vat / 100;
-  } else {
+  } else { // amount
     const disc = Number(draft.discount) || 0;
     const oriBaseTotal = tmp - disc;
     baseTotal = oriBaseTotal + oriBaseTotal * vat / 100;
@@ -22,7 +22,10 @@ function computeDraftTotals(draft) {
     finalTotal = oriFinalTotal + oriFinalTotal * vat / 100;
   }
   if (finalTotal < 0) finalTotal = 0;
-  return { baseTotal, finalTotal };
+  return {
+    baseTotal,
+    finalTotal
+  };
 }
 
 function recomputeBaseTotal(item) {
@@ -30,6 +33,8 @@ function recomputeBaseTotal(item) {
   const qty = Number(item.quantity) || 0;
   const duration = Number(item.duration) || 1;
   const isQuantityBased = item.isQuantityBased;
+
+  // Nếu muốn baseTotal không nhân duration thì bỏ duration ở đây
   item.baseTotal = isQuantityBased ? price * qty * duration : price * duration;
 }
 
@@ -78,17 +83,21 @@ function calculateTotalCoefficient(idx) {
 
 function getTemp(p) {
   if (!p) return 0;
+
+  // 1. allocationValue hiện tại của sản phẩm (đã bao gồm discount riêng nếu có)
   const allocationValue = p.allocationValue;
   if (allocationValue <= 0) return 0;
-  
+
+  // 2. Tổng subtotal của tất cả sản phẩm
   const subtotal = listItems.reduce((sum, it) => sum + (Number(it.allocationValue) || 0), 0);
   if (subtotal <= 0) return allocationValue;
 
+  // 3. Áp dụng global discount
   let finalTotal = allocationValue;
   if (globalDiscount.type === "percent") {
     finalTotal = allocationValue * (1 - (Number(globalDiscount.value) || 0) / 100);
-  } else {
-    const ratio = allocationValue / subtotal;
+  } else { // amount → giảm theo tỷ lệ
+    const ratio = allocationValue / subtotal; // tỷ lệ sản phẩm
     const share = ratio * (Number(globalDiscount.value) || 0);
     finalTotal = allocationValue - share;
   }

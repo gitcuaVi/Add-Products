@@ -150,9 +150,6 @@ async function createQuote(tLang) {
     const duration = item.duration ?? "";
     const pkg = item.package ?? "";
 
-    // vat
-    const vat = Number(item.vat ?? 0);
-
     // discount + discountType
     const discount = Number(item.discount ?? 0);
     const discountType = item.discountType ?? item.discount_type ?? "percent";
@@ -168,7 +165,7 @@ async function createQuote(tLang) {
       unit,
       duration,
       package: pkg,
-      vat,
+      vat: item.vat,
       discount,
       discountType,
       finalTotal,

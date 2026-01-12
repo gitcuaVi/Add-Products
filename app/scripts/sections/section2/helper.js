@@ -52,19 +52,19 @@ function findMatchingProducts(pricebook, filters) {
 }
 
 function pushToQuote(idx) {
-  const product = window.products[idx]
+  const product = window.products[idx];
   if (!product) return;
 
-    // --- Currency Check ---
+  // --- Currency Check ---
   if (listItems.length > 0) {
     const firstCurrency = listItems[0].currency;
     const currentCurrency = product.currencySymbol || "đ";
- 
+
     if (firstCurrency !== currentCurrency) {
       const message = (lang === "vi")
         ? `⚠ Sản phẩm không phù hợp với giỏ hàng hiện tại do khác loại tiền tệ!`
         : `⚠ Product cannot be added due to mismatched currency!`;
- 
+
       showAlert(message, "warning");
       return; // stop and do not push
     }
@@ -94,7 +94,7 @@ function pushToQuote(idx) {
   const baseTotal = adjustedPrice * (isQuantityBased ? quantitative : 1) * duration;
 
   listItems.push({
-    id: product.id,
+    id: product.id, // thay = stt || khi thêm thì tăng stt
     name: product.name,
     category: product.category,
     license: licenseInput?.value || "",
@@ -109,6 +109,7 @@ function pushToQuote(idx) {
     allocationValue: baseTotal,
     isQuantityBased,
     maxDiscount,
+    vat: 0,
     discount: 0,
     discountType: "percent",
     currency: currentCurrency,
@@ -122,6 +123,8 @@ function pushToQuote(idx) {
   if (packageInput) packageInput.value = "";
   if (durationInput) durationInput.value = 1;
   if (subtypeInput) subtypeInput.value = "";
+
+  //product = [];
 
   document.getElementById("product-table").style.display = "none";
   renderPriceTable();
@@ -233,10 +236,6 @@ function commitDuration(idx, rawValue, pkg) {
   let val = parseInt(rawValue, 10);
   if (isNaN(val)) val = 1;
   if (val < 1) val = 1;
-
-  // chỉ giới hạn khi là month
-  const isMonth = pkg === "month" || pkg === "monthly";
-  if (isMonth && val > 12) val = 12;
 
   // ghi ngược vào input nếu có thay đổi (đảm bảo UI không vượt quá 12)
   const inputEl = document.getElementById(`duration-input-${idx}`);
@@ -411,4 +410,10 @@ function removeQuoteItem(index) {
       notice.style.display = "block";
     }
   }
+}
+
+function formatDiscountInput(inputEl) {
+  const raw = inputEl.value.replace(/,/g, '');
+  const val = parseFloat(raw);
+  if (!isNaN(val)) inputEl.value = val.toLocaleString('en-US');
 }
