@@ -89,7 +89,8 @@ function buildAllocatedRecords(items = [], startFC = (closedDate || expectedClos
   expandedAllocatedRecords.length = 0;
 
   const compactRecords = items.map(item => {
-    const id = item.id || `p_${Math.random().toString(36).slice(2, 7)}`;
+    const id = item.id;
+    const pid = item.pid;
     const name = item.name || "";
     const currency = item.currency || "đ";
     const category = item.category;
@@ -131,6 +132,7 @@ function buildAllocatedRecords(items = [], startFC = (closedDate || expectedClos
     // --- build compact record ---
     const compact = {
       id,
+      pid,
       name,
       category,
       territory,
@@ -201,6 +203,7 @@ function buildAllocatedRecords(items = [], startFC = (closedDate || expectedClos
 
     expandedAllocatedRecords.push({
       id,
+      pid,
       name,
       totalVcsValue: AllocValue * duration,
       totalValue: itemValue,

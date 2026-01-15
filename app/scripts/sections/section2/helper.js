@@ -103,11 +103,12 @@ function pushToQuote(idx) {
   const currentCurrency = product.currencySymbol || "đ";
   const baseTotal = adjustedPrice * (isQuantityBased ? quantitative : 1) * duration;
 
-  // ✅ Tạo ID tự động tăng
+  // Tạo ID tự động tăng
   const newId = generateNextId();
 
   listItems.push({
     id: newId,
+    pid: product.id,
     name: product.name,
     category: product.category,
     license: licenseInput?.value || "",

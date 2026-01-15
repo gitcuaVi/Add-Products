@@ -103,6 +103,7 @@ async function loadProductsFromDeal() {
         products.forEach(p => {
           listItems.push({
             id: p.id,
+            pid: p.pid,
             name: p.name,
             category: p.category || "",
             license: p.license || "",
@@ -139,6 +140,7 @@ async function loadProductsFromDeal() {
         allocated.forEach(p => {
           allocatedItems.push({
             id: p.id,
+            pid: p.pid,
             name: p.name,
             allocationValue: Number(p.allocationValue) || 0,
             allocationDuration: Number(p.allocationDuration) || 1,
@@ -206,6 +208,7 @@ async function loadProductsFromDeal() {
 
             const expanded = {
               id: r.id,
+              pid: r.pid,
               name: r.name,
               totalVcsValue : Number(r.totalVcsValue ?? 0),
               totalValue: Number(r.totalValue ?? 0),

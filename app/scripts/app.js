@@ -206,6 +206,7 @@ await loadMarket();
 
           return {
             id: p.id,
+            pid: p.pid,
             name,
             category: p.category,
             allocationValue: allocationValue,
