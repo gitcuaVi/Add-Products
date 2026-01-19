@@ -63,6 +63,7 @@ async function loadPricebookFromCatalog(catalogId) {
         category: category || "",
         license: p.custom_field?.cf_license || "",
         priceType: p.custom_field?.cf_price_type || "",
+        spdvType: p.custom_field?.cf_spdvtype || "",
         package: p.custom_field?.cf_package || "",
         price: p.custom_field?.cf_price ?? null,
         currency: p.custom_field?.cf_currency || "",

@@ -1,16 +1,21 @@
 // ============= RENDER =============
 function renderProductAllocation() {
   const source = lockRevenue ? allocatedItems : listItems;
-  const items = source.map(i => normalizeRenderItem(i));
+  const items = source.map((i) => normalizeRenderItem(i));
   const container = document.getElementById("product-allocated");
   const btnAllocate = document.getElementById("btn-allocate");
   const reviewBtn = document.getElementById("btn-view-allocation");
   if (!container) return;
 
-  const safe = v => (v === undefined || v === null) ? "" : String(v);
-  const trim = v => safe(v).trim();
+  const safe = (v) => (v === undefined || v === null ? "" : String(v));
+  const trim = (v) => safe(v).trim();
   const eq = (a, b) => trim(a).toLowerCase() === trim(b).toLowerCase();
-  const escapeAttr = s => escapeHtml(s);
+  const escapeAttr = (s) => escapeHtml(s);
+
+  // 🔹 Auto-fill values từ deal
+  const dealDefaultProductType = dealType || ""; // từ cf__deal_type
+  const dealDefaultRegion = currentTerritory || ""; // từ cf__territory
+  const dealDefaultSpdvType = ""; // sẽ lấy từ item.spdvType nếu có
 
   // Labels for responsive
   const labels = {
@@ -19,7 +24,7 @@ function renderProductAllocation() {
     count: lang === "vi" ? "Số lần phân bổ" : "Allocation Count",
     coefficient: lang === "vi" ? "Hệ số phân bổ" : "Coefficient",
     forecast: lang === "vi" ? "Ngày dự kiến" : "Forecast Date",
-    actual: lang === "vi" ? "Ngày bàn giao" : "Actual Date"
+    actual: lang === "vi" ? "Ngày bàn giao" : "Actual Date",
   };
 
   if (!items.length) {
@@ -31,7 +36,11 @@ function renderProductAllocation() {
     container.innerHTML = `
       <div style="text-align:center; color:#555;">
         <img src="https://img.icons8.com/ios/100/box.png" alt="no product" style="opacity:0.5; margin-bottom:16px;">
-        <p style="margin:8px 0; font-size:13px;">${lang === "vi" ? "Hiện chưa có sản phẩm nào." : "There are no products yet."}</p>
+        <p style="margin:8px 0; font-size:13px;">${
+          lang === "vi"
+            ? "Hiện chưa có sản phẩm nào."
+            : "There are no products yet."
+        }</p>
       </div>
     `;
     btnAllocate.style.display = "none";
@@ -40,194 +49,296 @@ function renderProductAllocation() {
   }
 
   const date = closedDate ? closedDate : expectedCloseDate;
-  const forecastStr = date ? `${date.getDate().toString().padStart(2, "0")}/${(date.getMonth() + 1).toString().padStart(2, "0")}/${date.getFullYear()}` : "--/--/--";
-  
-  const rowsHtml = items.map((p, idx) => {
-    let allocatedValue = 0;
-    const duration = p.allocationDuration;
+  const forecastStr = date
+    ? `${date.getDate().toString().padStart(2, "0")}/${(date.getMonth() + 1)
+        .toString()
+        .padStart(2, "0")}/${date.getFullYear()}`
+    : "--/--/--";
 
-    if (lockRevenue) {
-      allocatedValue = p.allocationValue;
-    } else {
-      let temp;
-      if (source === listItems) {
-        temp = getTemp(p);
+  const rowsHtml = items
+    .map((p, idx) => {
+      let allocatedValue = 0;
+      const duration = p.allocationDuration;
+
+      if (lockRevenue) {
+        allocatedValue = p.allocationValue;
       } else {
-        temp = p.allocationValue
+        let temp;
+        if (source === listItems) {
+          temp = getTemp(p);
+        } else {
+          temp = p.allocationValue;
+        }
+        allocatedValue = temp / duration;
       }
-      allocatedValue = temp / duration;
-    }
 
-    const isTime = p.package === "time";
-    const isMonth = p.package === "month";
-    const forecastDisplay = forecastStr ?? p.forecastDate;
-    const actualDisplay =
-      (p.actualDate && p.actualDate.trim() !== "" && p.actualDate !== "--/--/--")
-        ? p.actualDate
-        : (facDate instanceof Date && !isNaN(facDate)
-          ? `${facDate.getDate().toString().padStart(2, "0")}/${(facDate.getMonth() + 1)
-            .toString()
-            .padStart(2, "0")}/${facDate.getFullYear()}`
-          : "--/--/--");
+      const isTime = p.package === "time";
+      const isMonth = p.package === "month";
+      const forecastDisplay = forecastStr ?? p.forecastDate;
+      const actualDisplay =
+        p.actualDate &&
+        p.actualDate.trim() !== "" &&
+        p.actualDate !== "--/--/--"
+          ? p.actualDate
+          : facDate instanceof Date && !isNaN(facDate)
+          ? `${facDate.getDate().toString().padStart(2, "0")}/${(
+              facDate.getMonth() + 1
+            )
+              .toString()
+              .padStart(2, "0")}/${facDate.getFullYear()}`
+          : "--/--/--";
 
-    // PRODUCT TYPE handling
-    const allowedRoles = [role.Admin, role.AccountAdmin, role.Manager];
-    let productTypeCanonicalList = [
-      { v: "New", label: (lang === "vi" ? "Lần đầu" : "New") },
-      { v: "Incident", label: (lang === "vi" ? "Sự cố" : "Incident") },
-      { v: "Renewal", label: (lang === "vi" ? "Gia hạn" : "Renewal") },
-      { v: "Renewal_GOV", label: (lang === "vi" ? "Gia hạn_GOV" : "Renewal_GOV") },
-      { v: "Upsale", label: (lang === "vi" ? "Bán thêm" : "Upsale") },
-      { v: "Independent", label: (lang === "vi" ? "Độc lập" : "Independent") },
-      { v: "Dependent", label: (lang === "vi" ? "Phụ thuộc" : "Dependent") },
-      { v: "SI", label: "SI" },
-      { v: "Unknown", label: "Unknown" }
-    ];
+      // PRODUCT TYPE handling
+      const allowedRoles = [role.Admin, role.AccountAdmin, role.Manager];
+      let productTypeCanonicalList = [
+        { v: "New", label: lang === "vi" ? "Lần đầu" : "New" },
+        { v: "Incident", label: lang === "vi" ? "Sự cố" : "Incident" },
+        { v: "Renewal", label: lang === "vi" ? "Gia hạn" : "Renewal" },
+        {
+          v: "Renewal_GOV",
+          label: lang === "vi" ? "Gia hạn_GOV" : "Renewal_GOV",
+        },
+        { v: "Upsale", label: lang === "vi" ? "Bán thêm" : "Upsale" },
+        { v: "Independent", label: lang === "vi" ? "Độc lập" : "Independent" },
+        { v: "Dependent", label: lang === "vi" ? "Phụ thuộc" : "Dependent" },
+        { v: "SI", label: "SI" },
+        { v: "Unknown", label: "Unknown" },
+      ];
 
-    if (!allowedRoles.includes(loggedInUser.roleId)) {
-      productTypeCanonicalList = productTypeCanonicalList.filter(o => o.v !== "Unknown");
-    }
-
-    const rawProductType = safe(p.productType);
-    let productTypeCanonical = "";
-    for (const o of productTypeCanonicalList) {
-      if (eq(rawProductType, o.v) || eq(rawProductType, o.label)) {
-        productTypeCanonical = o.v;
-        break;
+      if (!allowedRoles.includes(loggedInUser.roleId)) {
+        productTypeCanonicalList = productTypeCanonicalList.filter(
+          (o) => o.v !== "Unknown"
+        );
       }
-    }
-    const isProductTypeCustom = !productTypeCanonical && rawProductType !== "";
-    const productTypeHtmlParts = [];
-    productTypeHtmlParts.push(`<option value="">-- ${lang === "vi" ? "Chọn" : "Select"} --</option>`);
-    if (isProductTypeCustom) {
-      productTypeHtmlParts.push(`<option value="${escapeAttr(rawProductType)}" selected>${escapeAttr(rawProductType)}</option>`);
-    }
-    productTypeHtmlParts.push(...productTypeCanonicalList.map(o => {
-      return `<option value="${o.v}" ${o.v === productTypeCanonical ? "selected" : ""}>${o.label}</option>`;
-    }));
 
-    const productTypeHtml = `
+      // 🔹 Ưu tiên: product's productType > dealType
+      const rawProductType = safe(p.productType) || dealDefaultProductType;
+      let productTypeCanonical = "";
+      for (const o of productTypeCanonicalList) {
+        if (eq(rawProductType, o.v) || eq(rawProductType, o.label)) {
+          productTypeCanonical = o.v;
+          break;
+        }
+      }
+      const isProductTypeCustom =
+        !productTypeCanonical && rawProductType !== "";
+      const productTypeHtmlParts = [];
+      productTypeHtmlParts.push(
+        `<option value="">-- ${lang === "vi" ? "Chọn" : "Select"} --</option>`
+      );
+      if (isProductTypeCustom) {
+        productTypeHtmlParts.push(
+          `<option value="${escapeAttr(rawProductType)}" selected>${escapeAttr(
+            rawProductType
+          )}</option>`
+        );
+      }
+      productTypeHtmlParts.push(
+        ...productTypeCanonicalList.map((o) => {
+          return `<option value="${o.v}" ${
+            o.v === productTypeCanonical ? "selected" : ""
+          }>${o.label}</option>`;
+        })
+      );
+
+      const productTypeHtml = `
       <select id="product-type-${idx}" class="form-select form-select-sm" onchange="handleProductTypeChange(${idx}, this.value); saveHeSo(${idx});">
         ${productTypeHtmlParts.join("")}
       </select>
     `;
 
-    // SPDV handling
-    const spdvOptions = [
-      { v: "Standalone", label: "Standalone" },
-      { v: "Service", label: "Service" },
-    ];
-    const rawSpdv = safe(p.spdvType);
-    let spdvCanonical = "";
-    for (const o of spdvOptions) {
-      if (eq(rawSpdv, o.v) || eq(rawSpdv, o.label)) {
-        spdvCanonical = o.v;
-        break;
+      // SPDV handling
+      const spdvOptions = [
+        { v: "Standalone", label: "Standalone" },
+        { v: "Service", label: "Service" },
+      ];
+      const rawSpdv = safe(p.spdvType) || dealDefaultSpdvType;
+      let spdvCanonical = "";
+      for (const o of spdvOptions) {
+        if (eq(rawSpdv, o.v) || eq(rawSpdv, o.label)) {
+          spdvCanonical = o.v;
+          break;
+        }
       }
-    }
-    const isSpdvCustom = !spdvCanonical && rawSpdv !== "";
+      const isSpdvCustom = !spdvCanonical && rawSpdv !== "";
 
-    const spdvParts = [];
-    spdvParts.push(`<option value="">-- ${lang === "vi" ? "Chọn" : "Select"} --</option>`);
-    if (isSpdvCustom) {
-      spdvParts.push(`<option value="${escapeAttr(rawSpdv)}" selected>${escapeAttr(rawSpdv)}</option>`);
-    }
-    spdvParts.push(...spdvOptions.map(o => `<option value="${o.v}" ${o.v === spdvCanonical ? "selected" : ""}>${o.label}</option>`));
-    const spdvHtml = `
+      const spdvParts = [];
+      spdvParts.push(
+        `<option value="">-- ${lang === "vi" ? "Chọn" : "Select"} --</option>`
+      );
+      if (isSpdvCustom) {
+        spdvParts.push(
+          `<option value="${escapeAttr(rawSpdv)}" selected>${escapeAttr(
+            rawSpdv
+          )}</option>`
+        );
+      }
+      spdvParts.push(
+        ...spdvOptions.map(
+          (o) =>
+            `<option value="${o.v}" ${
+              o.v === spdvCanonical ? "selected" : ""
+            }>${o.label}</option>`
+        )
+      );
+      const spdvHtml = `
       <select id="spdv-type-${idx}" class="form-select form-select-sm" onchange="handleSPDVChange(${idx}, this.value); saveHeSo(${idx});">
         ${spdvParts.join("")}
       </select>
     `;
 
-    // REGION handling
-    let regionHtml = "";
-    if (lang === "vi") {
-      const regionOptions = [
-        { v: "Miền Nam", label: "Miền Nam" },
-        { v: "Miền Bắc", label: "Miền Bắc" }
-      ];
-      const rawRegion = safe(p.region);
-      let regionCanonical = "";
-      for (const o of regionOptions) {
-        if (eq(rawRegion, o.v) || eq(rawRegion, o.label)) {
-          regionCanonical = o.v;
-          break;
+      // REGION handling
+      let regionHtml = "";
+      const rawRegion = safe(p.region) || dealDefaultRegion; // 🔹 Khai báo ở đây
+      let regionCanonical = ""; // 🔹 Khai báo ở đây
+
+      if (lang === "vi") {
+        const regionOptions = [
+          { v: "Miền Nam", label: "Miền Nam" },
+          { v: "Miền Bắc", label: "Miền Bắc" },
+        ];
+        // const rawRegion = safe(p.region) || dealDefaultRegion; // 🔹 XÓA dòng này
+        // let regionCanonical = ""; // 🔹 XÓA dòng này
+        for (const o of regionOptions) {
+          if (eq(rawRegion, o.v) || eq(rawRegion, o.label)) {
+            regionCanonical = o.v;
+            break;
+          }
         }
-      }
-      const isRegionCustom = !regionCanonical && rawRegion !== "";
-      const regionParts = [];
-      regionParts.push(`<option value="">-- Chọn --</option>`);
-      if (isRegionCustom) {
-        regionParts.push(`<option value="${escapeAttr(rawRegion)}" selected>${escapeAttr(rawRegion)}</option>`);
-      }
-      regionParts.push(...regionOptions.map(o => `<option value="${o.v}" ${o.v === regionCanonical ? "selected" : ""}>${o.label}</option>`));
-      regionHtml = `
+        const isRegionCustom = !regionCanonical && rawRegion !== "";
+        const regionParts = [];
+        regionParts.push(`<option value="">-- Chọn --</option>`);
+        if (isRegionCustom) {
+          regionParts.push(
+            `<option value="${escapeAttr(rawRegion)}" selected>${escapeAttr(
+              rawRegion
+            )}</option>`
+          );
+        }
+        regionParts.push(
+          ...regionOptions.map(
+            (o) =>
+              `<option value="${o.v}" ${
+                o.v === regionCanonical ? "selected" : ""
+              }>${o.label}</option>`
+          )
+        );
+        regionHtml = `
         <select id="region-${idx}" class="form-select form-select-sm" onchange="handleRegionChange(${idx}, this.value); saveHeSo(${idx});">
           ${regionParts.join("")}
         </select>
       `;
+      }
+
+      // Coefficient inline editor
+      // Xóa các thẻ <script> inline và thêm data-idx
+      const coefficientEditor = lockRevenue
+        ? `<div style="font-weight:600; font-size:13px;">${
+            p.coefficient || ""
+          }</div>`
+        : `
+  <div class="coefficient-editor" data-idx="${idx}" style="border:1px solid #dee2e6; border-radius:4px; padding:5px; background:#f8f9fa;">
+    <!-- Product Type -->
+    <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+      <label style="min-width:80px; font-size:13px;">${
+        lang === "vi" ? "Loại cơ hội" : "Opportunity Type"
+      }</label>
+      ${productTypeHtml}
+      <input id="product-type-value-${idx}" class="form-control form-control-sm" style="width:50px; font-size:13px;" readonly value="${escapeHtml(
+            p.productTypeValue ||
+              (productTypeCanonical &&
+                heSoMap.opportunity[productTypeCanonical]) ||
+              0
+          )}%">
+    </div>
+
+    <!-- SPDV -->
+    <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+      <label style="min-width:80px; font-size:13px;">${
+        lang === "vi" ? "Loại SPDV" : "Product/Service"
+      }</label>
+      ${spdvHtml}
+      <input id="spdv-type-value-${idx}" class="form-control form-control-sm" style="width:50px; font-size:13px;" readonly value="${escapeHtml(
+            p.spdvTypeValue ||
+              (spdvCanonical && heSoMap.spdv[spdvCanonical]) ||
+              0
+          )}%">
+    </div>
+
+    ${
+      lang === "vi"
+        ? `
+    <!-- Region -->
+    <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+      <label style="min-width:80px; font-size:13px;">Khu vực</label>
+      ${regionHtml}
+      <input id="region-value-${idx}" class="form-control form-control-sm" style="width:50px; font-size:13px;" readonly value="${escapeHtml(
+            p.regionValue ||
+              (regionCanonical && heSoMap.region[regionCanonical]) ||
+              0
+          )}%">
+    </div>
+    `
+        : ``
     }
 
-    // Coefficient inline editor
-    const coefficientEditor = lockRevenue ? 
-      `<div style="font-weight:600; font-size:13px;">${p.coefficient || ""}</div>` :
-      `
-      <div class="coefficient-editor" style="border:1px solid #dee2e6; border-radius:4px; padding:5px; background:#f8f9fa;">
-        <!-- Product Type -->
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-          <label style="min-width:80px; font-size:13px;">${lang === "vi" ? "Loại cơ hội" : "Opportunity Type"}</label>
-          ${productTypeHtml}
-          <input id="product-type-value-${idx}" class="form-control form-control-sm" style="width:50px; font-size:13px;" readonly value="${escapeHtml(p.productTypeValue || 0)}%">
-        </div>
+    <!-- Total Coefficient -->
+    <div style="display:flex; align-items:center; gap:5px; margin-top:5px; padding-top:5px; border-top:1px solid #dee2e6;">
+      <label style="min-width:100px; font-size:13px; font-weight:600;">${
+        lang === "vi" ? "Hệ số" : "Coefficient"
+      }</label>
+      <input id="total-coef-${idx}" class="form-control form-control-sm" style="width:120px; font-weight:600; font-size:13px;" readonly value="${
+            p.coefficient || ""
+          }">
+      <div id="coef-cell-${idx}" style="display:none;">${
+            p.coefficient || ""
+          }</div>
+    </div>
+  </div>
+  `;
 
-        <!-- SPDV -->
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-          <label style="min-width:80px; font-size:13px;">${lang === "vi" ? "Loại SPDV" : "Product/Service"}</label>
-          ${spdvHtml}
-          <input id="spdv-type-value-${idx}" class="form-control form-control-sm" style="width:50px; font-size:13px;" readonly value="${escapeHtml(p.spdvTypeValue || 0)}%">
-        </div>
-
-        ${lang === "vi" ? `
-        <!-- Region -->
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-          <label style="min-width:80px; font-size:13px;">Khu vực</label>
-          ${regionHtml}
-          <script>
-            (function(){ try{ handleRegionChange(${idx}, "${escapeAttr(market)}"); validateSelections(${idx}); }catch(e){console.warn(e);} })();
-          </script>
-          <input id="region-value-${idx}" class="form-control form-control-sm" style="width:50px; font-size:13px;" readonly value="${escapeHtml(p.regionValue || 0)}%">
-        </div>
-        ` : ''}
-
-        <!-- Total Coefficient -->
-        <div style="display:flex; align-items:center; gap:5px; margin-top:5px; padding-top:5px; border-top:1px solid #dee2e6;">
-          <label style="min-width:100px; font-size:13px; font-weight:600;">${lang === "vi" ? "Hệ số" : "Coefficient"}</label>
-          <input id="total-coef-${idx}" class="form-control form-control-sm" style="width:120px; font-weight:600; font-size:13px;" readonly value="${p.coefficient || ''}">
-          <div id="coef-cell-${idx}" style="display:none;">${p.coefficient || ""}</div>
-        </div>
-      </div>
-      `;
-
-    return `
+      return `
       <tr>
-        <td style="text-align: left; padding: 10px; vertical-align:top; font-size:13px;">${p.name}</td>
-        <td class="text-center" id="allocatedValue" data-label="${labels.value}:" data-value="${allocatedValue}" style="vertical-align:top; font-size:13px;">${formatCurrency(allocatedValue, p.currency || "đ")}</td>
-        <td class="text-center" data-label="${labels.type}:" style="vertical-align:top; font-size:13px;">
-          <select id="alloc-type-${idx}" class="form-select form-select-sm" ${lockRevenue ? "disabled" : ""}>
-            ${isTime
-              ? `<option value="time">${lang === 'vi' ? 'lần' : 'time'}</option>`
-              : (isMonth 
-                ? `<option value="month">${lang === 'vi' ? 'tháng' : 'month'}</option>`
-                :  `<option value="month">${lang === 'vi' ? 'tháng' : 'month'}</option>
-                    <option value="year">${lang === 'vi' ? 'năm' : 'year'}</option>`
-              )
+        <td style="text-align: left; padding: 10px; vertical-align:top; font-size:13px;">${
+          p.name
+        }</td>
+        <td class="text-center" id="allocatedValue" data-label="${
+          labels.value
+        }:" data-value="${allocatedValue}" style="vertical-align:top; font-size:13px;">${formatCurrency(
+        allocatedValue,
+        p.currency || "đ"
+      )}</td>
+        <td class="text-center" data-label="${
+          labels.type
+        }:" style="vertical-align:top; font-size:13px;">
+          <select id="alloc-type-${idx}" class="form-select form-select-sm" ${
+        lockRevenue ? "disabled" : ""
+      }>
+            ${
+              isTime
+                ? `<option value="time">${
+                    lang === "vi" ? "lần" : "time"
+                  }</option>`
+                : isMonth
+                ? `<option value="month">${
+                    lang === "vi" ? "tháng" : "month"
+                  }</option>`
+                : `<option value="month">${
+                    lang === "vi" ? "tháng" : "month"
+                  }</option>
+                    <option value="year">${
+                      lang === "vi" ? "năm" : "year"
+                    }</option>`
             }
           </select>
         </td>
-        <td class="text-center" data-label="${labels.count}:" style="vertical-align:top; font-size:13px;">
-          ${lockRevenue
-            ? `<span>${duration}</span>`
-            : `<input style="text-align:center; font-size:13px;" type="number" class="form-control form-control-sm" id="alloc-count-${idx}" 
+        <td class="text-center" data-label="${
+          labels.count
+        }:" style="vertical-align:top; font-size:13px;">
+          ${
+            lockRevenue
+              ? `<span>${duration}</span>`
+              : `<input style="text-align:center; font-size:13px;" type="number" class="form-control form-control-sm" id="alloc-count-${idx}" 
               value="${duration}" min="1" max="${duration}"
               oninput="this.value = commitAllocationCount(this.value, this.max)">
               </input>`
@@ -236,32 +347,90 @@ function renderProductAllocation() {
         <td data-label="${labels.coefficient}:" style="vertical-align:top;">
           ${coefficientEditor}
         </td>
-        <td class="text-center" data-label="${labels.forecast}:" style="vertical-align:top; font-size:13px;">${forecastDisplay}</td>
-        <td class="text-center" data-label="${labels.actual}:" style="vertical-align:top; font-size:13px;">${actualDisplay}</td>
+        <td class="text-center" data-label="${
+          labels.forecast
+        }:" style="vertical-align:top; font-size:13px;">${forecastDisplay}</td>
+        <td class="text-center" data-label="${
+          labels.actual
+        }:" style="vertical-align:top; font-size:13px;">${actualDisplay}</td>
       </tr>
     `;
-  }).join("");
+    })
+    .join("");
 
-  container.innerHTML = `
-    <div class="table-responsive">
-      <table class="table table-bordered allocation-table">
-        <thead>
-          <tr>
-            <th class="text-center" style="font-size:14px;">${lang === "vi" ? "Tên sản phẩm" : "Product Name"}</th>
-            <th class="text-center" style="font-size:14px;">${labels.value}</th>
-            <th class="text-center" style="font-size:14px;">${labels.type}</th>
-            <th class="text-center" style="font-size:14px;">${labels.count}</th>
-            <th class="text-center" style="font-size:14px;">${labels.coefficient}</th>
-            <th class="text-center" style="font-size:14px;">${labels.forecast}</th>
-            <th class="text-center" style="font-size:14px;">${labels.actual}</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rowsHtml}
-        </tbody>
-      </table>
-    </div>
-  `;
+container.innerHTML = `
+  <div class="table-responsive">
+    <table class="table table-bordered allocation-table">
+      <thead>
+        <tr>
+          <th class="text-center" style="font-size:14px;">${lang === "vi" ? "Tên sản phẩm" : "Product Name"}</th>
+          <th class="text-center" style="font-size:14px;">${labels.value}</th>
+          <th class="text-center" style="font-size:14px;">${labels.type}</th>
+          <th class="text-center" style="font-size:14px;">${labels.count}</th>
+          <th class="text-center" style="font-size:14px;">${labels.coefficient}</th>
+          <th class="text-center" style="font-size:14px;">${labels.forecast}</th>
+          <th class="text-center" style="font-size:14px;">${labels.actual}</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rowsHtml}
+      </tbody>
+    </table>
+  </div>
+`;
+
+// ✅ THỰC THI CÁC HÀM INIT SAU KHI RENDER XONG
+setTimeout(() => {
+  items.forEach((p, idx) => {
+    const editor = document.querySelector(`.coefficient-editor[data-idx="${idx}"]`);
+    if (!editor) {
+      console.warn(`No editor found for idx ${idx}`);
+      return;
+    }
+
+    const productTypeSel = document.getElementById(`product-type-${idx}`);
+    const spdvSel = document.getElementById(`spdv-type-${idx}`);
+    const regionSel = lang === "vi" ? document.getElementById(`region-${idx}`) : null;
+
+    const productTypeCanonical = productTypeSel?.value || "";
+    const spdvCanonical = spdvSel?.value || "";
+    const regionCanonical = regionSel?.value || "";
+
+    // Gọi các hàm xử lý để cập nhật giá trị
+    if (productTypeCanonical) {
+      handleProductTypeChange(idx, productTypeCanonical);
+    }
+    if (spdvCanonical) {
+      handleSPDVChange(idx, spdvCanonical);
+    }
+    if (lang === "vi" && regionCanonical) {
+      handleRegionChange(idx, regionCanonical);
+    }
+    
+    // Validate và tính hệ số - QUAN TRỌNG: phải đợi handleXXXChange chạy xong
+    setTimeout(() => {
+      const isValid = validateSelections(idx);
+      
+      if (isValid) {
+        const totalCoef = calculateTotalCoefficient(idx);
+        
+        if (totalCoef !== null && !isNaN(totalCoef)) {
+          const totalCoefInput = document.getElementById(`total-coef-${idx}`);
+          if (totalCoefInput) {
+            totalCoefInput.value = totalCoef + "%";
+          } else {
+            console.error(`❌ total-coef-${idx} input not found`);
+          }
+        }
+      }
+    }, 50);
+  });
+  
+  // Gọi checkAllocationCoefficients sau khi TẤT CẢ đã được set
+  setTimeout(() => {
+    checkAllocationCoefficients();
+  }, 200);
+}, 150);
 
   checkAllocationCoefficients();
 
@@ -292,12 +461,18 @@ function renderProductAllocation() {
     });
   }
 
-  if (reviewBtn) reviewBtn.textContent = (lang === "vi") ? "Phân bổ gần nhất" : "Previous Allocation";
+  if (reviewBtn)
+    reviewBtn.textContent =
+      lang === "vi" ? "Phân bổ gần nhất" : "Previous Allocation";
 
   if (btnAllocate) {
     btnAllocate.textContent = lockRevenue
-      ? (lang === "vi" ? "Đã áp dụng" : "Applied")
-      : (lang === "vi" ? "Áp dụng" : "Apply");
+      ? lang === "vi"
+        ? "Đã áp dụng"
+        : "Applied"
+      : lang === "vi"
+      ? "Áp dụng"
+      : "Apply";
 
     if (lockRevenue) {
       btnAllocate.disabled = true;
@@ -316,33 +491,43 @@ function renderAllocationPreview() {
   if (!expandedAllocatedRecords || !expandedAllocatedRecords.length) {
     body.innerHTML = `
       <div style="padding:24px; text-align:center; color:#666;">
-        ${lang === "vi" ? "Hiện chưa có dữ liệu phân bổ nào." : "No allocation data available."}
+        ${
+          lang === "vi"
+            ? "Hiện chưa có dữ liệu phân bổ nào."
+            : "No allocation data available."
+        }
       </div>`;
     return;
   }
 
   if (title) {
-    title.textContent = lang === "vi" ? "Phân bổ gần nhất" : "Previous Allocation";
+    title.textContent =
+      lang === "vi" ? "Phân bổ gần nhất" : "Previous Allocation";
   }
 
-  const html = expandedAllocatedRecords.map((rec) => {
-    const headerActualStr = rec.startActual || "--/--/--";
+  const html = expandedAllocatedRecords
+    .map((rec) => {
+      const headerActualStr = rec.startActual || "--/--/--";
 
-    const rows = rec.allocations.map((a, i) => {
-      const forecastDateStr = a.forecastDate || "--/--/--";
-      const forecastValueStr = formatCurrency(a.forecastValue, rec.currency);
-      const vcsValueStr = formatCurrency(a.vcsValue, rec.currency);
-      const actualDateStr = a.actualDate || "--/--/--";
-      const actualValueStr = a.actualValue
-        ? formatCurrency(a.actualValue, rec.currency)
-        : "";
-      const invoiceValueStr =
-        a.invoiceValue !== null
-          ? formatCurrency(a.invoiceValue, rec.currency)
-          : "0";
-      const acceptanceStr = a.acceptanceDate || "--/--/--";
+      const rows = rec.allocations
+        .map((a, i) => {
+          const forecastDateStr = a.forecastDate || "--/--/--";
+          const forecastValueStr = formatCurrency(
+            a.forecastValue,
+            rec.currency
+          );
+          const vcsValueStr = formatCurrency(a.vcsValue, rec.currency);
+          const actualDateStr = a.actualDate || "--/--/--";
+          const actualValueStr = a.actualValue
+            ? formatCurrency(a.actualValue, rec.currency)
+            : "";
+          const invoiceValueStr =
+            a.invoiceValue !== null
+              ? formatCurrency(a.invoiceValue, rec.currency)
+              : "0";
+          const acceptanceStr = a.acceptanceDate || "--/--/--";
 
-      return `
+          return `
         <tr>
           <td>${forecastDateStr}</td>
           <td>${vcsValueStr}</td>
@@ -368,9 +553,10 @@ function renderAllocationPreview() {
             </button>
           </td>
         </tr>`;
-    }).join("");
+        })
+        .join("");
 
-    return `
+      return `
       <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center"
              style="cursor:pointer; background:#eef4ff;"
@@ -380,17 +566,23 @@ function renderAllocationPreview() {
           <div>
             <strong>${rec.name}</strong><br>
             <small style="font-size:12px;">
-              <strong>${lang === "vi" ? "Số lần phân bổ:" : "Allocations:"}</strong>
+              <strong>${
+                lang === "vi" ? "Số lần phân bổ:" : "Allocations:"
+              }</strong>
               ${rec.allocations.length}
             </small>
 
             <div style="font-size:12px;">
-              <strong>${lang === "vi" ? "Ngày dự kiến:" : "Forecast date:"}</strong>
+              <strong>${
+                lang === "vi" ? "Ngày dự kiến:" : "Forecast date:"
+              }</strong>
               ${rec.startForecast || "--/--/--"}
             </div>
 
             <div style="font-size:12px;">
-              <strong>${lang === "vi" ? "Ngày ghi nhận:" : "Actual date:"}</strong>
+              <strong>${
+                lang === "vi" ? "Ngày ghi nhận:" : "Actual date:"
+              }</strong>
               <span id="fac-header-${rec.id}">${headerActualStr}</span>
               <button class="btn btn-link btn-sm p-0 ms-1"
                       ${lockRevenue ? "disabled" : ""}
@@ -409,12 +601,26 @@ function renderAllocationPreview() {
               <thead class="table-light" style="font-size:14px">
                 <tr>
                   <th>${lang === "vi" ? "Ngày dự kiến" : "Forecast date"}</th>
-                  <th>${lang === "vi" ? "Phân bổ doanh thu VCS" : "VCS Allocation"}</th>
-                  <th>${lang === "vi" ? "Phân bổ dự kiến cho AM" : "AM Forecast Allocation"}</th>
+                  <th>${
+                    lang === "vi" ? "Phân bổ doanh thu VCS" : "VCS Allocation"
+                  }</th>
+                  <th>${
+                    lang === "vi"
+                      ? "Phân bổ dự kiến cho AM"
+                      : "AM Forecast Allocation"
+                  }</th>
                   <th>${lang === "vi" ? "Ngày ghi nhận" : "Actual date"}</th>
-                  <th>${lang === "vi" ? "Phân bổ thực tế cho AM" : "AM Actual Allocation"}</th>
-                  <th>${lang === "vi" ? "Giá trị hóa đơn" : "Invoice Value"}</th>
-                  <th>${lang === "vi" ? "Ngày nghiệm thu" : "Acceptance Date"}</th>
+                  <th>${
+                    lang === "vi"
+                      ? "Phân bổ thực tế cho AM"
+                      : "AM Actual Allocation"
+                  }</th>
+                  <th>${
+                    lang === "vi" ? "Giá trị hóa đơn" : "Invoice Value"
+                  }</th>
+                  <th>${
+                    lang === "vi" ? "Ngày nghiệm thu" : "Acceptance Date"
+                  }</th>
                 </tr>
               </thead>
               <tbody style="font-size:12px">
@@ -424,13 +630,16 @@ function renderAllocationPreview() {
           </div>
         </div>
       </div>`;
-  }).join("");
+    })
+    .join("");
 
   body.innerHTML = html;
 }
 
 function updateAllocationTableUI(id) {
-  const record = expandedAllocatedRecords.find(r => String(r.id) === String(id));
+  const record = expandedAllocatedRecords.find(
+    (r) => String(r.id) === String(id)
+  );
   if (!record) return;
 
   const collapse = document.getElementById(`collapse-${id}`);
@@ -460,27 +669,41 @@ function updateAllocationTableUI(id) {
 
     const allocCell = row.cells[IDX_ACTUAL_VALUE];
     if (allocCell) {
-      allocCell.textContent = formatCurrency(a.actualValue, record.currency || "đ");
+      allocCell.textContent = formatCurrency(
+        a.actualValue,
+        record.currency || "đ"
+      );
     }
 
     const invoiceCell = row.cells[IDX_INVOICE];
     if (invoiceCell) {
-      const existingInput = invoiceCell.querySelector(`#invoice-input-${id}-${i}`);
+      const existingInput = invoiceCell.querySelector(
+        `#invoice-input-${id}-${i}`
+      );
       if (existingInput) {
         if (existingInput.value !== String(a.invoiceValue ?? "")) {
           existingInput.value = a.invoiceValue ?? "";
         }
       } else {
-        invoiceCell.textContent = formatCurrency(a.invoiceValue || 0, record.currency || "đ");
+        invoiceCell.textContent = formatCurrency(
+          a.invoiceValue || 0,
+          record.currency || "đ"
+        );
       }
     }
 
     const accCell = row.cells[IDX_ACCEPTANCE_DATE];
     if (accCell) {
-      const existingInput = accCell.querySelector(`#acceptance-input-${id}-${i}`);
+      const existingInput = accCell.querySelector(
+        `#acceptance-input-${id}-${i}`
+      );
       if (existingInput) {
-        if (existingInput.value !== (a.acceptanceDate?.split("/").reverse().join("-") || "")) {
-          existingInput.value = a.acceptanceDate?.split("/").reverse().join("-") || "";
+        if (
+          existingInput.value !==
+          (a.acceptanceDate?.split("/").reverse().join("-") || "")
+        ) {
+          existingInput.value =
+            a.acceptanceDate?.split("/").reverse().join("-") || "";
         }
       } else {
         accCell.textContent = a.acceptanceDate || "--/--/--";

@@ -8,42 +8,51 @@ function commitAllocationCount(rawValue, maxValue) {
 }
 
 function validateSelections(idx) {
-  const saveBtn = document.getElementById(`save-btn-${idx}`);
-  const totalCoefInput = document.getElementById(`total-coef-${idx}`);
-  const totalCoef = calculateTotalCoefficient(idx);
+  const productType = document.getElementById(`product-type-${idx}`)?.value || "";
+  const spdvType = document.getElementById(`spdv-type-${idx}`)?.value || "";
+  const region = lang === "vi" ? (document.getElementById(`region-${idx}`)?.value || "") : "";
 
-  if (totalCoef !== null) {
-    if (totalCoefInput) totalCoefInput.value = totalCoef + "%";
-    if (saveBtn) saveBtn.removeAttribute("disabled");
-  } else {
-    if (totalCoefInput) totalCoefInput.value = "";
-    if (saveBtn) saveBtn.setAttribute("disabled", true);
+  const totalCoefInput = document.getElementById(`total-coef-${idx}`);
+  if (!totalCoefInput) return;
+
+  // Kiểm tra xem tất cả các trường bắt buộc đã được chọn chưa
+  let isValid = productType && spdvType;
+  if (lang === "vi") {
+    isValid = isValid && region;
   }
+
+  if (!isValid) {
+    totalCoefInput.value = "";
+    return false;
+  }
+
+  return true;
 }
 
 function checkAllocationCoefficients() {
   const btnAllocate = document.getElementById("btn-allocate");
-  if (!btnAllocate) return;
-
-  if (lockRevenue) {
-    btnAllocate.disabled = true;
-    btnAllocate.style.opacity = 0.5;
-    return;
-  }
+  if (!btnAllocate || lockRevenue) return;
 
   const rows = document.querySelectorAll("#product-allocated tbody tr");
-  if (!rows.length) {
-    btnAllocate.disabled = true;
-    btnAllocate.style.opacity = 0.5;
-    return;
-  }
+  let allValid = rows.length > 0;
 
-  const allValid = Array.from(rows).every((row, idx) => {
-    const coefCell = row.querySelector(`#coef-cell-${idx}`) || row.querySelector("td:nth-child(4)");
-    const txt = coefCell ? coefCell.textContent.trim() : "";
-    return txt !== "";
+  rows.forEach((row, idx) => {
+    const totalCoefInput = document.getElementById(`total-coef-${idx}`);
+    const coefValue = totalCoefInput?.value?.trim() || "";
+    
+    // Kiểm tra xem có giá trị hợp lệ không
+    if (!coefValue || coefValue === "" || coefValue === "%" || parseFloat(coefValue) === 0) {
+      allValid = false;
+    }
   });
 
-  btnAllocate.disabled = !allValid;
-  btnAllocate.style.opacity = allValid ? 1 : 0.5;
+  if (allValid) {
+    btnAllocate.disabled = false;
+    btnAllocate.style.opacity = 1;
+    btnAllocate.style.pointerEvents = "auto";
+  } else {
+    btnAllocate.disabled = true;
+    btnAllocate.style.opacity = 0.5;
+    btnAllocate.style.pointerEvents = "none";
+  }
 }

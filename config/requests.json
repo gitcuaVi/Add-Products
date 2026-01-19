@@ -1,87 +1,83 @@
 {
-    "getPricebook": {
-        "schema": {
-            "protocol": "https",
-            "method": "GET",
-            "host": "<%= iparam.subdomain %>",
-            "path": "/crm/sales/api/lookup",
-            "headers": {
-                "Authorization": "Token token=<%= iparam.api_key %>",
-                "Content-Type": "application/json"
-            },
-            "query": {
-                "q": "<%= context.q %>",
-                "f": "<%= context.f %>",
-                "entities": "custom_module,cm_pricebook",
-                "per_page": "100"
-            }
-        },
-        "options": {
-        }
+  "getPricebook": {
+    "schema": {
+      "protocol": "https",
+      "method": "GET",
+      "host": "<%= iparam.subdomain %>",
+      "path": "/crm/sales/api/lookup",
+      "headers": {
+        "Authorization": "Token token=<%= iparam.api_key %>",
+        "Content-Type": "application/json"
+      },
+      "query": {
+        "q": "<%= context.q %>",
+        "f": "<%= context.f %>",
+        "entities": "custom_module,cm_pricebook",
+        "per_page": "100"
+      }
     },
-    "getMarket": {
-        "schema": {
-            "protocol": "https",
-            "method": "GET",
-            "host": "<%= iparam.subdomain %>",
-            "path": "/crm/sales/api/custom_module/cm_markets/view/50004161040",
-            "headers": {
-                "Authorization": "Token token=<%= iparam.api_key %>",
-                "Content-Type": "application/json"
-            },
-            "query": {
-                "per_page": "100"
-            }
-        },
-        "options": {
-        }
+    "options": {}
+  },
+  "getMarket": {
+    "schema": {
+      "protocol": "https",
+      "method": "GET",
+      "host": "<%= iparam.subdomain %>",
+      "path": "/crm/sales/api/custom_module/cm_markets/view/50004161040",
+      "headers": {
+        "Authorization": "Token token=<%= iparam.api_key %>",
+        "Content-Type": "application/json"
+      },
+      "query": {
+        "per_page": "100"
+      }
     },
-    "getCatalog": {
-        "schema": {
-            "protocol": "https",
-            "method": "GET",
-            "host": "<%= iparam.subdomain %>",
-            "path": "/crm/sales/api/lookup",
-            "headers": {
-                "Authorization": "Token token=<%= iparam.api_key %>",
-                "Content-Type": "application/json"
-            },
-            "query": {
-                "q": "<%= context.q %>",
-                "f": "<%= context.f %>",
-                "entities": "custom_module,cm_catalog",
-                "per_page": "100"
-            }
-        },
-        "options": {
-        }
+    "options": {}
+  },
+  "getCatalog": {
+    "schema": {
+      "protocol": "https",
+      "method": "GET",
+      "host": "<%= iparam.subdomain %>",
+      "path": "/crm/sales/api/lookup",
+      "headers": {
+        "Authorization": "Token token=<%= iparam.api_key %>",
+        "Content-Type": "application/json"
+      },
+      "query": {
+        "q": "<%= context.q %>",
+        "f": "<%= context.f %>",
+        "entities": "custom_module,cm_catalog",
+        "per_page": "100"
+      }
     },
-    "updateDeal": {
-        "schema": {
-            "protocol": "https",
-            "method": "PUT",
-            "host": "<%= iparam.subdomain %>",
-            "path": "/crm/sales/api/deals/<%= context.dealID %>",
-            "headers": {
-                "Authorization": "Token token=<%= iparam.api_key %>",
-                "Content-Type": "application/json"
-            }
-        },
-        "options": {
-        }
+    "options": {}
+  },
+  "updateDeal": {
+    "schema": {
+      "protocol": "https",
+      "method": "PUT",
+      "host": "<%= iparam.subdomain %>",
+      "path": "/crm/sales/api/deals/<%= context.dealID %>",
+      "headers": {
+        "Authorization": "Token token=<%= iparam.api_key %>",
+        "Content-Type": "application/json"
+      }
     },
-    "getTerritory": {
-        "schema": {
-            "protocol": "https",
-            "method": "GET",
-            "host": "<%= iparam.subdomain %>",
-            "path": "/crm/sales/api/selector/territories",
-            "headers": {
-                "Authorization": "Token token=<%= iparam.api_key %>",
-                "Content-Type": "application/json"
-            }
-        },
+    "options": {}
+  },
+  "getTerritory": {
+    "schema": {
+      "protocol": "https",
+      "method": "GET",
+      "host": "<%= iparam.subdomain %>",
+      "path": "/crm/sales/api/selector/territories",
+      "headers": {
+        "Authorization": "Token token=<%= iparam.api_key %>",
+        "Content-Type": "application/json"
+      }
+    },
         "options": {
-        }
-    }
+  }
+}
 }

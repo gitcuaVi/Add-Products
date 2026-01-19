@@ -111,6 +111,7 @@ function pushToQuote(idx) {
     pid: product.id,
     name: product.name,
     category: product.category,
+    spdvType: product?.spdvType,
     license: licenseInput?.value || "",
     quantitative,
     min: product.min ?? 1,

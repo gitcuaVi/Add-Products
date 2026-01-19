@@ -508,8 +508,6 @@ async function saveAllocatedRecords() {
       }
     };
 
-    console.log("new allocatedItems: ", allocatedRecords);
-
     await updateRevenueRecord(body);
     renderProductAllocation();
   } catch (err) {

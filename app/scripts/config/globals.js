@@ -25,6 +25,7 @@ let allocatedItems = [];
 let allocatedRecords = [];
 let expandedAllocatedRecords = [];
 const products = [];
+let dealType = null;
 const globalDiscount = { value: 0, type: "percent" };
 const AMBIGUOUS_AS_DDMM = true;
 const heSoMap = {

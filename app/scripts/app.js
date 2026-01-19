@@ -3,36 +3,40 @@ document.addEventListener("DOMContentLoaded", async () => {
   client = await app.initialized();
   console.log("✅ App initialized!");
 
-await loadMarket();
+  await loadMarket();
   await loadTerritory();
   await getLoggedInUserData();
- 
+
   // 👉 Gắn sự kiện navbar & nút chuyển Section 2 (đặt ở cuối DOMContentLoaded)
-  document.querySelectorAll(".nav-link").forEach(link => {
+  document.querySelectorAll(".nav-link").forEach((link) => {
     link.addEventListener("click", (e) => {
       e.preventDefault();
-      const targetId = link.getAttribute('data-target');
- 
+      const targetId = link.getAttribute("data-target");
+
       // 🚫 Nếu đã phân bổ revenue thì không cho vào Section 2
       if (lockRevenue && targetId === "section-2") {
         showAlert(
-          (lang === "vi")
+          lang === "vi"
             ? "⚠ Đã phân bổ doanh thu, không thể chỉnh sửa sản phẩm."
             : "⚠ Revenue already allocated, products cannot be edited.",
           "warning"
         );
         return;
       }
- 
+
       // hide all sections
-      document.querySelectorAll('section').forEach(s => s.style.display = 'none');
-      document.getElementById(targetId).style.display = 'block';
- 
+      document
+        .querySelectorAll("section")
+        .forEach((s) => (s.style.display = "none"));
+      document.getElementById(targetId).style.display = "block";
+
       // remove active from all nav links
-      document.querySelectorAll(".nav-link").forEach(l => l.classList.remove("active"));
+      document
+        .querySelectorAll(".nav-link")
+        .forEach((l) => l.classList.remove("active"));
       // add active to current
       link.classList.add("active");
- 
+
       // render content per section
       if (targetId === "section-1") renderProductList();
       if (targetId === "section-2") {
@@ -44,31 +48,24 @@ await loadMarket();
       if (targetId === "section-5") renderQuotationTemplate();
     });
   });
- 
+
   const reloadBtn = document.getElementById("reload-btn");
   if (reloadBtn) {
-    const allowedRoles = [
-      role.Admin,
-      role.AccountAdmin,
-      role.Manager
-    ];
- 
-    if (allowedRoles.includes(loggedInUser.roleId)) reloadBtn.classList.remove("hidden");
- 
+    const allowedRoles = [role.Admin, role.AccountAdmin, role.Manager];
+
+    if (allowedRoles.includes(loggedInUser.roleId))
+      reloadBtn.classList.remove("hidden");
+
     reloadBtn.addEventListener("click", async () => {
       await clearAllDbObjects();
       showAlert(
-        (lang === "vi")
-          ? "⚠ Reloading Data."
-          : "⚠ Đang tải lại dữ liệu.",
+        lang === "vi" ? "⚠ Reloading Data." : "⚠ Đang tải lại dữ liệu.",
         "warning"
       );
       await loadMarket();
       await loadTerritory();
       showAlert(
-        (lang === "vi")
-          ? "✅ Loaded Success."
-          : "✅ Đã tải thành công.",
+        lang === "vi" ? "✅ Loaded Success." : "✅ Đã tải thành công.",
         "success"
       );
     });
@@ -84,7 +81,7 @@ await loadMarket();
         btnCancel.remove();
         editDrafts = listItems;
       }
-    })
+    });
   }
 
   const btnGoSection2 = document.getElementById("btn-go-section-2");
@@ -97,14 +94,15 @@ await loadMarket();
 
   const btnEdit = document.getElementById("btn-edit-products");
   if (btnEdit) {
-    btnEdit.textContent = (lang === "vi") ? "Chỉnh sửa" : "Edit";
+    btnEdit.textContent = lang === "vi" ? "Chỉnh sửa" : "Edit";
     btnEdit.addEventListener("click", () => {
       // 👉 Nếu đã có lockRevenue thì không cho edit
       if (lockRevenue) {
         btnEdit.disabled = true;
-        btnEdit.title = (lang === "vi")
-          ? "Đã phân bổ doanh thu, không thể chỉnh sửa"
-          : "Revenue already allocated, editing is disabled";
+        btnEdit.title =
+          lang === "vi"
+            ? "Đã phân bổ doanh thu, không thể chỉnh sửa"
+            : "Revenue already allocated, editing is disabled";
         return;
       }
 
@@ -158,7 +156,8 @@ await loadMarket();
 
       // chuyển tab sang Section 1
       document.querySelector('[data-target="section-1"]').click();
-      document.getElementById("btn-edit-products").textContent = (lang === "vi") ? "Chỉnh sửa" : "Edit";
+      document.getElementById("btn-edit-products").textContent =
+        lang === "vi" ? "Chỉnh sửa" : "Edit";
 
       // Ẩn Save khi lưu xong
       btnSaveSection2.style.display = "none";
@@ -171,7 +170,7 @@ await loadMarket();
     btnAllocate.addEventListener("click", async () => {
       if (!closedDate && !expectedCloseDate) {
         showAlert(
-          (lang === "vi")
+          lang === "vi"
             ? "⚠ Không thể phân bổ: Deal chưa có ngày dự kiến hoặc ngày đóng."
             : "⚠ Cannot allocate: Deal has no Expected Close Date or Closed Date.",
           "warning"
@@ -187,22 +186,34 @@ await loadMarket();
         const rows = document.querySelectorAll("#product-allocated tbody tr");
         const computedAllocated = Array.from(rows).map((row, idx) => {
           const p = listItems[idx];
-          const name = row.querySelector("td:nth-child(1)")?.innerText.trim() || "";
-          const valueText = row.querySelector("td:nth-child(2)")?.innerText.trim() || "0";
+          const name =
+            row.querySelector("td:nth-child(1)")?.innerText.trim() || "";
+          const valueText =
+            row.querySelector("td:nth-child(2)")?.innerText.trim() || "0";
           const allocationValue = toNumber(valueText) || 0;
-    
+
           const selType = document.getElementById(`alloc-type-${idx}`);
           const sel = document.getElementById(`alloc-count-${idx}`);
-          const forecastDate = closedDate ? fmtDate(closedDate) : row.querySelector("td:nth-child(6)")?.innerText.trim();
+          const forecastDate = closedDate
+            ? fmtDate(closedDate)
+            : row.querySelector("td:nth-child(6)")?.innerText.trim();
           const actualDate = (() => {
             const val = row.querySelector("td:nth-child(7)")?.innerText.trim();
-            return (val && val !== "--/--/--") ? val : "";
+            return val && val !== "--/--/--" ? val : "";
           })();
-          const coefficient = row.querySelector("td:nth-child(5)")?.innerText.trim();
-          const rawproductType = document.getElementById(`product-type-${idx}`)?.value || "";
-          const productType = productTypeMap?.[rawproductType] || rawproductType;
-          const spdvType = document.getElementById(`spdv-type-${idx}`)?.value || "";
-          const region = document.getElementById(`region-${idx}`)?.value ?? currentTerritory;
+          const coefficientInput = document.getElementById(`total-coef-${idx}`);
+          const coefficient = coefficientInput
+            ? coefficientInput.value.trim()
+            : "";
+
+          const rawproductType =
+            document.getElementById(`product-type-${idx}`)?.value || "";
+          const productType =
+            productTypeMap?.[rawproductType] || rawproductType;
+          const spdvType =
+            document.getElementById(`spdv-type-${idx}`)?.value || "";
+          const region =
+            document.getElementById(`region-${idx}`)?.value ?? currentTerritory;
 
           return {
             id: p.id,
@@ -218,18 +229,22 @@ await loadMarket();
             currency: p?.currency || "đ",
             productType,
             spdvType,
-            region: region ? region : market
+            region: region ? region : market,
           };
         });
 
         allocatedItems = computedAllocated;
-        allocatedRecords = buildAllocatedRecords(allocatedItems, closedDate || expectedCloseDate, facDate);
+        allocatedRecords = buildAllocatedRecords(
+          allocatedItems,
+          closedDate || expectedCloseDate,
+          facDate
+        );
 
         // 3. update deal để lưu
         const customField = {
           cf__allocated_products: JSON.stringify(allocatedItems),
           cf__allocated_records: JSON.stringify(allocatedRecords),
-          cf__products: JSON.stringify(listItems)
+          cf__products: JSON.stringify(listItems),
         };
 
         toggleTag();
@@ -239,23 +254,40 @@ await loadMarket();
           body: JSON.stringify({
             deal: {
               tags: tag,
-              custom_field: customField
-            }
-          })
+              custom_field: customField,
+            },
+          }),
         });
 
         // 4. success
         renderProductAllocation();
         btnAllocate.style.opacity = 1;
         showAlert(
-          (lang === "vi")
+          lang === "vi"
             ? "✅ Phân bổ doanh thu thành công."
             : "✅ Revenue allocation successful.",
           "success"
         );
       } catch (err) {
         console.error("❌ apply allocation failed:", err);
+        // Xử lý lỗi rate limit
+        if (err.status === 429) {
+          showAlert(
+            lang === "vi"
+              ? "⚠ Đã vượt quá giới hạn số lần gọi API. Vui lòng đợi 1-2 phút và thử lại."
+              : "⚠ API rate limit exceeded. Please wait 1-2 minutes and try again.",
+            "warning"
+          );
+        } else {
+          showAlert(
+            lang === "vi"
+              ? "❌ Có lỗi xảy ra khi phân bổ doanh thu. Vui lòng thử lại."
+              : "❌ Error occurred during allocation. Please try again.",
+            "error"
+          );
+        }
         btnAllocate.textContent = prevText || "Apply";
+        btnAllocate.disabled = false;
       }
     });
   }
@@ -264,9 +296,11 @@ await loadMarket();
   if (btnViewAllocate) {
     btnViewAllocate.addEventListener("click", () => {
       renderAllocationPreview();
-      const modal = new bootstrap.Modal(document.getElementById("allocationModal"));
+      const modal = new bootstrap.Modal(
+        document.getElementById("allocationModal")
+      );
       modal.show();
-    })
+    });
   }
 });
 

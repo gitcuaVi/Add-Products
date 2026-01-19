@@ -24,26 +24,34 @@ function saveHeSo(idx) {
   const totalCoef = calculateTotalCoefficient(idx);
   if (totalCoef === null) return;
 
-  // 1. Cập nhật data model (nếu bạn lưu trong listItems/allocatedItems)
+  // 1. Cập nhật data model
   const target = listItems?.[idx] || allocatedItems?.[idx];
   if (target) {
-    target.coefficient = totalCoef; // lưu lại hệ số tổng
+    target.coefficient = totalCoef + "%"; // lưu kèm dấu %
     target.productType = document.getElementById(`product-type-${idx}`)?.value || "";
     target.spdvType = document.getElementById(`spdv-type-${idx}`)?.value || "";
+    if (lang === "vi") {
+      target.region = document.getElementById(`region-${idx}`)?.value || "";
+    }
   }
 
   // 2. Update cell ngoài bảng
   const coefCell = document.getElementById(`coef-cell-${idx}`);
   if (coefCell) coefCell.textContent = totalCoef + "%";
 
-  // 3. Đóng modal
+  // 3. Update input
+  const totalCoefInput = document.getElementById(`total-coef-${idx}`);
+  if (totalCoefInput) totalCoefInput.value = totalCoef + "%";
+
+  // 4. Đóng modal nếu có
   const modalEl = document.getElementById(`hesoModal-${idx}`);
   if (modalEl) {
     const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
     modalInstance.hide();
   }
 
-  setTimeout(() => checkAllocationCoefficients(), 0);
+  // 5. Check lại tất cả coefficients
+  setTimeout(() => checkAllocationCoefficients(), 100);
 }
 
 function buildAllocatedRecords(items = [], startFC = (closedDate || expectedCloseDate), startAC = (facDate || "")) {

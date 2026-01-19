@@ -14,6 +14,7 @@ async function loadProductsFromDeal() {
     currentCompanyID = deal?.sales_account_id;
     lockRevenue = deal?.custom_field?.cf_lock_revenue || false;
     periodicity = deal?.customField?.cf_periodicity || null;
+    dealType = deal?.custom_field?.cf__deal_type || null;
     closedDate = deal?.closed_date ? new Date(deal.closed_date) : null;
     expectedCloseDate = deal?.expected_close ? new Date(deal?.expected_close) : null;
     facDate = deal?.custom_field?.cf__fac_date ? new Date(deal?.custom_field?.cf__fac_date) : null;
@@ -107,6 +108,7 @@ async function loadProductsFromDeal() {
             name: p.name,
             category: p.category || "",
             license: p.license || "",
+            spdvType: p.spdvType || "",
             quantitative: Number(p.quantitative) || 1,
             vcsValue: Number(p.vcsValue),
             allocationValue: Number(p.allocationValue),
