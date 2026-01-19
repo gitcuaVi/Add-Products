@@ -663,10 +663,10 @@ function updateAllocationTableUI(id) {
   const tbody = table.tBodies[0];
   if (!tbody) return;
 
-  const IDX_ACTUAL_DATE = 2;
-  const IDX_ACTUAL_VALUE = 3;
-  const IDX_INVOICE = 4;
-  const IDX_ACCEPTANCE_DATE = 5;
+  const IDX_ACTUAL_DATE = 3;
+  const IDX_ACTUAL_VALUE = 4;
+  const IDX_INVOICE = 5;
+  const IDX_ACCEPTANCE_DATE = 6;
 
   record.allocations.forEach((a, i) => {
     const row = tbody.rows[i];
