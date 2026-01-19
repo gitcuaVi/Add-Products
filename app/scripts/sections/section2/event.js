@@ -188,8 +188,22 @@ function onPriceTypeChange(e) {
   }
 
   const filtered = cachedPricebook.filter(p => String(p.priceType) === String(priceType));
+  
+  // 👉 Cập nhật min quantitative từ filtered pricebook
+  const mins = filtered
+    .map(p => (typeof p.min === "number" ? p.min : null))
+    .filter(v => v !== null);
+  const minQty = mins.length > 0 ? Math.min(...mins) : 1;
+  
+  const quantitativeInput = document.getElementById("quantitative-input");
+  if (quantitativeInput) {
+    quantitativeInput.min = minQty;
+    quantitativeInput.value = minQty;
+  }
+  
   renderPackageSelect(filtered);
 }
+
 
 function attachProductFilterEvents() {
   const inputs = [

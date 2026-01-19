@@ -250,7 +250,7 @@ function renderPackageSelect(pricebook) {
   quantitative.style.display = "block";
 
   // Text label
-  packageLabel.textContent = (lang === "vi") ? "Đơn vị" : "Package Unit";
+  packageLabel.textContent = (lang === "vi") ? "Đơn vị" : "Package Unit";
   durationLabel.textContent = (lang === "vi") ? "Thời hạn" : "Duration";
 
   // ----- Perpetual: auto-select perpetual và cập nhật ngay -----
@@ -258,26 +258,32 @@ function renderPackageSelect(pricebook) {
     container.classList.remove("grid-3");
     container.classList.add("grid-2");
 
-    if (durationWrapper) { durationWrapper.classList.add("hidden"); durationWrapper.style.display = "none"; }
-    if (packageUnit) { packageUnit.classList.remove("hidden"); packageUnit.style.display = "block"; }
+    if (durationWrapper) { 
+      durationWrapper.classList.add("hidden"); 
+      durationWrapper.style.display = "none"; 
+    }
+    if (packageUnit) { 
+      packageUnit.classList.remove("hidden"); 
+      packageUnit.style.display = "block"; 
+    }
 
-    // chỉ có 1 option perpetual — set value = "perpetual"
+    // chỉ có 1 option perpetual – set value = "perpetual"
     packageSelect.innerHTML =
-      `<option value="">${lang === "vi" ? "--- Chọn Đơn vị ---" : "--- Select Package Unit ---"}</option>
+      `<option value="">${lang === "vi" ? "--- Chọn Đơn vị ---" : "--- Select Package Unit ---"}</option>
        <option value="perpetual">${lang === "vi" ? "Vĩnh viễn" : "Perpetual"}</option>`;
 
-    // Auto-select ONLY for perpetual case (by your request)
+    // Auto-select ONLY for perpetual case
     packageSelect.value = "perpetual";
 
     // ensure durationInput not constrained by max
     if (durationInput) durationInput.removeAttribute("max");
 
-    // trigger update so quantitative/product reflect perpetual mode
-    attachProductFilterEvents();
+    // 👉 trigger update ngay để hiển thị product
+    setTimeout(() => updateProductDisplay(), 0);
 
     // attach change handler (in case user changes it later)
     packageSelect.onchange = () => {
-      attachProductFilterEvents();
+      updateProductDisplay();
     };
 
     return;
@@ -287,15 +293,30 @@ function renderPackageSelect(pricebook) {
   container.classList.remove("grid-2");
   container.classList.add("grid-3");
 
-  if (durationWrapper) { durationWrapper.classList.remove("hidden"); durationWrapper.style.display = "block"; }
-  if (packageUnit) { packageUnit.classList.remove("hidden"); packageUnit.style.display = "block"; }
-  if (quantitative) { quantitative.classList.remove("hidden"); quantitative.style.display = "block"; }
+  if (durationWrapper) { 
+    durationWrapper.classList.remove("hidden"); 
+    durationWrapper.style.display = "block"; 
+  }
+  if (packageUnit) { 
+    packageUnit.classList.remove("hidden"); 
+    packageUnit.style.display = "block"; 
+  }
+  if (quantitative) { 
+    quantitative.classList.remove("hidden"); 
+    quantitative.style.display = "block"; 
+  }
   if (durationInput) durationInput.classList.remove("hidden");
 
   const rawPackage = [...new Set(pricebook.map(p => p.package).filter(Boolean))];
   if (!rawPackage.length) {
-    if (durationWrapper) { durationWrapper.classList.add("hidden"); durationWrapper.style.display = "none"; }
-    if (packageUnit) { packageUnit.classList.add("hidden"); packageUnit.style.display = "none"; }
+    if (durationWrapper) { 
+      durationWrapper.classList.add("hidden"); 
+      durationWrapper.style.display = "none"; 
+    }
+    if (packageUnit) { 
+      packageUnit.classList.add("hidden"); 
+      packageUnit.style.display = "none"; 
+    }
     renderProduct([]);
     return;
   }
@@ -309,8 +330,20 @@ function renderPackageSelect(pricebook) {
 
   // Render options but DO NOT set packageSelect.value -> wait for user
   packageSelect.innerHTML =
-    `<option value="">${lang === "vi" ? "--- Chọn Đơn vị ---" : "--- Select Package Unit ---"}</option>` +
+    `<option value="">${lang === "vi" ? "--- Chọn Đơn vị ---" : "--- Select Package Unit ---"}</option>` +
     options.map(p => `<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`).join("");
+  
+  // 👉 Gắn event để trigger update khi user chọn package
+  packageSelect.onchange = () => {
+    updateProductDisplay();
+  };
+  
+  // 👉 Gắn event cho duration input
+  if (durationInput) {
+    durationInput.oninput = () => {
+      updateProductDisplay();
+    };
+  }
 }
 
 function renderProduct(products) {

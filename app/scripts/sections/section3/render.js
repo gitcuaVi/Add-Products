@@ -13,9 +13,9 @@ function renderProductAllocation() {
   const escapeAttr = (s) => escapeHtml(s);
 
   // 🔹 Auto-fill values từ deal
-  const dealDefaultProductType = dealType || ""; // từ cf__deal_type
-  const dealDefaultRegion = currentTerritory || ""; // từ cf__territory
-  const dealDefaultSpdvType = ""; // sẽ lấy từ item.spdvType nếu có
+  const dealDefaultProductType = dealType || "";
+  const dealDefaultRegion = currentTerritory || "";
+  const dealDefaultSpdvType = "";
 
   // Labels for responsive
   const labels = {
@@ -74,6 +74,8 @@ function renderProductAllocation() {
 
       const isTime = p.package === "time";
       const isMonth = p.package === "month";
+      const isPerpetual = p.package === "perpetual"; // 👈 Kiểm tra perpetual
+      
       const forecastDisplay = forecastStr ?? p.forecastDate;
       const actualDisplay =
         p.actualDate &&
@@ -189,16 +191,14 @@ function renderProductAllocation() {
 
       // REGION handling
       let regionHtml = "";
-      const rawRegion = safe(p.region) || dealDefaultRegion; // 🔹 Khai báo ở đây
-      let regionCanonical = ""; // 🔹 Khai báo ở đây
+      const rawRegion = safe(p.region) || dealDefaultRegion;
+      let regionCanonical = "";
 
       if (lang === "vi") {
         const regionOptions = [
           { v: "Miền Nam", label: "Miền Nam" },
           { v: "Miền Bắc", label: "Miền Bắc" },
         ];
-        // const rawRegion = safe(p.region) || dealDefaultRegion; // 🔹 XÓA dòng này
-        // let regionCanonical = ""; // 🔹 XÓA dòng này
         for (const o of regionOptions) {
           if (eq(rawRegion, o.v) || eq(rawRegion, o.label)) {
             regionCanonical = o.v;
@@ -231,7 +231,6 @@ function renderProductAllocation() {
       }
 
       // Coefficient inline editor
-      // Xóa các thẻ <script> inline và thêm data-idx
       const coefficientEditor = lockRevenue
         ? `<div style="font-weight:600; font-size:13px;">${
             p.coefficient || ""
@@ -297,6 +296,34 @@ function renderProductAllocation() {
   </div>
   `;
 
+      // 👉 Allocation Type Select - Xử lý Perpetual
+      let allocationTypeSelect = '';
+      
+      if (isPerpetual) {
+        // Perpetual: chỉ hiển thị "tháng" và không cho chọn
+        allocationTypeSelect = lockRevenue 
+          ? `<span>${lang === "vi" ? "tháng" : "month"}</span>`
+          : `<select id="alloc-type-${idx}" class="form-select form-select-sm" disabled>
+               <option value="month" selected>${lang === "vi" ? "tháng" : "month"}</option>
+             </select>`;
+      } else if (isTime) {
+        // Time package
+        allocationTypeSelect = `<select id="alloc-type-${idx}" class="form-select form-select-sm" ${lockRevenue ? "disabled" : ""}>
+                                   <option value="time">${lang === "vi" ? "lần" : "time"}</option>
+                                 </select>`;
+      } else if (isMonth) {
+        // Month only
+        allocationTypeSelect = `<select id="alloc-type-${idx}" class="form-select form-select-sm" ${lockRevenue ? "disabled" : ""}>
+                                   <option value="month">${lang === "vi" ? "tháng" : "month"}</option>
+                                 </select>`;
+      } else {
+        // Month or Year
+        allocationTypeSelect = `<select id="alloc-type-${idx}" class="form-select form-select-sm" ${lockRevenue ? "disabled" : ""}>
+                                   <option value="month">${lang === "vi" ? "tháng" : "month"}</option>
+                                   <option value="year">${lang === "vi" ? "năm" : "year"}</option>
+                                 </select>`;
+      }
+
       return `
       <tr>
         <td style="text-align: left; padding: 10px; vertical-align:top; font-size:13px;">${
@@ -308,29 +335,8 @@ function renderProductAllocation() {
         allocatedValue,
         p.currency || "đ"
       )}</td>
-        <td class="text-center" data-label="${
-          labels.type
-        }:" style="vertical-align:top; font-size:13px;">
-          <select id="alloc-type-${idx}" class="form-select form-select-sm" ${
-        lockRevenue ? "disabled" : ""
-      }>
-            ${
-              isTime
-                ? `<option value="time">${
-                    lang === "vi" ? "lần" : "time"
-                  }</option>`
-                : isMonth
-                ? `<option value="month">${
-                    lang === "vi" ? "tháng" : "month"
-                  }</option>`
-                : `<option value="month">${
-                    lang === "vi" ? "tháng" : "month"
-                  }</option>
-                    <option value="year">${
-                      lang === "vi" ? "năm" : "year"
-                    }</option>`
-            }
-          </select>
+        <td class="text-center" data-label="${labels.type}:" style="vertical-align:top; font-size:13px;">
+          ${allocationTypeSelect}
         </td>
         <td class="text-center" data-label="${
           labels.count
@@ -434,8 +440,14 @@ setTimeout(() => {
 
   checkAllocationCoefficients();
 
+  // 👉 Event listeners cho allocation type (chỉ khi KHÔNG phải perpetual và KHÔNG lock)
   if (!lockRevenue) {
     listItems.forEach((p, idx) => {
+      const isPerpetual = p.package === "perpetual";
+      
+      // Bỏ qua perpetual vì đã disabled
+      if (isPerpetual) return;
+      
       const selType = document.getElementById(`alloc-type-${idx}`);
       const sel = document.getElementById(`alloc-count-${idx}`);
       if (!selType || !sel) return;
