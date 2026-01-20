@@ -13,7 +13,7 @@ async function loadProductsFromDeal() {
     currentDealID = deal?.id;
     currentCompanyID = deal?.sales_account_id;
     lockRevenue = deal?.custom_field?.cf_lock_revenue || false;
-    periodicity = deal?.customField?.cf_periodicity || null;
+    periodicity = deal?.custom_field?.cf_periodicity || null;
     dealType = deal?.custom_field?.cf__deal_type || null;
     closedDate = deal?.closed_date ? new Date(deal.closed_date) : null;
     expectedCloseDate = deal?.expected_close ? new Date(deal?.expected_close) : null;
