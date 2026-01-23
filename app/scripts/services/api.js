@@ -3,22 +3,26 @@ async function loadTerritory() {
   try {
     const stored = await client.db.get("territoryList").catch(() => null);
     if (stored?.value && Array.isArray(stored.value) && stored.value.length) {
-      cachedTerritories = stored.value;  // ✅ gán vào biến global
+      cachedTerritories = stored.value; // ✅ gán vào biến global
       return cachedTerritories;
     }
 
     const res = await client.request.invokeTemplate("getTerritory");
     const raw = res.response || res.body || res.respData?.response;
     const data = typeof raw === "string" ? JSON.parse(raw) : raw;
-    const rawTerritories = Array.isArray(data.territories) ? data.territories : [];
+    const rawTerritories = Array.isArray(data.territories)
+      ? data.territories
+      : [];
 
-    cachedTerritories = rawTerritories.map(t => ({
+    cachedTerritories = rawTerritories.map((t) => ({
       id: String(t.id),
-      name: t.name || ""
+      name: t.name || "",
     }));
 
     if (cachedTerritories.length) {
-      await client.db.set("territoryList", { value: cachedTerritories }).catch(err => console.error(err));
+      await client.db
+        .set("territoryList", { value: cachedTerritories })
+        .catch((err) => console.error(err));
     }
 
     return cachedTerritories;
@@ -44,15 +48,17 @@ async function loadMarket() {
     const data = typeof raw === "string" ? JSON.parse(raw) : raw;
     const rawMarkets = Array.isArray(data.cm_markets) ? data.cm_markets : [];
 
-    cachedMarkets = rawMarkets.map(m => ({
+    cachedMarkets = rawMarkets.map((m) => ({
       id: String(m.id),
       name: m.name,
       alias: m.custom_field?.cf_alias || m.name,
       currency: m.custom_field?.cf_currency || "",
-      currencySymbol: m.custom_field?.cf_currency_symbol || ""
+      currencySymbol: m.custom_field?.cf_currency_symbol || "",
     }));
 
-    await client.db.set("marketList", { value: cachedMarkets }).catch(err => console.error(err));
+    await client.db
+      .set("marketList", { value: cachedMarkets })
+      .catch((err) => console.error(err));
     renderMarket(cachedMarkets);
   } catch (err) {
     console.error("getMarket error:", err);
@@ -63,7 +69,7 @@ async function loadCatalogByMarket(marketId) {
   if (!marketId) return [];
   try {
     const res = await client.request.invokeTemplate("getCatalog", {
-      context: { q: marketId, f: "cf_market" }
+      context: { q: marketId, f: "cf_market" },
     });
 
     const raw = res.response || res.body || res.respData?.response;
@@ -74,9 +80,11 @@ async function loadCatalogByMarket(marketId) {
       : [];
     if (!rawCatalog.length) return [];
 
-    const activeCatalog = rawCatalog.filter(p => p.custom_field?.cf_active === true);
+    const activeCatalog = rawCatalog.filter(
+      (p) => p.custom_field?.cf_active === true
+    );
 
-    return activeCatalog.map(p => ({
+    return activeCatalog.map((p) => ({
       id: String(p.id),
       name: p.name || "",
       category: p.custom_field?.cf_category || "",
@@ -84,7 +92,7 @@ async function loadCatalogByMarket(marketId) {
       item_type: p.custom_field?.cf_item_type || "",
       max_discount: p.custom_field?.cf_max_discount ?? null,
       active: Boolean(p.custom_field?.cf_active),
-      market: String(marketId) // ép theo marketId hiện tại
+      market: String(marketId), // ép theo marketId hiện tại
     }));
   } catch (err) {
     console.error("getCatalog API error:", err);
@@ -94,28 +102,29 @@ async function loadCatalogByMarket(marketId) {
 
 async function updateDeal(finalTotal) {
   const currencyMap = {
-    "$": "USD",
-    "đ": "VND",
+    $: "USD",
+    đ: "VND",
     "¥": "JPY",
-    "€": "EUR"
+    "€": "EUR",
   };
 
   const currentCurrencyItem = listItems[0]?.currency || "$";
   const dealCurrency = currencyMap[currentCurrencyItem] || "USD";
 
   // 👉 Lấy tất cả category duy nhất
-  const categories = [...new Set(
-    listItems.map(it => it.category).filter(Boolean)
-  )].join(";");
+  const categories = [
+    ...new Set(listItems.map((it) => it.category).filter(Boolean)),
+  ].join(";");
 
   // 👉 Tính duration lớn nhất (đổi ra tháng nếu package = "year")
-  const maxDuration = Math.max(
-    ...(listItems.map(it => {
-      const dur = Number(it.duration) || 0;
-      const pack = (it.package || "").toLowerCase();
-      return pack === "year" ? dur * 12 : dur;
-    }))
-  ) || 0;
+  const maxDuration =
+    Math.max(
+      ...listItems.map((it) => {
+        const dur = Number(it.duration) || 0;
+        const pack = (it.package || "").toLowerCase();
+        return pack === "year" ? dur * 12 : dur;
+      })
+    ) || 0;
 
   // 👉 Tính expire date
   const startDate = closedDate || expectedCloseDate;
@@ -144,10 +153,10 @@ async function updateDeal(finalTotal) {
             cf__duration: maxDuration,
             cf__expire_date: expireDate,
             cf__check_change: true,
-            cf__added: "yes"
-          }
-        }
-      })
+            cf__added: "yes",
+          },
+        },
+      }),
     });
   } catch (err) {
     console.error("❌ Update deal failed:", err);
@@ -158,9 +167,29 @@ async function updateRevenueRecord(body) {
   try {
     await client.request.invokeTemplate("updateDeal", {
       context: { dealID: currentDealID },
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
     });
   } catch (err) {
     console.error("❌ Lưu phân bổ thất bại:", err);
+  }
+}
+
+async function updatePeriodicity(newPeriodicity) {
+  try {
+    await client.request.invokeTemplate("updateDeal", {
+      context: { dealID: currentDealID },
+      body: JSON.stringify({
+        deal: {
+          custom_field: {
+            cf_periodicity: newPeriodicity,
+          },
+        },
+      }),
+    });
+    
+    return true;
+  } catch (err) {
+    console.error("❌ Update periodicity failed:", err);
+    return false;
   }
 }

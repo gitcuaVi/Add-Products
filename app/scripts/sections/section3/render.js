@@ -75,7 +75,7 @@ function renderProductAllocation() {
       const isTime = p.package === "time";
       const isMonth = p.package === "month";
       const isPerpetual = p.package === "perpetual"; // 👈 Kiểm tra perpetual
-      
+
       const forecastDisplay = forecastStr ?? p.forecastDate;
       const actualDisplay =
         p.actualDate &&
@@ -297,30 +297,46 @@ function renderProductAllocation() {
   `;
 
       // 👉 Allocation Type Select - Xử lý Perpetual
-      let allocationTypeSelect = '';
-      
+      let allocationTypeSelect = "";
+
       if (isPerpetual) {
         // Perpetual: chỉ hiển thị "tháng" và không cho chọn
-        allocationTypeSelect = lockRevenue 
+        allocationTypeSelect = lockRevenue
           ? `<span>${lang === "vi" ? "tháng" : "month"}</span>`
           : `<select id="alloc-type-${idx}" class="form-select form-select-sm" disabled>
-               <option value="month" selected>${lang === "vi" ? "tháng" : "month"}</option>
+               <option value="month" selected>${
+                 lang === "vi" ? "tháng" : "month"
+               }</option>
              </select>`;
       } else if (isTime) {
         // Time package
-        allocationTypeSelect = `<select id="alloc-type-${idx}" class="form-select form-select-sm" ${lockRevenue ? "disabled" : ""}>
-                                   <option value="time">${lang === "vi" ? "lần" : "time"}</option>
+        allocationTypeSelect = `<select id="alloc-type-${idx}" class="form-select form-select-sm" ${
+          lockRevenue ? "disabled" : ""
+        }>
+                                   <option value="time">${
+                                     lang === "vi" ? "lần" : "time"
+                                   }</option>
                                  </select>`;
       } else if (isMonth) {
         // Month only
-        allocationTypeSelect = `<select id="alloc-type-${idx}" class="form-select form-select-sm" ${lockRevenue ? "disabled" : ""}>
-                                   <option value="month">${lang === "vi" ? "tháng" : "month"}</option>
+        allocationTypeSelect = `<select id="alloc-type-${idx}" class="form-select form-select-sm" ${
+          lockRevenue ? "disabled" : ""
+        }>
+                                   <option value="month">${
+                                     lang === "vi" ? "tháng" : "month"
+                                   }</option>
                                  </select>`;
       } else {
         // Month or Year
-        allocationTypeSelect = `<select id="alloc-type-${idx}" class="form-select form-select-sm" ${lockRevenue ? "disabled" : ""}>
-                                   <option value="month">${lang === "vi" ? "tháng" : "month"}</option>
-                                   <option value="year">${lang === "vi" ? "năm" : "year"}</option>
+        allocationTypeSelect = `<select id="alloc-type-${idx}" class="form-select form-select-sm" ${
+          lockRevenue ? "disabled" : ""
+        }>
+                                   <option value="month">${
+                                     lang === "vi" ? "tháng" : "month"
+                                   }</option>
+                                   <option value="year">${
+                                     lang === "vi" ? "năm" : "year"
+                                   }</option>
                                  </select>`;
       }
 
@@ -335,7 +351,9 @@ function renderProductAllocation() {
         allocatedValue,
         p.currency || "đ"
       )}</td>
-        <td class="text-center" data-label="${labels.type}:" style="vertical-align:top; font-size:13px;">
+        <td class="text-center" data-label="${
+          labels.type
+        }:" style="vertical-align:top; font-size:13px;">
           ${allocationTypeSelect}
         </td>
         <td class="text-center" data-label="${
@@ -364,17 +382,23 @@ function renderProductAllocation() {
     })
     .join("");
 
-container.innerHTML = `
+  container.innerHTML = `
   <div class="table-responsive">
     <table class="table table-bordered allocation-table">
       <thead>
         <tr>
-          <th class="text-center" style="font-size:14px;">${lang === "vi" ? "Tên sản phẩm" : "Product Name"}</th>
+          <th class="text-center" style="font-size:14px;">${
+            lang === "vi" ? "Tên sản phẩm" : "Product Name"
+          }</th>
           <th class="text-center" style="font-size:14px;">${labels.value}</th>
           <th class="text-center" style="font-size:14px;">${labels.type}</th>
           <th class="text-center" style="font-size:14px;">${labels.count}</th>
-          <th class="text-center" style="font-size:14px;">${labels.coefficient}</th>
-          <th class="text-center" style="font-size:14px;">${labels.forecast}</th>
+          <th class="text-center" style="font-size:14px;">${
+            labels.coefficient
+          }</th>
+          <th class="text-center" style="font-size:14px;">${
+            labels.forecast
+          }</th>
           <th class="text-center" style="font-size:14px;">${labels.actual}</th>
         </tr>
       </thead>
@@ -385,58 +409,61 @@ container.innerHTML = `
   </div>
 `;
 
-// ✅ THỰC THI CÁC HÀM INIT SAU KHI RENDER XONG
-setTimeout(() => {
-  items.forEach((p, idx) => {
-    const editor = document.querySelector(`.coefficient-editor[data-idx="${idx}"]`);
-    if (!editor) {
-      console.warn(`No editor found for idx ${idx}`);
-      return;
-    }
+  // ✅ THỰC THI CÁC HÀM INIT SAU KHI RENDER XONG
+  setTimeout(() => {
+    items.forEach((p, idx) => {
+      const editor = document.querySelector(
+        `.coefficient-editor[data-idx="${idx}"]`
+      );
+      if (!editor) {
+        console.warn(`No editor found for idx ${idx}`);
+        return;
+      }
 
-    const productTypeSel = document.getElementById(`product-type-${idx}`);
-    const spdvSel = document.getElementById(`spdv-type-${idx}`);
-    const regionSel = lang === "vi" ? document.getElementById(`region-${idx}`) : null;
+      const productTypeSel = document.getElementById(`product-type-${idx}`);
+      const spdvSel = document.getElementById(`spdv-type-${idx}`);
+      const regionSel =
+        lang === "vi" ? document.getElementById(`region-${idx}`) : null;
 
-    const productTypeCanonical = productTypeSel?.value || "";
-    const spdvCanonical = spdvSel?.value || "";
-    const regionCanonical = regionSel?.value || "";
+      const productTypeCanonical = productTypeSel?.value || "";
+      const spdvCanonical = spdvSel?.value || "";
+      const regionCanonical = regionSel?.value || "";
 
-    // Gọi các hàm xử lý để cập nhật giá trị
-    if (productTypeCanonical) {
-      handleProductTypeChange(idx, productTypeCanonical);
-    }
-    if (spdvCanonical) {
-      handleSPDVChange(idx, spdvCanonical);
-    }
-    if (lang === "vi" && regionCanonical) {
-      handleRegionChange(idx, regionCanonical);
-    }
-    
-    // Validate và tính hệ số - QUAN TRỌNG: phải đợi handleXXXChange chạy xong
-    setTimeout(() => {
-      const isValid = validateSelections(idx);
-      
-      if (isValid) {
-        const totalCoef = calculateTotalCoefficient(idx);
-        
-        if (totalCoef !== null && !isNaN(totalCoef)) {
-          const totalCoefInput = document.getElementById(`total-coef-${idx}`);
-          if (totalCoefInput) {
-            totalCoefInput.value = totalCoef + "%";
-          } else {
-            console.error(`❌ total-coef-${idx} input not found`);
+      // Gọi các hàm xử lý để cập nhật giá trị
+      if (productTypeCanonical) {
+        handleProductTypeChange(idx, productTypeCanonical);
+      }
+      if (spdvCanonical) {
+        handleSPDVChange(idx, spdvCanonical);
+      }
+      if (lang === "vi" && regionCanonical) {
+        handleRegionChange(idx, regionCanonical);
+      }
+
+      // Validate và tính hệ số - QUAN TRỌNG: phải đợi handleXXXChange chạy xong
+      setTimeout(() => {
+        const isValid = validateSelections(idx);
+
+        if (isValid) {
+          const totalCoef = calculateTotalCoefficient(idx);
+
+          if (totalCoef !== null && !isNaN(totalCoef)) {
+            const totalCoefInput = document.getElementById(`total-coef-${idx}`);
+            if (totalCoefInput) {
+              totalCoefInput.value = totalCoef + "%";
+            } else {
+              console.error(`❌ total-coef-${idx} input not found`);
+            }
           }
         }
-      }
-    }, 50);
-  });
-  
-  // Gọi checkAllocationCoefficients sau khi TẤT CẢ đã được set
-  setTimeout(() => {
-    checkAllocationCoefficients();
-  }, 200);
-}, 150);
+      }, 50);
+    });
+
+    // Gọi checkAllocationCoefficients sau khi TẤT CẢ đã được set
+    setTimeout(() => {
+      checkAllocationCoefficients();
+    }, 200);
+  }, 150);
 
   checkAllocationCoefficients();
 
@@ -444,10 +471,10 @@ setTimeout(() => {
   if (!lockRevenue) {
     listItems.forEach((p, idx) => {
       const isPerpetual = p.package === "perpetual";
-      
+
       // Bỏ qua perpetual vì đã disabled
       if (isPerpetual) return;
-      
+
       const selType = document.getElementById(`alloc-type-${idx}`);
       const sel = document.getElementById(`alloc-count-${idx}`);
       if (!selType || !sel) return;
@@ -646,6 +673,89 @@ function renderAllocationPreview() {
     .join("");
 
   body.innerHTML = html;
+  initPeriodicityDropdown();
+}
+
+function initPeriodicityDropdown() {
+  const select = document.getElementById("periodicity-select");
+  const label = document.getElementById("periodicity-label");
+
+  if (!select || !label) return;
+
+  // Set label theo ngôn ngữ
+  label.textContent = lang === "vi" ? "Chu kỳ hóa đơn:" : "Periodicity:";
+
+  // Set giá trị mặc định
+  const currentPeriodicity = periodicity || "month";
+  select.value = currentPeriodicity;
+
+  // Update options text theo ngôn ngữ
+  if (lang === "vi") {
+    select.innerHTML = `
+      <option value="month">Tháng</option>
+      <option value="quarter">Quý</option>
+      <option value="half-year">Nửa năm</option>
+      <option value="year">Năm</option>
+    `;
+    select.value = currentPeriodicity;
+  }
+
+  // ✅ Lưu giá trị ban đầu để so sánh
+  let initialValue = currentPeriodicity;
+
+  // Lắng nghe sự thay đổi
+  select.addEventListener("change", async function () {
+    const newValue = this.value;
+
+    // ✅ Chỉ update nếu giá trị thay đổi
+    if (newValue === initialValue) {
+      return;
+    }
+
+    // ✅ Hiển thị loading state
+    const originalText = this.options[this.selectedIndex].text;
+    this.disabled = true;
+
+    try {
+      // ✅ Gọi API update
+      const success = await updatePeriodicity(newValue);
+
+      if (success) {
+        // Cập nhật biến global
+        periodicity = newValue;
+        initialValue = newValue; // ✅ Cập nhật giá trị ban đầu
+
+        // Hiển thị thông báo thành công
+        showAlert(
+          lang === "vi"
+            ? `✅ Đã cập nhật chu kỳ hóa đơn thành ${originalText}`
+            : `✅ Periodicity updated to ${originalText}`,
+          "success"
+        );
+        
+      } else {
+        // Rollback nếu update thất bại
+        this.value = initialValue;
+        showAlert(
+          lang === "vi"
+            ? "❌ Cập nhật chu kỳ thất bại"
+            : "❌ Failed to update periodicity",
+          "danger"
+        );
+      }
+    } catch (err) {
+      console.error("Error updating periodicity:", err);
+      this.value = initialValue;
+      showAlert(
+        lang === "vi"
+          ? "❌ Có lỗi xảy ra khi cập nhật"
+          : "❌ An error occurred",
+        "danger"
+      );
+    } finally {
+      this.disabled = false;
+    }
+  });
 }
 
 function updateAllocationTableUI(id) {

@@ -1123,6 +1123,17 @@
           </div>
 
           <div class="modal-footer">
+            <div style="display: flex; align-items: center; gap: 10px; margin-right: auto;">
+              <label style="font-size:12px; font-weight: 600; white-space: nowrap;">
+                <span id="periodicity-label"></span>
+              </label>
+              <select id="periodicity-select" class="form-select form-select-sm" style="width: 150px;">
+                <option value="month">Month</option>
+                <option value="quarter">Quarter</option>
+                <option value="half-year">Half-year</option>
+                <option value="year">Year</option>
+              </select>
+            </div>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
               Close
             </button>
@@ -1136,8 +1147,8 @@
 
   </div>
 
-  <!-- Alert -->
-  <div id="alert-container" style="position:fixed; top:20px; right:20px; z-index:1050; width:300px;"></div>
+    <!-- Alert -->
+    <div id="alert-container" style="position:fixed; top:20px; right:20px; z-index:9999; width:300px;"></div>
 
     <!-- Config -->
     <script defer src="scripts/config/globals.js"></script>
