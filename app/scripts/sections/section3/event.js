@@ -336,7 +336,7 @@ function handleChange(id, index, invoiceValue, acceptanceDateInput) {
     case "quarter":
       periodLength = 3;
       break;
-    case "hale-year":
+    case "half-year":
       periodLength = 6;
       break;
     case "year":
