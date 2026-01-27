@@ -11,11 +11,20 @@ function normalizeRenderItem(item) {
     actualDate: item.actualDate ?? item.actual_date ?? item.facDate ?? null,
     type: item.type || "multi",
     productType: item.productType || "",
-    productTypeValue: (typeof heSoMap !== "undefined" && heSoMap.opportunity && item.productType) ? (heSoMap.opportunity[item.productType]) : "",
+    productTypeValue:
+      typeof heSoMap !== "undefined" && heSoMap.opportunity && item.productType
+        ? heSoMap.opportunity[item.productType]
+        : "",
     spdvType: item.spdvType || "",
-    spdvTypeValue: (typeof heSoMap !== "undefined" && heSoMap.spdv && item.spdvType) ? (heSoMap.spdv[item.spdvType]) : "",
+    spdvTypeValue:
+      typeof heSoMap !== "undefined" && heSoMap.spdv && item.spdvType
+        ? heSoMap.spdv[item.spdvType]
+        : "",
     region: item.region || "",
-    regionValue: (typeof heSoMap !== "undefined" && heSoMap.region && item.region) ? (heSoMap.region[item.region]) : "",
+    regionValue:
+      typeof heSoMap !== "undefined" && heSoMap.region && item.region
+        ? heSoMap.region[item.region]
+        : "",
     currency: item.currency || "đ",
   };
 }
@@ -28,7 +37,8 @@ function saveHeSo(idx) {
   const target = listItems?.[idx] || allocatedItems?.[idx];
   if (target) {
     target.coefficient = totalCoef + "%"; // lưu kèm dấu %
-    target.productType = document.getElementById(`product-type-${idx}`)?.value || "";
+    target.productType =
+      document.getElementById(`product-type-${idx}`)?.value || "";
     target.spdvType = document.getElementById(`spdv-type-${idx}`)?.value || "";
     if (lang === "vi") {
       target.region = document.getElementById(`region-${idx}`)?.value || "";
@@ -46,7 +56,8 @@ function saveHeSo(idx) {
   // 4. Đóng modal nếu có
   const modalEl = document.getElementById(`hesoModal-${idx}`);
   if (modalEl) {
-    const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+    const modalInstance =
+      bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
     modalInstance.hide();
   }
 
@@ -54,12 +65,21 @@ function saveHeSo(idx) {
   setTimeout(() => checkAllocationCoefficients(), 100);
 }
 
-function buildAllocatedRecords(items = [], startFC = (closedDate || expectedCloseDate), startAC = (facDate || "")) {
+function buildAllocatedRecords(
+  items = [],
+  startFC = closedDate || expectedCloseDate,
+  startAC = facDate || ""
+) {
   if (!Array.isArray(items)) return [];
 
   // helper: check valid Date object
-  const isValidDate = d => d instanceof Date && !isNaN(d.getTime());
-  const fmtDate = d => isValidDate(d) ? `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}` : "";
+  const isValidDate = (d) => d instanceof Date && !isNaN(d.getTime());
+  const fmtDate = (d) =>
+    isValidDate(d)
+      ? `${String(d.getDate()).padStart(2, "0")}/${String(
+          d.getMonth() + 1
+        ).padStart(2, "0")}/${d.getFullYear()}`
+      : "";
 
   // helper: compute discount
   function computeDiscount(baseValue, subtotal) {
@@ -75,18 +95,20 @@ function buildAllocatedRecords(items = [], startFC = (closedDate || expectedClos
   }
 
   // subtotal tổng để chia tỷ lệ discount
-  const subtotal = items.map(item => {
-    let coef = item.coefficient;
-    if (typeof coef === "string" && coef.trim().endsWith("%")) {
-      coef = parseFloat(coef.replace("%", "").trim());
-    } else {
-      coef = Number(coef);
-      if (isNaN(coef)) coef = 0;
-    }
-    const value = item.allocationValue || 0;
-    const duration = item.allocationDuration || 1;
-    return value * duration * coef / 100;
-  }).reduce((a, b) => a + b, 0);
+  const subtotal = items
+    .map((item) => {
+      let coef = item.coefficient;
+      if (typeof coef === "string" && coef.trim().endsWith("%")) {
+        coef = parseFloat(coef.replace("%", "").trim());
+      } else {
+        coef = Number(coef);
+        if (isNaN(coef)) coef = 0;
+      }
+      const value = item.allocationValue || 0;
+      const duration = item.allocationDuration || 1;
+      return (value * duration * coef) / 100;
+    })
+    .reduce((a, b) => a + b, 0);
 
   const start_FC = startFC ? new Date(startFC) : null;
   const start_AC = startAC ? new Date(startAC) : null;
@@ -96,7 +118,7 @@ function buildAllocatedRecords(items = [], startFC = (closedDate || expectedClos
   // reset expandedAllocatedRecords mỗi lần build lại
   expandedAllocatedRecords.length = 0;
 
-  const compactRecords = items.map(item => {
+  const compactRecords = items.map((item) => {
     const id = item.id;
     const pid = item.pid;
     const name = item.name || "";
@@ -115,7 +137,7 @@ function buildAllocatedRecords(items = [], startFC = (closedDate || expectedClos
       if (isNaN(coef)) coef = 0;
     }
 
-    const baseValue = AllocValue * duration * coef / 100;
+    const baseValue = (AllocValue * duration * coef) / 100;
     const itemValue = computeDiscount(baseValue, subtotal);
     const perMonthValue = (AllocValue * coef) / 100;
     const perMonthVcsValue = AllocValue;
@@ -127,15 +149,17 @@ function buildAllocatedRecords(items = [], startFC = (closedDate || expectedClos
     const anchorDayAC = currAC?.getDate();
 
     // lấy allocations hiện tại nếu có (để lưu override)
-    const existingAlloc = Array.isArray(item.allocations) ? item.allocations : [];
+    const existingAlloc = Array.isArray(item.allocations)
+      ? item.allocations
+      : [];
 
     const allocationOverrides = existingAlloc
       .map((a, i) => ({
         index: i,
         acceptanceDate: a.acceptanceDate || "",
-        invoiceValue: a.invoiceValue || 0
+        invoiceValue: a.invoiceValue || 0,
       }))
-      .filter(o => o.acceptanceDate || o.invoiceValue);
+      .filter((o) => o.acceptanceDate || o.invoiceValue);
 
     // --- build compact record ---
     const compact = {
@@ -155,7 +179,7 @@ function buildAllocatedRecords(items = [], startFC = (closedDate || expectedClos
       vcsValue: perMonthVcsValue,
       forecastValue: perMonthValue,
       actualValue: perMonthValue,
-      allocationOverrides
+      allocationOverrides,
     };
 
     // --- build expanded record (song song) ---
@@ -165,14 +189,19 @@ function buildAllocatedRecords(items = [], startFC = (closedDate || expectedClos
     const origAC = start_AC_valid ? new Date(start_AC_valid) : null;
 
     for (let i = 0; i < duration; i++) {
-      const ov = allocationOverrides.find(o => o.index === i) || {};
-      let fcDate = "", acDate = "";
+      const ov = allocationOverrides.find((o) => o.index === i) || {};
+      let fcDate = "",
+        acDate = "";
 
       if (origFC && isValidDate(origFC)) {
         if (periodType === "month") {
           fcDate = addMonthsFromAnchor(origFC, i);
         } else if (periodType === "year") {
-          fcDate = new Date(origFC.getFullYear() + i, origFC.getMonth(), origFC.getDate());
+          fcDate = new Date(
+            origFC.getFullYear() + i,
+            origFC.getMonth(),
+            origFC.getDate()
+          );
         }
       }
 
@@ -180,7 +209,11 @@ function buildAllocatedRecords(items = [], startFC = (closedDate || expectedClos
         if (periodType === "month") {
           acDate = addMonthsFromAnchor(origAC, i);
         } else if (periodType === "year") {
-          acDate = new Date(origAC.getFullYear() + i, origAC.getMonth(), origAC.getDate());
+          acDate = new Date(
+            origAC.getFullYear() + i,
+            origAC.getMonth(),
+            origAC.getDate()
+          );
         }
       }
 
@@ -191,20 +224,28 @@ function buildAllocatedRecords(items = [], startFC = (closedDate || expectedClos
         actualDate: acDate ? fmtDate(acDate) : "",
         actualValue: perMonthValue,
         acceptanceDate: ov.acceptanceDate || "",
-        invoiceValue: Number(ov.invoiceValue || 0)
+        invoiceValue: Number(ov.invoiceValue || 0),
       });
       if (currFC && isValidDate(currFC)) {
         if (periodType === "month") {
           currFC = addMonthsFromAnchor(currFC, anchorDayFC);
         } else if (periodType === "year") {
-          currFC = new Date(currFC.getFullYear() + 1, currFC.getMonth(), anchorDayFC);
+          currFC = new Date(
+            currFC.getFullYear() + 1,
+            currFC.getMonth(),
+            anchorDayFC
+          );
         }
       }
       if (currAC && isValidDate(currAC)) {
         if (periodType === "month") {
           currAC = addMonthsFromAnchor(currAC, anchorDayAC);
         } else if (periodType === "year") {
-          currAC = new Date(currAC.getFullYear() + 1, currAC.getMonth(), anchorDayAC);
+          currAC = new Date(
+            currAC.getFullYear() + 1,
+            currAC.getMonth(),
+            anchorDayAC
+          );
         }
       }
     }
@@ -218,7 +259,7 @@ function buildAllocatedRecords(items = [], startFC = (closedDate || expectedClos
       currency,
       startForecast: fmtDate(start_FC_valid),
       startActual: fmtDate(start_AC_valid),
-      allocations
+      allocations,
     });
 
     return compact;

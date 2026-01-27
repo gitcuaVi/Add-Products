@@ -703,27 +703,31 @@ function initPeriodicityDropdown() {
   // ✅ Lưu giá trị ban đầu để so sánh
   let initialValue = currentPeriodicity;
 
-  // Lắng nghe sự thay đổi
-  select.addEventListener("change", async function () {
+  // ✅ XÓA TẤT CẢ LISTENER CŨ
+  const newSelect = select.cloneNode(true);
+  select.parentNode.replaceChild(newSelect, select);
+
+  // ✅ THÊM LISTENER MỚI CHO ELEMENT MỚI
+  newSelect.addEventListener("change", async function () {
     const newValue = this.value;
 
-    // ✅ Chỉ update nếu giá trị thay đổi
+    // Chỉ update nếu giá trị thay đổi
     if (newValue === initialValue) {
       return;
     }
 
-    // ✅ Hiển thị loading state
+    // Hiển thị loading state
     const originalText = this.options[this.selectedIndex].text;
     this.disabled = true;
 
     try {
-      // ✅ Gọi API update
+      // Gọi API update
       const success = await updatePeriodicity(newValue);
 
       if (success) {
         // Cập nhật biến global
         periodicity = newValue;
-        initialValue = newValue; // ✅ Cập nhật giá trị ban đầu
+        initialValue = newValue;
 
         // Hiển thị thông báo thành công
         showAlert(
@@ -732,7 +736,7 @@ function initPeriodicityDropdown() {
             : `✅ Periodicity updated to ${originalText}`,
           "success"
         );
-        
+
       } else {
         // Rollback nếu update thất bại
         this.value = initialValue;
