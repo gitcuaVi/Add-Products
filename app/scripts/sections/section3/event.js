@@ -356,8 +356,10 @@ function handleChange(id, index, invoiceValue, acceptanceDateInput) {
 
   // --- 2️⃣ Tính end ngày cho diffDays
   const acceptanceTemp = new Date(acceptanceDate);
+  const actualTemp = new Date(currentActual);
   acceptanceTemp.setDate(acceptanceTemp.getDate() - 1);
-  const end = acceptanceDate > currentActual ? acceptanceTemp : currentActual;
+  actualTemp.setDate(actualTemp.getDate() - 1);
+  const end = acceptanceDate > currentActual ? acceptanceTemp : actualTemp;
 
   // --- 3️⃣ diffDays = end - start + 1
   let diffDays = Math.floor((end - prevActual) / (1000 * 3600 * 24)) + 1;
