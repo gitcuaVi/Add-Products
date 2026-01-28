@@ -516,3 +516,190 @@ async function saveAllocatedRecords() {
     console.error("❌ Lưu phân bổ thất bại:", err);
   }
 }
+
+
+// // ============= HELPER: Confirm Modal =============
+// function showConfirmModal(title, message) {
+//   return new Promise((resolve) => {
+//     // Tạo modal HTML
+//     const modalId = "confirmResetModal";
+//     let modal = document.getElementById(modalId);
+    
+//     // Nếu modal chưa tồn tại, tạo mới
+//     if (!modal) {
+//       const modalHTML = `
+//         <div class="modal fade" id="${modalId}" tabindex="-1" aria-hidden="true">
+//           <div class="modal-dialog modal-dialog-centered">
+//             <div class="modal-content">
+//               <div class="modal-header bg-warning text-dark">
+//                 <h5 class="modal-title" id="${modalId}-title"></h5>
+//                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+//               </div>
+//               <div class="modal-body" id="${modalId}-body"></div>
+//               <div class="modal-footer">
+//                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="${modalId}-cancel">
+//                   ${lang === "vi" ? "Hủy" : "Cancel"}
+//                 </button>
+//                 <button type="button" class="btn btn-danger" id="${modalId}-confirm">
+//                   ${lang === "vi" ? "Xác nhận" : "Confirm"}
+//                 </button>
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+//       `;
+      
+//       document.body.insertAdjacentHTML("beforeend", modalHTML);
+//       modal = document.getElementById(modalId);
+//     }
+    
+//     // Cập nhật nội dung
+//     document.getElementById(`${modalId}-title`).textContent = title;
+//     document.getElementById(`${modalId}-body`).textContent = message;
+    
+//     // Xử lý sự kiện
+//     const confirmBtn = document.getElementById(`${modalId}-confirm`);
+//     const cancelBtn = document.getElementById(`${modalId}-cancel`);
+    
+//     const bsModal = new bootstrap.Modal(modal);
+    
+//     const handleConfirm = () => {
+//       bsModal.hide();
+//       cleanup();
+//       resolve(true);
+//     };
+    
+//     const handleCancel = () => {
+//       bsModal.hide();
+//       cleanup();
+//       resolve(false);
+//     };
+    
+//     const cleanup = () => {
+//       confirmBtn.removeEventListener("click", handleConfirm);
+//       cancelBtn.removeEventListener("click", handleCancel);
+//       modal.removeEventListener("hidden.bs.modal", handleCancel);
+//     };
+    
+//     confirmBtn.addEventListener("click", handleConfirm);
+//     cancelBtn.addEventListener("click", handleCancel);
+//     modal.addEventListener("hidden.bs.modal", handleCancel, { once: true });
+    
+//     bsModal.show();
+//   });
+// }
+
+// // ============= RESET ALLOCATIONS =============
+
+// async function resetAllAllocations() {
+//   // 1. Hiển thị confirmation modal
+//   const confirmTitle = lang === "vi" ? "Xác nhận Reset" : "Confirm Reset";
+//   const confirmMessage = lang === "vi" 
+//     ? "Bạn có chắc chắn muốn reset tất cả dữ liệu phân bổ về ban đầu? Thao tác này không thể hoàn tác." 
+//     : "Are you sure you want to reset all allocation data to original? This action cannot be undone.";
+  
+//   const confirmed = await showConfirmModal(confirmTitle, confirmMessage);
+//   if (!confirmed) {
+//     return;
+//   }
+
+//   try {
+
+//     // 2. Disable nút Reset để tránh click nhiều lần
+//     const resetBtn = document.getElementById("btn-reset-modal");
+//     const originalText = resetBtn ? resetBtn.innerHTML : "";
+//     if (resetBtn) {
+//       resetBtn.disabled = true;
+//       resetBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Resetting...';
+//     }
+
+//     // 3. Rebuild allocatedRecords từ allocatedItems (data gốc từ deal)
+//     const resetRecords = buildAllocatedRecords(
+//       allocatedItems,
+//       closedDate || expectedCloseDate,
+//       facDate || ""
+//     );
+
+//     // 4. Cập nhật lại global variables
+//     allocatedRecords = resetRecords;
+    
+//     // 5. Rebuild expandedAllocatedRecords (clear tất cả override)
+//     expandedAllocatedRecords.length = 0;
+    
+//     allocatedRecords.forEach(rec => {
+//       const allocations = [];
+//       const duration = Number(rec.count) || 1;
+      
+//       // Parse dates
+//       const origFC = dmyToDate(rec.forecastStart);
+//       const origAC = dmyToDate(rec.actualStart);
+      
+//       for (let i = 0; i < duration; i++) {
+//         const fcDate = origFC ? addMonthsFromAnchor(origFC, i) : null;
+//         const acDate = origAC ? addMonthsFromAnchor(origAC, i) : null;
+        
+//         allocations.push({
+//           vcsValue: Number(rec.vcsValue) || 0,
+//           forecastDate: fcDate ? formatDateToDDMMYYYY(fcDate) : "",
+//           forecastValue: Number(rec.forecastValue) || 0,
+//           actualDate: acDate ? formatDateToDDMMYYYY(acDate) : "",
+//           actualValue: Number(rec.actualValue) || 0,
+//           acceptanceDate: "", // ✅ Reset về rỗng
+//           invoiceValue: 0      // ✅ Reset về 0
+//         });
+//       }
+      
+//       expandedAllocatedRecords.push({
+//         id: rec.id,
+//         pid: rec.pid,
+//         name: rec.name,
+//         totalVcsValue: Number(rec.totalVcsValue) || 0,
+//         totalValue: Number(rec.totalValue) || 0,
+//         currency: rec.currency || "đ",
+//         startForecast: rec.forecastStart,
+//         startActual: rec.actualStart,
+//         allocations
+//       });
+      
+//       // ✅ Clear allocationOverrides trong record gốc
+//       rec.allocationOverrides = [];
+//     });
+
+//     // 6. Render lại UI
+//     renderAllocationPreview();
+
+//     // 7. Lưu vào database
+//     await saveAllocatedRecords();
+
+//     // 8. Hiển thị thông báo thành công
+//     showAlert(
+//       lang === "vi" 
+//         ? "✅ Đã reset dữ liệu phân bổ về ban đầu" 
+//         : "✅ Allocation data has been reset to original",
+//       "success"
+//     );
+
+//     // 9. Restore nút Reset
+//     if (resetBtn) {
+//       resetBtn.disabled = false;
+//       resetBtn.innerHTML = originalText;
+//     }
+
+//   } catch (err) {
+//     console.error("❌ Reset allocations failed:", err);
+//     showAlert(
+//       lang === "vi" 
+//         ? "❌ Lỗi khi reset dữ liệu phân bổ" 
+//         : "❌ Error resetting allocation data",
+//       "error"
+//     );
+    
+//     // Restore nút Reset ngay cả khi lỗi
+//     const resetBtn = document.getElementById("btn-reset-modal");
+//     if (resetBtn) {
+//       resetBtn.disabled = false;
+//       const resetText = lang === "vi" ? "Reset" : "Reset";
+//       resetBtn.innerHTML = `<i class="bi bi-arrow-counterclockwise"></i> ${resetText}`;
+//     }
+//   }
+// }

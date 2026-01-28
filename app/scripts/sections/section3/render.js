@@ -689,16 +689,40 @@ function initPeriodicityDropdown() {
   const currentPeriodicity = periodicity || "month";
   select.value = currentPeriodicity;
 
-  // Update options text theo ngôn ngữ
   if (lang === "vi") {
     select.innerHTML = `
-      <option value="month">Tháng</option>
-      <option value="quarter">Quý</option>
-      <option value="half-year">Nửa năm</option>
-      <option value="year">Năm</option>
-    `;
-    select.value = currentPeriodicity;
+    <option value="month" ${
+      currentPeriodicity === "month" ? "selected" : ""
+    }>Tháng</option>
+    <option value="quarter" ${
+      currentPeriodicity === "quarter" ? "selected" : ""
+    }>Quý</option>
+    <option value="half-year" ${
+      currentPeriodicity === "half-year" ? "selected" : ""
+    }>Nửa năm</option>
+    <option value="year" ${
+      currentPeriodicity === "year" ? "selected" : ""
+    }>Năm</option>
+  `;
+  } else {
+    select.innerHTML = `
+    <option value="month" ${
+      currentPeriodicity === "month" ? "selected" : ""
+    }>Month</option>
+    <option value="quarter" ${
+      currentPeriodicity === "quarter" ? "selected" : ""
+    }>Quarter</option>
+    <option value="half-year" ${
+      currentPeriodicity === "half-year" ? "selected" : ""
+    }>Half-year</option>
+    <option value="year" ${
+      currentPeriodicity === "year" ? "selected" : ""
+    }>Year</option>
+  `;
   }
+
+  // Ensure value is set after innerHTML change
+  select.value = currentPeriodicity;
 
   // ✅ Lưu giá trị ban đầu để so sánh
   let initialValue = currentPeriodicity;
@@ -736,7 +760,6 @@ function initPeriodicityDropdown() {
             : `✅ Periodicity updated to ${originalText}`,
           "success"
         );
-
       } else {
         // Rollback nếu update thất bại
         this.value = initialValue;
