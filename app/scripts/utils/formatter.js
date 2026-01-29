@@ -1,58 +1,13 @@
 // formatter.js - Các hàm format dữ liệu
-// function toNumber(text) {
-//   if (!text) return 0;
-//   const cleaned = text
-//     .toString()
-//     .replace(/\s+/g, "")
-//     .replace(/[^\d.,-]/g, "")
-//     .replace(/\./g, "")
-//     .replace(/,/g, "")
-//     .trim();
-//   return Number(cleaned) || 0;
-// }
-
-function toNumber(text, currency) {
+function toNumber(text) {
   if (!text) return 0;
-  
-  // Remove currency symbols and spaces
-  const str = text.toString()
+  const cleaned = text
+    .toString()
     .replace(/\s+/g, "")
-    .replace(/[đ$€£¥₫]/gi, "")
+    .replace(/[^\d.,-]/g, "")
+    .replace(/\./g, "")
+    .replace(/,/g, "")
     .trim();
-  
-  // Detect format based on currency or last separator
-  const lastComma = str.lastIndexOf(",");
-  const lastDot = str.lastIndexOf(".");
-  
-  let cleaned = str;
-  
-  // VND format: 83.333,33 (dot = thousands, comma = decimal)
-  if (currency === "đ" || currency === "VND" || currency === "₫") {
-    cleaned = str
-      .replace(/\./g, "")      // Remove thousand separators (dots)
-      .replace(",", ".");      // Convert decimal comma to dot
-  }
-  // USD/International format: 1,166.667 (comma = thousands, dot = decimal)
-  else if (currency === "$" || currency === "USD") {
-    cleaned = str.replace(/,/g, "");  // Remove thousand separators (commas)
-  }
-  // Auto-detect if currency not provided
-  else {
-    if (lastComma > lastDot) {
-      // Last separator is comma → European format (123.456,78)
-      cleaned = str.replace(/\./g, "").replace(",", ".");
-    } else if (lastDot > lastComma) {
-      // Last separator is dot → US format (123,456.78)
-      cleaned = str.replace(/,/g, "");
-    } else if (lastComma === -1 && lastDot === -1) {
-      // No separators
-      cleaned = str;
-    } else {
-      // Ambiguous - default to US format
-      cleaned = str.replace(/,/g, "");
-    }
-  }
-  
   return Number(cleaned) || 0;
 }
 

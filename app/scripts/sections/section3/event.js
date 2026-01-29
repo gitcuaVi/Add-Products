@@ -290,16 +290,37 @@ function disableAcceptanceEdit(id, index) {
   `;
 }
 
+function calculateTotalDays(startDateStr, months) {
+  // startDateStr: 'dd/mm/yyyy'
+  const [day, month, year] = startDateStr.split('/').map(Number);
+ 
+  // JS month bắt đầu từ 0
+  const startDate = new Date(year, month - 1, day);
+ 
+  const endDate = dayjs(startDate).add(months, 'month');
+  
+ 
+  const oneDay = 24 * 60 * 60 * 1000;
+  const totalDays =
+    Math.round((endDate - startDate) / oneDay) + 1;
+
+  return {
+    startDate,
+    endDate,
+    totalDays
+  };
+}
+
 function handleChange(id, index, invoiceValue, acceptanceDateInput) {
   const recordIndex = expandedAllocatedRecords.findIndex(r => String(r.id) === String(id));
   if (recordIndex === -1) return;
 
   const record = expandedAllocatedRecords[recordIndex];
+
   const allocations = Array.isArray(record.allocations)
     ? record.allocations.map(a => ({ ...a }))
     : [];
   const totalValue = Number(record.totalValue || 0);
-  const perDayValue = totalValue / 365;
 
   // --- Helper: parse string date -> Date
   function toDateOnly(d) {
@@ -351,6 +372,9 @@ function handleChange(id, index, invoiceValue, acceptanceDateInput) {
   const prevActualStr = allocations[prevIndex]?.actualDate;
   const prevActual = toDateOnly(prevActualStr);
   const currentActual = toDateOnly(allocations[index]?.actualDate);
+  const totalDay = calculateTotalDays(allocations[prevIndex].actualDate, record.duration).totalDays;
+
+  const perDayValue = totalValue / totalDay;
 
   if (!prevActual || !acceptanceDate) return;
 
@@ -398,6 +422,7 @@ function handleChange(id, index, invoiceValue, acceptanceDateInput) {
   }
 
   console.table({
+    totalDay,
     periodLength,
     prevIndex,
     prevActual: formatDDMMYYYY(prevActual),

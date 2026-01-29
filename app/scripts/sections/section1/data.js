@@ -241,14 +241,16 @@ async function loadProductsFromDeal() {
               totalVcsValue: Number(r.totalVcsValue ?? 0),
               totalValue: Number(r.totalValue ?? 0),
               currency: r.currency || "đ",
+              duration,
               startForecast: r.forecastStart || r.startForecast,
               startActual: r.actualStart || r.startActual,
               allocations,
             };
 
             allocatedRecords.push(r); // bản gốc (compact)
-            expandedAllocatedRecords.push(expanded); // bản expanded để render
+            expandedAllocatedRecords.push(expanded); // bản expanded để render   
           }
+
         });
       } else {
         allocatedRecords.length = 0;
