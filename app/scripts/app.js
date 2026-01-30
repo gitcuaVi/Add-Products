@@ -192,6 +192,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             row.querySelector("td:nth-child(2)")?.innerText.trim() || "0";
           const allocationValue = toNumber(valueText) || 0;
 
+          console.log({
+            name,
+            valueText,
+            allocationValue,
+          });
+
           const selType = document.getElementById(`alloc-type-${idx}`);
           const sel = document.getElementById(`alloc-count-${idx}`);
           const forecastDate = closedDate

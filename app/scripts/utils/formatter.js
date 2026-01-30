@@ -1,15 +1,18 @@
 // formatter.js - Các hàm format dữ liệu
 function toNumber(text) {
   if (!text) return 0;
+
   const cleaned = text
     .toString()
-    .replace(/\s+/g, "")
-    .replace(/[^\d.,-]/g, "")
-    .replace(/\./g, "")
-    .replace(/,/g, "")
-    .trim();
+    .trim()
+    .replace(/\s+/g, "")          // xoá khoảng trắng
+    .replace(/[^\d.,-]/g, "")     // xoá chữ & ký tự tiền tệ
+    .replace(/\./g, "")           // xoá dấu ngăn cách hàng nghìn
+    .replace(/,/g, ".");          // đổi dấu thập phân
+
   return Number(cleaned) || 0;
 }
+
 
 function formatCurrency(value, currency) {
   const num = Number(value) || 0;
